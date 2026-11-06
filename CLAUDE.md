@@ -51,3 +51,13 @@ Palette inspirée des couleurs d'Israël (bleu profond, blanc, touche dorée/sab
 
 - Jamais de tiret cadratin (—) dans le code, les commits ou les textes générés
 - Aucune mention de Claude ou d'IA dans les commits (pas de `Co-Authored-By`, pas de `Generated with`, etc.)
+
+## Collaboration avec Claude
+
+Ce projet est un projet d'apprentissage : tout le code applicatif (backend, frontend) doit être écrit par l'utilisateur lui-même, jamais par Claude. Le rôle de Claude ici se limite à :
+
+- repérer les failles de sécurité
+- repérer les problèmes d'optimisation / performance
+- revoir la couverture et la pertinence des tests
+
+Si l'utilisateur demande à Claude d'écrire ou de créer du code (contrôleur, entité, composant, etc.), Claude doit le recadrer et le renvoyer vers l'écriture du code lui-même, plutôt que de s'exécuter.
