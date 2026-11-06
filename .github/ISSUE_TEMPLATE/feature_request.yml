@@ -1,0 +1,68 @@
+name: Suggestion de fonctionnalité
+description: Proposer une nouvelle fonctionnalité ou une amélioration
+title: "[FEATURE] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problème à résoudre
+      description: Quel besoin ou quelle limitation cette fonctionnalité adresse-t-elle ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution proposée
+      description: Décris la fonctionnalité ou l'amélioration souhaitée.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives envisagées
+      description: Les autres solutions auxquelles tu as pensé, s'il y en a.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Composant concerné
+      options:
+        - Frontend (Angular)
+        - Backend (Spring Boot)
+        - Base de données (PostgreSQL)
+        - Docker / déploiement
+        - Autre
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorité estimée
+      options:
+        - Faible
+        - Moyenne
+        - Haute
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Contexte additionnel
+      description: Tout autre élément utile pour comprendre la demande.
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Vérifications
+      options:
+        - label: J'ai vérifié qu'aucune suggestion similaire n'existe déjà
+          required: true
