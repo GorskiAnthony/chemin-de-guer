@@ -34,6 +34,8 @@ Les issues marquées [`good first issue`](https://github.com/GorskiAnthony/chemi
 
 Le suivi du projet (milestones, board) est visible sur le [GitHub Project](https://github.com/users/GorskiAnthony/projects/20).
 
+Pour une question générale ou une idée à discuter, passe par les [Discussions](https://github.com/GorskiAnthony/chemin-de-guer/discussions) plutôt que par une issue, qui reste réservée aux bugs et aux demandes de fonctionnalité concrètes.
+
 ## Licence
 
 Distribué sous licence [Apache 2.0](LICENSE).
