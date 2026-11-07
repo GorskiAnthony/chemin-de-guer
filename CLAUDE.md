@@ -12,9 +12,9 @@ Blog personnel racontant un parcours de conversion au judaïsme (guer = converti
 
 Mono-repo, un seul dépôt Git à la racine :
 
-- `backend/` — API REST Spring Boot
-- `frontend/` — SPA Angular
-- `docker-compose.yml` — service `db` (Postgres), `backend`, `frontend` (build Angular servi par nginx, qui proxy `/api/` vers le backend)
+- `backend/` : API REST Spring Boot
+- `frontend/` : SPA Angular
+- `docker-compose.yml` : service `db` (Postgres), `backend`, `frontend` (build Angular servi par nginx, qui proxy `/api/` vers le backend)
 
 Ne pas créer de sous-dépôt Git dans `backend/` ou `frontend/`.
 
@@ -46,6 +46,13 @@ Prévu sur VPS, sans nom de domaine pour l'instant (accès direct par IP en HTTP
 ## Direction design
 
 Palette inspirée des couleurs d'Israël (bleu profond, blanc, touche dorée/sable). Ambiance vivante et chaleureuse, pas de design fade ou minimaliste austère.
+
+## Documentation
+
+Documents de cadrage consultables directement dans le dépôt, sans compte ni outil externe :
+
+- `docs/cahier-des-charges.html` : périmètre, spécifications techniques, exigences, planning
+- `docs/design-system.html` : palette, typographie, composants (boutons, cartes, formulaires)
 
 ## Conventions
 

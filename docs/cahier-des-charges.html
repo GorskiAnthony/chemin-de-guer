@@ -1,0 +1,708 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cahier des charges, Chemin de Guer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #faf7f0;
+    --surface: #ffffff;
+    --surface-alt: #f2ede1;
+    --text: #1c2430;
+    --text-muted: #5f6b7a;
+    --border: #e3dcc9;
+    --accent: #1f3f66;
+    --accent-soft: #e8eef5;
+    --gold: #a9801f;
+    --gold-soft: #f6ecd2;
+    --shadow: 0 1px 2px rgba(28, 36, 48, 0.06), 0 8px 24px rgba(28, 36, 48, 0.05);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #10151d;
+      --surface: #161c26;
+      --surface-alt: #1c2430;
+      --text: #e9e4d6;
+      --text-muted: #9aa5b4;
+      --border: #2a3342;
+      --accent: #89b0de;
+      --accent-soft: #1d2b3d;
+      --gold: #d8b45c;
+      --gold-soft: #2c2715;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Work Sans", -apple-system, "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: "Spectral", Georgia, "Times New Roman", serif;
+    text-wrap: balance;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  a { color: var(--accent); }
+
+  .layout {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 24px 96px;
+  }
+
+  .doc-header {
+    padding: 64px 0 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 14px;
+  }
+
+  .doc-header h1 {
+    font-size: clamp(2.1rem, 4vw, 3.1rem);
+    margin: 0 0 14px;
+    line-height: 1.12;
+  }
+
+  .doc-header .subtitle {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+    max-width: 62ch;
+    margin: 0 0 28px;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.82rem;
+    color: var(--text-muted);
+  }
+
+  .meta-row strong {
+    color: var(--text);
+    font-weight: 500;
+  }
+
+  .status-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--gold-soft);
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .status-chip::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+  }
+
+  .body-grid {
+    display: grid;
+    grid-template-columns: 230px minmax(0, 1fr);
+    gap: 56px;
+    padding-top: 40px;
+    align-items: start;
+  }
+
+  nav.toc {
+    position: sticky;
+    top: 32px;
+    font-size: 0.9rem;
+  }
+
+  nav.toc .toc-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 14px;
+  }
+
+  nav.toc ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border-left: 1px solid var(--border);
+  }
+
+  nav.toc a {
+    display: block;
+    padding: 6px 0 6px 16px;
+    margin-left: -1px;
+    border-left: 2px solid transparent;
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+
+  nav.toc a:hover { color: var(--text); }
+
+  nav.toc a.active {
+    color: var(--accent);
+    border-left-color: var(--accent);
+    font-weight: 500;
+  }
+
+  main {
+    min-width: 0;
+    max-width: 72ch;
+  }
+
+  section.doc-section {
+    padding-top: 56px;
+    scroll-margin-top: 28px;
+  }
+
+  section.doc-section:first-child { padding-top: 0; }
+
+  .section-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 18px;
+  }
+
+  .section-number {
+    font-family: "IBM Plex Mono", monospace;
+    color: var(--gold);
+    font-size: 0.95rem;
+    font-weight: 500;
+  }
+
+  section.doc-section h2 {
+    font-size: 1.5rem;
+    margin: 0;
+  }
+
+  section.doc-section h3 {
+    font-size: 1.1rem;
+    margin: 28px 0 10px;
+  }
+
+  p { margin: 0 0 14px; }
+
+  ul, ol.plain {
+    margin: 0 0 16px;
+    padding-left: 22px;
+  }
+
+  li { margin-bottom: 6px; }
+
+  .lede {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 22px;
+    margin: 18px 0;
+  }
+
+  .callout {
+    background: var(--accent-soft);
+    border: 1px solid var(--accent);
+    border-left-width: 4px;
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 22px 0;
+  }
+
+  .callout .callout-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 10px;
+    font-weight: 500;
+  }
+
+  .callout p:last-child { margin-bottom: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 18px 0;
+    font-size: 0.94rem;
+  }
+
+  caption {
+    text-align: left;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: "IBM Plex Mono", monospace;
+    margin-bottom: 8px;
+  }
+
+  th, td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  thead th {
+    background: var(--surface-alt);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .table-wrap {
+    overflow-x: auto;
+  }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 9px;
+    border-radius: 6px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+  }
+
+  .tag.mvp { background: var(--gold-soft); color: var(--gold); }
+  .tag.backlog { background: var(--surface-alt); color: var(--text-muted); }
+
+  .stack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 18px;
+    margin: 18px 0;
+  }
+
+  .stack-col h4 {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 0 0 12px;
+    font-weight: 500;
+  }
+
+  .stack-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stack-col li {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 0;
+    font-size: 0.9rem;
+  }
+
+  .stack-col li code {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--accent);
+  }
+
+  .phase-list {
+    list-style: none;
+    margin: 18px 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .phase-list li {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 16px;
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .phase-list li:last-child { border-bottom: 1px solid var(--border); }
+
+  .phase-name {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+
+  .phase-name.done { color: var(--gold); }
+
+  .open-points {
+    margin: 18px 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .open-points li {
+    display: flex;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.94rem;
+  }
+
+  .open-points li::before {
+    content: "?";
+    flex: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent-soft);
+    color: var(--accent);
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  footer.doc-footer {
+    margin-top: 64px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 860px) {
+    .body-grid { grid-template-columns: 1fr; gap: 28px; }
+    nav.toc {
+      position: static;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 20px;
+    }
+    nav.toc ol {
+      flex-direction: row;
+      flex-wrap: wrap;
+      border-left: none;
+      gap: 8px;
+    }
+    nav.toc a {
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      padding: 5px 12px;
+      margin-left: 0;
+    }
+    nav.toc a.active { border-color: var(--accent); }
+  }
+
+  @media print {
+    nav.toc { display: none; }
+    .body-grid { grid-template-columns: 1fr; }
+    body { background: #fff; color: #000; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    nav.toc a { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <header class="doc-header">
+    <p class="eyebrow">Cahier des charges &middot; version 0.1</p>
+    <h1>Chemin de Guer</h1>
+    <p class="subtitle">Blog personnel retraçant un parcours de conversion au judaïsme, conçu en parallèle comme un projet d'apprentissage approfondi de Java et Angular dans leurs dernières versions stables.</p>
+    <div class="meta-row">
+      <span>Porteur du projet : <strong>Anthony Gorski</strong></span>
+      <span>Date : <strong>7 novembre 2026</strong></span>
+      <span class="status-chip">En attente de validation</span>
+    </div>
+  </header>
+
+  <div class="body-grid">
+    <nav class="toc" aria-label="Sommaire">
+      <p class="toc-label">Sommaire</p>
+      <ol id="toc-list">
+        <li><a href="#presentation">01 &middot; Présentation</a></li>
+        <li><a href="#public">02 &middot; Public cible</a></li>
+        <li><a href="#perimetre">03 &middot; Périmètre fonctionnel</a></li>
+        <li><a href="#technique">04 &middot; Spécifications techniques</a></li>
+        <li><a href="#non-fonctionnel">05 &middot; Exigences non fonctionnelles</a></li>
+        <li><a href="#shabbat">06 &middot; Fermeture pendant Shabbat</a></li>
+        <li><a href="#design">07 &middot; Direction artistique</a></li>
+        <li><a href="#gouvernance">08 &middot; Gouvernance et open source</a></li>
+        <li><a href="#roles">09 &middot; Répartition des rôles</a></li>
+        <li><a href="#planning">10 &middot; Planning indicatif</a></li>
+        <li><a href="#validation">11 &middot; Critères de validation</a></li>
+        <li><a href="#ouverts">12 &middot; Points ouverts</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <section class="doc-section" id="presentation">
+        <div class="section-head"><span class="section-number">01</span><h2>Présentation du projet</h2></div>
+        <p class="lede">Chemin de Guer (guer : converti, en hébreu) est un blog personnel qui documente un parcours de conversion au judaïsme. Le terme désigne directement la démarche racontée, plutôt qu'un simple jeu de mots.</p>
+        <p>Le projet s'inspire, sans le reproduire, de sites existants sur le même sujet comme maconversionaujudaisme.com. Il poursuit trois objectifs distincts :</p>
+        <ul>
+          <li><strong>Éditorial :</strong> offrir un espace de publication durable pour partager ce témoignage et les étapes du parcours.</li>
+          <li><strong>Pédagogique :</strong> servir de terrain d'apprentissage complet à Spring Boot 4 et Angular 22, de la conception à la mise en production, sécurité et tests inclus.</li>
+          <li><strong>Communautaire :</strong> être publié en open source une fois le socle fonctionnel stabilisé, pour être rejoué, critiqué ou réutilisé par d'autres développeurs.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="public">
+        <div class="section-head"><span class="section-number">02</span><h2>Public cible</h2></div>
+        <p>Deux publics distincts, aux attentes différentes :</p>
+        <ul>
+          <li><strong>Lecteurs du blog :</strong> personnes concernées ou intéressées par un parcours de conversion, la pratique juive au quotidien, ou le judaïsme plus largement. Public francophone en priorité.</li>
+          <li><strong>Contributeurs potentiels :</strong> développeurs curieux du code source une fois le dépôt ouvert, intéressés par la stack technique ou par le sujet du projet.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="perimetre">
+        <div class="section-head"><span class="section-number">03</span><h2>Périmètre fonctionnel</h2></div>
+        <h3>Fonctionnalités de la version 1</h3>
+        <div class="table-wrap">
+          <table>
+            <caption>Fonctionnalités retenues et écartées pour la V1</caption>
+            <thead>
+              <tr><th>Fonctionnalité</th><th>Description</th><th>Statut</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Consultation publique</td><td>Liste des articles, page de détail, navigation par tag</td><td><span class="tag mvp">MVP</span></td></tr>
+              <tr><td>Back-office authentifié</td><td>Créer, éditer, publier, dépublier et supprimer un article</td><td><span class="tag mvp">MVP</span></td></tr>
+              <tr><td>Tags et catégories</td><td>Classement thématique des articles</td><td><span class="tag mvp">MVP</span></td></tr>
+              <tr><td>Commentaires</td><td>Réaction des lecteurs sous un article, avec modération</td><td><span class="tag mvp">MVP</span></td></tr>
+              <tr><td>Recherche</td><td>Recherche plein texte sur le contenu des articles</td><td><span class="tag mvp">MVP</span></td></tr>
+              <tr><td>Référencement</td><td>Sitemap, meta tags, URLs propres</td><td><span class="tag mvp">MVP</span></td></tr>
+              <tr><td>Fermeture pendant Shabbat</td><td>Page dédiée affichée à la place du contenu (détail section 06)</td><td><span class="tag mvp">MVP</span></td></tr>
+              <tr><td>Multilingue FR / EN</td><td>Traduction du contenu et de l'interface</td><td><span class="tag backlog">Backlog</span></td></tr>
+              <tr><td>Newsletter</td><td>Notification des lecteurs à chaque nouvelle publication</td><td><span class="tag backlog">Backlog</span></td></tr>
+              <tr><td>Statistiques d'audience</td><td>Suivi de fréquentation respectueux de la vie privée</td><td><span class="tag backlog">Backlog</span></td></tr>
+              <tr><td>Application mobile</td><td>Client natif ou PWA dédiée</td><td><span class="tag backlog">Backlog</span></td></tr>
+              <tr><td>Soutien financier</td><td>Don ponctuel des lecteurs</td><td><span class="tag backlog">Backlog</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="technique">
+        <div class="section-head"><span class="section-number">04</span><h2>Spécifications techniques</h2></div>
+        <h3>Architecture</h3>
+        <p>Mono-repo unique contenant un dossier <code>backend/</code> (API REST), un dossier <code>frontend/</code> (application cliente) et un <code>docker-compose.yml</code> orchestrant base de données, API et client pour le développement comme pour la production.</p>
+        <h3>Stack retenue</h3>
+        <div class="stack-grid">
+          <div class="stack-col">
+            <h4>Backend</h4>
+            <ul>
+              <li><span>Java</span><code>21 LTS</code></li>
+              <li><span>Spring Boot</span><code>4.0</code></li>
+              <li><span>Spring Data JPA</span></li>
+              <li><span>Spring Security</span></li>
+              <li><span>PostgreSQL</span><code>16</code></li>
+              <li><span>Maven</span></li>
+            </ul>
+          </div>
+          <div class="stack-col">
+            <h4>Frontend</h4>
+            <ul>
+              <li><span>Angular</span><code>22</code></li>
+              <li><span>Standalone components</span></li>
+              <li><span>Signals</span></li>
+              <li><span>SCSS</span></li>
+            </ul>
+          </div>
+          <div class="stack-col">
+            <h4>Infrastructure</h4>
+            <ul>
+              <li><span>Docker</span></li>
+              <li><span>Docker Compose</span></li>
+              <li><span>VPS Linux</span></li>
+            </ul>
+          </div>
+        </div>
+        <h3>Modèle de données (vue haut niveau)</h3>
+        <div class="table-wrap">
+          <table>
+            <caption>Entités principales</caption>
+            <thead><tr><th>Entité</th><th>Champs principaux</th></tr></thead>
+            <tbody>
+              <tr><td>Article</td><td>id, titre, slug, contenu, statut, date de publication, tags</td></tr>
+              <tr><td>Tag</td><td>id, nom, slug</td></tr>
+              <tr><td>Commentaire</td><td>id, article associé, auteur, contenu, statut de modération, date</td></tr>
+              <tr><td>Utilisateur</td><td>id, email, mot de passe haché, rôle</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Authentification</h3>
+        <p>Back-office protégé par une authentification unique (un seul rôle administrateur dans un premier temps, le porteur du projet étant l'unique auteur). Le mécanisme précis (session Spring Security ou JWT) reste à trancher au moment de l'implémentation.</p>
+        <h3>Déploiement</h3>
+        <p>Développement local via Docker Compose. Mise en production sur un VPS Linux (OVH, Hetzner ou Scaleway), accessible dans un premier temps directement par son adresse IP en HTTP, faute de nom de domaine. Un reverse proxy (Traefik ou nginx) avec certificat HTTPS via Let's Encrypt sera mis en place dès l'acquisition d'un nom de domaine.</p>
+      </section>
+
+      <section class="doc-section" id="non-fonctionnel">
+        <div class="section-head"><span class="section-number">05</span><h2>Exigences non fonctionnelles</h2></div>
+        <h3>Sécurité</h3>
+        <p>Protection contre les vulnérabilités courantes (injection, XSS, CSRF), hachage des mots de passe, validation systématique des entrées utilisateur, limitation du débit sur les points d'entrée sensibles (connexion, dépôt de commentaire).</p>
+        <h3>Performance</h3>
+        <p>Chargement de la page d'accueil en moins de deux secondes sur une connexion standard. Pagination des listes d'articles et de commentaires.</p>
+        <h3>Accessibilité</h3>
+        <p>Respect des bases du niveau AA des WCAG : contrastes suffisants, navigation au clavier, alternatives textuelles sur les images.</p>
+        <h3>Compatibilité</h3>
+        <p>Support des deux dernières versions majeures de Chrome, Firefox, Safari et Edge. Affichage responsive sur mobile, tablette et ordinateur.</p>
+        <h3>Qualité et tests</h3>
+        <p>Couverture de tests sur la logique métier critique (authentification, cycle de vie d'un article, fermeture pendant Shabbat) et tests d'intégration sur les points d'entrée de l'API.</p>
+      </section>
+
+      <section class="doc-section" id="shabbat">
+        <div class="section-head"><span class="section-number">06</span><h2>Fermeture automatique pendant Shabbat</h2></div>
+        <p>Fonctionnalité distinctive du projet : le site se ferme de lui-même pendant le Shabbat, sans intervention manuelle.</p>
+        <div class="callout">
+          <p class="callout-label">Spécification</p>
+          <p><strong>Objectif :</strong> pendant la fenêtre du Shabbat, toutes les routes publiques affichent une page dédiée ("fermé pour Shabbat, retour après Havdala") à la place du contenu habituel.</p>
+          <p><strong>Calcul des horaires :</strong> les heures d'entrée (allumage des bougies) et de sortie (Havdala) sont récupérées via une API de type Hebcal, pour une ville de référence à définir.</p>
+          <p><strong>Marge de sécurité :</strong> une marge configurable peut être appliquée avant l'heure officielle d'entrée du Shabbat.</p>
+          <p>Le contenu redevient accessible automatiquement à la sortie du Shabbat, sans action manuelle du porteur du projet.</p>
+        </div>
+      </section>
+
+      <section class="doc-section" id="design">
+        <div class="section-head"><span class="section-number">07</span><h2>Direction artistique</h2></div>
+        <p>Palette inspirée des couleurs du drapeau israélien (bleu profond, blanc, touche dorée ou sable), pour une ambiance vivante et chaleureuse, à l'opposé d'un minimalisme froid.</p>
+        <p>Les maquettes détaillées sont disponibles dans le <a href="design-system.html">système de design</a>.</p>
+      </section>
+
+      <section class="doc-section" id="gouvernance">
+        <div class="section-head"><span class="section-number">08</span><h2>Gouvernance et open source</h2></div>
+        <p>Le code source sera publié en open source une fois le socle fonctionnel stabilisé. Le dépôt dispose déjà de modèles d'issues (bug, fonctionnalité) et de pull request pour cadrer les contributions futures.</p>
+        <p>Convention de commit : messages rédigés en français, sans tiret cadratin, sans aucune attribution à un outil d'intelligence artificielle.</p>
+        <div class="card">
+          <strong>Licence proposée :</strong> MIT (licence permissive courante pour un projet personnel ouvert à la contribution). À valider formellement par le porteur du projet avant la publication.
+        </div>
+      </section>
+
+      <section class="doc-section" id="roles">
+        <div class="section-head"><span class="section-number">09</span><h2>Répartition des rôles</h2></div>
+        <p>L'intégralité du code applicatif (backend et frontend) est écrite par le porteur du projet, dans une démarche d'apprentissage assumée. Toute assistance extérieure, y compris par intelligence artificielle, se limite à la revue : sécurité, performance et tests. Aucune ligne de code applicatif n'est produite par un tiers.</p>
+      </section>
+
+      <section class="doc-section" id="planning">
+        <div class="section-head"><span class="section-number">10</span><h2>Planning indicatif</h2></div>
+        <p>Planning par phases fonctionnelles plutôt que par dates fixes, le projet avançant au rythme de l'apprentissage.</p>
+        <ul class="phase-list">
+          <li><span class="phase-name done">Phase 0, fait</span><span>Cadrage du projet et rédaction de ce cahier des charges</span></li>
+          <li><span class="phase-name done">Phase 1, fait</span><span>Socle technique : structure mono-repo, Docker Compose, modèles d'issues et de pull request</span></li>
+          <li><span class="phase-name">Phase 2</span><span>Back-office : authentification et gestion complète des articles</span></li>
+          <li><span class="phase-name">Phase 3</span><span>Fonctionnalités publiques : tags, recherche, commentaires, référencement</span></li>
+          <li><span class="phase-name">Phase 4</span><span>Fermeture automatique pendant Shabbat</span></li>
+          <li><span class="phase-name">Phase 5</span><span>Déploiement sur VPS et durcissement sécurité</span></li>
+          <li><span class="phase-name">Phase 6</span><span>Publication du dépôt en open source</span></li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="validation">
+        <div class="section-head"><span class="section-number">11</span><h2>Critères de validation de la V1</h2></div>
+        <ul>
+          <li>Un visiteur peut consulter, filtrer par tag et rechercher des articles publiés.</li>
+          <li>Un administrateur authentifié peut créer, modifier, publier et supprimer un article.</li>
+          <li>Un visiteur peut commenter un article, le commentaire passant par une étape de modération.</li>
+          <li>Le site devient inaccessible publiquement pendant la fenêtre de Shabbat calculée automatiquement, et redevient accessible de lui-même ensuite.</li>
+          <li>Le site est déployé et accessible sur le VPS de production.</li>
+          <li>Aucune faille de sécurité critique n'est identifiée lors de la revue.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="ouverts">
+        <div class="section-head"><span class="section-number">12</span><h2>Points ouverts</h2></div>
+        <p>Décisions restant à prendre avant ou pendant le développement :</p>
+        <ul class="open-points">
+          <li>Ville de référence utilisée pour le calcul des horaires de Shabbat.</li>
+          <li>Mécanisme d'authentification définitif pour le back-office (session ou JWT).</li>
+          <li>Validation formelle de la licence open source (MIT proposée).</li>
+          <li>Choix définitif du nom de domaine et de l'hébergeur VPS.</li>
+        </ul>
+      </section>
+
+      <footer class="doc-footer">
+        <p>Document de cadrage destiné à être présenté et validé avant le début du développement des fonctionnalités. Toute modification de périmètre après validation fera l'objet d'une nouvelle version de ce document.</p>
+      </footer>
+    </main>
+  </div>
+</div>
+
+<script>
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('#toc-list a'));
+    var sections = links.map(function (link) {
+      return document.querySelector(link.getAttribute('href'));
+    });
+
+    if (!('IntersectionObserver' in window)) return;
+
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        var id = entry.target.getAttribute('id');
+        var link = links.find(function (l) { return l.getAttribute('href') === '#' + id; });
+        if (!link) return;
+        if (entry.isIntersecting) {
+          links.forEach(function (l) { l.classList.remove('active'); });
+          link.classList.add('active');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px', threshold: 0 });
+
+    sections.forEach(function (section) {
+      if (section) observer.observe(section);
+    });
+  })();
+</script>
+</body>
+</html>

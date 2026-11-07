@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Système de design, Chemin de Guer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;500;600;700;900&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ece6d6;
+    --surface: #ffffff;
+    --surface-raised: #f7f2e4;
+    --ink: #1b2635;
+    --ink-muted: #5d6a7a;
+    --border: #d9cfb2;
+    --blue: #15335c;
+    --blue-strong: #0b1f3c;
+    --blue-soft: #e3e9f1;
+    --gold: #a9801f;
+    --gold-soft: #f1e3bd;
+    --shadow: 0 1px 2px rgba(27, 38, 53, 0.08), 0 10px 28px rgba(27, 38, 53, 0.08);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0d1420;
+      --surface: #141d2c;
+      --surface-raised: #1a2538;
+      --ink: #ece6d6;
+      --ink-muted: #96a2b4;
+      --border: #273048;
+      --blue: #7fa6d9;
+      --blue-strong: #a9c6ea;
+      --blue-soft: #1b2942;
+      --gold: #dcb75f;
+      --gold-soft: #2c2512;
+      --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Work Sans", -apple-system, "Segoe UI", sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .stripe {
+    height: 7px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--blue) 0 28px,
+      var(--surface) 28px 34px,
+      var(--blue) 34px 62px,
+      var(--surface) 62px 68px,
+      var(--gold) 68px 72px,
+      var(--surface) 72px 78px
+    );
+  }
+
+  .wrap {
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 28px 110px;
+  }
+
+  header.hero {
+    padding: 72px 0 40px;
+    text-align: center;
+  }
+
+  .hebrew {
+    font-family: "Frank Ruhl Libre", serif;
+    font-size: 1.3rem;
+    color: var(--gold);
+    direction: rtl;
+    margin: 0 0 6px;
+  }
+
+  .hero-caption {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin: 0 0 28px;
+  }
+
+  h1.wordmark {
+    font-family: "Frank Ruhl Libre", serif;
+    font-weight: 700;
+    font-size: clamp(2.6rem, 7vw, 4.6rem);
+    margin: 0;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+
+  .hero-sub {
+    max-width: 52ch;
+    margin: 18px auto 0;
+    color: var(--ink-muted);
+    font-size: 1.05rem;
+  }
+
+  section.block {
+    padding-top: 72px;
+  }
+
+  .block-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 26px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 14px;
+  }
+
+  .block-head h2 {
+    font-family: "Frank Ruhl Libre", serif;
+    font-size: 1.7rem;
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .block-head .block-note {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+  }
+
+  p.intro {
+    color: var(--ink-muted);
+    max-width: 62ch;
+    margin: 0 0 28px;
+  }
+
+  /* Palette */
+  .palette-groups {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+
+  .palette-group h3 {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin: 0 0 12px;
+    font-weight: 500;
+  }
+
+  .swatch-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .swatch {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+  }
+
+  .swatch .chip {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    flex: none;
+    border: 1px solid rgba(0,0,0,0.08);
+  }
+
+  .swatch .label {
+    font-size: 0.92rem;
+  }
+
+  .swatch .hex {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    color: var(--ink-muted);
+    margin-left: auto;
+  }
+
+  /* Typography */
+  .type-sample {
+    margin-bottom: 26px;
+  }
+
+  .type-sample .tag-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin: 0 0 6px;
+  }
+
+  .display-xl {
+    font-family: "Frank Ruhl Libre", serif;
+    font-weight: 700;
+    font-size: clamp(2rem, 5vw, 3.1rem);
+    margin: 0;
+    text-wrap: balance;
+  }
+
+  .display-l {
+    font-family: "Frank Ruhl Libre", serif;
+    font-weight: 600;
+    font-size: 1.9rem;
+    margin: 0;
+  }
+
+  .display-m {
+    font-family: "Frank Ruhl Libre", serif;
+    font-weight: 600;
+    font-size: 1.4rem;
+    margin: 0;
+  }
+
+  .body-l {
+    font-size: 1.08rem;
+    max-width: 62ch;
+    margin: 0;
+  }
+
+  .mono-label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.85rem;
+    color: var(--ink-muted);
+    margin: 0;
+  }
+
+  /* Buttons */
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
+
+  .btn {
+    font-family: "Work Sans", sans-serif;
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 11px 22px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    cursor: pointer;
+  }
+
+  .btn-primary { background: var(--blue); color: #fff; }
+  .btn-primary.is-hover { background: var(--blue-strong); }
+  .btn-secondary { background: transparent; color: var(--blue); border-color: var(--blue); }
+  .btn-secondary.is-hover { background: var(--blue-soft); }
+  .btn-gold { background: var(--gold); color: #2a2106; }
+  .btn-ghost { background: transparent; color: var(--ink-muted); border-color: var(--border); }
+  .btn[disabled] { opacity: 0.45; cursor: not-allowed; }
+
+  .state-label {
+    display: block;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.7rem;
+    color: var(--ink-muted);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .btn-stack { display: flex; flex-direction: column; align-items: center; }
+
+  /* Forms */
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    max-width: 640px;
+  }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  .field label {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+  }
+
+  .field input, .field textarea, .field select {
+    font-family: "Work Sans", sans-serif;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--ink);
+  }
+
+  .field textarea { resize: vertical; min-height: 80px; }
+
+  .toggle-row { display: flex; align-items: center; gap: 10px; }
+
+  .toggle {
+    width: 40px;
+    height: 22px;
+    border-radius: 999px;
+    background: var(--blue);
+    position: relative;
+    flex: none;
+  }
+
+  .toggle::after {
+    content: "";
+    position: absolute;
+    top: 2px; right: 2px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #fff;
+  }
+
+  /* Tags and badges */
+  .tag-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 13px;
+    border-radius: 999px;
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.78rem;
+    background: var(--blue-soft);
+    color: var(--blue);
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 11px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 500;
+  }
+
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; }
+  .badge.published { background: var(--gold-soft); color: var(--gold); }
+  .badge.published::before { background: var(--gold); }
+  .badge.draft { background: var(--surface-raised); color: var(--ink-muted); border: 1px solid var(--border); }
+  .badge.draft::before { background: var(--ink-muted); }
+  .badge.pending { background: var(--blue-soft); color: var(--blue); }
+  .badge.pending::before { background: var(--blue); }
+
+  /* Article cards */
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .article-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .article-card .card-stripe {
+    height: 4px;
+    background: linear-gradient(90deg, var(--blue), var(--gold));
+  }
+
+  .article-card .card-body { padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+
+  .article-card .card-date {
+    font-family: "IBM Plex Mono", monospace;
+    font-size: 0.72rem;
+    color: var(--ink-muted);
+  }
+
+  .article-card h3 {
+    font-family: "Frank Ruhl Libre", serif;
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  .article-card p { margin: 0; color: var(--ink-muted); font-size: 0.92rem; flex: 1; }
+
+  .article-card .card-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* Comment */
+  .comment {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 8px;
+    padding: 16px 18px;
+    max-width: 640px;
+  }
+
+  .comment .comment-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .comment .author { font-weight: 600; font-size: 0.92rem; }
+  .comment .date { font-family: "IBM Plex Mono", monospace; font-size: 0.75rem; color: var(--ink-muted); }
+  .comment p { margin: 0; font-size: 0.94rem; }
+
+  /* Nav */
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 22px;
+    box-shadow: var(--shadow);
+  }
+
+  .navbar .brand {
+    font-family: "Frank Ruhl Libre", serif;
+    font-weight: 600;
+    font-size: 1.15rem;
+  }
+
+  .navbar nav { display: flex; gap: 22px; font-size: 0.92rem; }
+  .navbar nav a { color: var(--ink-muted); text-decoration: none; }
+  .navbar nav a.current { color: var(--blue); font-weight: 600; }
+
+  /* Shabbat banner */
+  .shabbat-banner {
+    background: var(--blue);
+    color: #f3efe2;
+    border-radius: 12px;
+    padding: 34px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shabbat-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(135deg, rgba(255,255,255,0.04) 0 10px, transparent 10px 20px);
+  }
+
+  .shabbat-banner .inner { position: relative; max-width: 50ch; }
+
+  .shabbat-banner .flame {
+    width: 14px;
+    height: 20px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    background: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .shabbat-banner h3 {
+    font-family: "Frank Ruhl Libre", serif;
+    font-size: 1.5rem;
+    margin: 0 0 10px;
+  }
+
+  .shabbat-banner p { margin: 0; opacity: 0.88; }
+
+  /* Spacing scale */
+  .spacing-list { display: flex; flex-direction: column; gap: 10px; }
+  .spacing-row { display: flex; align-items: center; gap: 16px; }
+  .spacing-row .bar { height: 14px; background: var(--gold); border-radius: 3px; }
+  .spacing-row .mono-label { width: 90px; flex: none; }
+
+  footer.note {
+    margin-top: 80px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    color: var(--ink-muted);
+    font-size: 0.88rem;
+    max-width: 62ch;
+  }
+
+  @media (max-width: 680px) {
+    .palette-groups, .form-grid { grid-template-columns: 1fr; }
+    .navbar { flex-direction: column; gap: 14px; align-items: flex-start; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { scroll-behavior: auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stripe"></div>
+
+<div class="wrap">
+  <header class="hero">
+    <p class="hebrew">גר</p>
+    <p class="hero-caption">Système de design &middot; Chemin de Guer</p>
+    <h1 class="wordmark">Chemin de Guer</h1>
+    <p class="hero-sub">Une identité pensée pour un carnet de route : chaleureuse comme un témoignage, précise comme une étude. Bleu profond et or, hérités du drapeau, posés sur un fond couleur pierre de Jérusalem.</p>
+  </header>
+
+  <section class="block" id="palette">
+    <div class="block-head"><h2>Palette</h2><span class="block-note">6 teintes nommées</span></div>
+    <p class="intro">Le bleu profond porte l'autorité du texte et des actions principales. L'or souligne ce qui mérite d'être remarqué : statuts, accents, la bannière de Shabbat. La pierre remplace le blanc pur comme fond, pour une lecture plus chaude.</p>
+    <div class="palette-groups">
+      <div class="palette-group">
+        <h3>Mode clair</h3>
+        <div class="swatch-list">
+          <div class="swatch"><span class="chip" style="background:#ece6d6"></span><span class="label">Pierre (fond)</span><span class="hex">#ECE6D6</span></div>
+          <div class="swatch"><span class="chip" style="background:#ffffff"></span><span class="label">Surface</span><span class="hex">#FFFFFF</span></div>
+          <div class="swatch"><span class="chip" style="background:#15335c"></span><span class="label">Bleu de Jérusalem</span><span class="hex">#15335C</span></div>
+          <div class="swatch"><span class="chip" style="background:#a9801f"></span><span class="label">Or antique</span><span class="hex">#A9801F</span></div>
+          <div class="swatch"><span class="chip" style="background:#1b2635"></span><span class="label">Encre (texte)</span><span class="hex">#1B2635</span></div>
+          <div class="swatch"><span class="chip" style="background:#d9cfb2"></span><span class="label">Bordure</span><span class="hex">#D9CFB2</span></div>
+        </div>
+      </div>
+      <div class="palette-group">
+        <h3>Mode sombre</h3>
+        <div class="swatch-list">
+          <div class="swatch"><span class="chip" style="background:#0d1420"></span><span class="label">Nuit (fond)</span><span class="hex">#0D1420</span></div>
+          <div class="swatch"><span class="chip" style="background:#141d2c"></span><span class="label">Surface</span><span class="hex">#141D2C</span></div>
+          <div class="swatch"><span class="chip" style="background:#7fa6d9"></span><span class="label">Bleu clair</span><span class="hex">#7FA6D9</span></div>
+          <div class="swatch"><span class="chip" style="background:#dcb75f"></span><span class="label">Or clair</span><span class="hex">#DCB75F</span></div>
+          <div class="swatch"><span class="chip" style="background:#ece6d6"></span><span class="label">Parchemin (texte)</span><span class="hex">#ECE6D6</span></div>
+          <div class="swatch"><span class="chip" style="background:#273048"></span><span class="label">Bordure</span><span class="hex">#273048</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="typo">
+    <div class="block-head"><h2>Typographie</h2><span class="block-note">Frank Ruhl Libre &middot; Work Sans &middot; IBM Plex Mono</span></div>
+    <p class="intro">Frank Ruhl Libre porte les titres : une linotype pensée à l'origine pour l'hébreu, adaptée à l'alphabet latin, qui ancre le blog dans son sujet sans artifice. Work Sans prend le relais pour la lecture longue. IBM Plex Mono marque les métadonnées : dates, statuts, étiquettes.</p>
+    <div class="type-sample"><p class="tag-label">Display XL, titre d'article</p><p class="display-xl">Le jour où j'ai poussé la porte de la synagogue</p></div>
+    <div class="type-sample"><p class="tag-label">Display L, titre de section</p><p class="display-l">Apprendre l'hébreu à trente ans</p></div>
+    <div class="type-sample"><p class="tag-label">Display M, sous-titre</p><p class="display-m">Ce que le Beth Din m'a vraiment demandé</p></div>
+    <div class="type-sample"><p class="tag-label">Body, texte courant</p><p class="body-l">Je ne m'attendais pas à ce que la première question du rabbin porte sur mon quotidien plutôt que sur mes convictions. C'est souvent par les détails les plus simples que commence un vrai parcours.</p></div>
+    <div class="type-sample"><p class="tag-label">Mono, métadonnées</p><p class="mono-label">Publié le 12 mars 2026 &middot; 6 min de lecture</p></div>
+  </section>
+
+  <section class="block" id="buttons">
+    <div class="block-head"><h2>Boutons</h2><span class="block-note">4 variantes</span></div>
+    <div class="row">
+      <div class="btn-stack"><button class="btn btn-primary">Publier l'article</button><span class="state-label">primaire</span></div>
+      <div class="btn-stack"><button class="btn btn-primary is-hover">Publier l'article</button><span class="state-label">primaire, survol</span></div>
+      <div class="btn-stack"><button class="btn btn-secondary">Enregistrer le brouillon</button><span class="state-label">secondaire</span></div>
+      <div class="btn-stack"><button class="btn btn-gold">Se connecter</button><span class="state-label">accent or</span></div>
+      <div class="btn-stack"><button class="btn btn-ghost">Annuler</button><span class="state-label">discret</span></div>
+      <div class="btn-stack"><button class="btn btn-primary" disabled>Publier l'article</button><span class="state-label">désactivé</span></div>
+    </div>
+  </section>
+
+  <section class="block" id="forms">
+    <div class="block-head"><h2>Champs de formulaire</h2><span class="block-note">back-office</span></div>
+    <div class="form-grid">
+      <div class="field"><label>Titre de l'article</label><input type="text" value="Le jour où j'ai poussé la porte de la synagogue"></div>
+      <div class="field"><label>Statut</label><select><option>Brouillon</option><option>Publié</option></select></div>
+      <div class="field" style="grid-column: 1 / -1;"><label>Contenu</label><textarea>Je ne m'attendais pas à ce que la première question du rabbin porte sur mon quotidien...</textarea></div>
+      <div class="field"><label>Commentaires</label><div class="toggle-row"><span class="toggle"></span><span class="mono-label">Autorisés sur cet article</span></div></div>
+    </div>
+  </section>
+
+  <section class="block" id="tags">
+    <div class="block-head"><h2>Étiquettes et statuts</h2><span class="block-note">tags &middot; badges</span></div>
+    <div class="row" style="margin-bottom: 18px;">
+      <span class="tag-pill">#Conversion</span>
+      <span class="tag-pill">#Shabbat</span>
+      <span class="tag-pill">#Hébreu</span>
+      <span class="tag-pill">#Beth-Din</span>
+      <span class="tag-pill">#Communauté</span>
+    </div>
+    <div class="row">
+      <span class="badge published">Publié</span>
+      <span class="badge draft">Brouillon</span>
+      <span class="badge pending">En attente de modération</span>
+    </div>
+  </section>
+
+  <section class="block" id="cards">
+    <div class="block-head"><h2>Carte d'article</h2><span class="block-note">liste publique</span></div>
+    <div class="card-grid">
+      <article class="article-card">
+        <div class="card-stripe"></div>
+        <div class="card-body">
+          <span class="card-date">12 mars 2026</span>
+          <h3>Le jour où j'ai poussé la porte de la synagogue</h3>
+          <p>Le récit du tout premier pas, et de la peur de ne pas être à sa place.</p>
+          <div class="card-tags"><span class="tag-pill">#Conversion</span><span class="tag-pill">#Communauté</span></div>
+        </div>
+      </article>
+      <article class="article-card">
+        <div class="card-stripe"></div>
+        <div class="card-body">
+          <span class="card-date">28 mars 2026</span>
+          <h3>Apprendre l'hébreu à trente ans</h3>
+          <p>Les alphabets, les erreurs de prononciation, et la fierté du premier mot lu seul.</p>
+          <div class="card-tags"><span class="tag-pill">#Hébreu</span></div>
+        </div>
+      </article>
+      <article class="article-card">
+        <div class="card-stripe"></div>
+        <div class="card-body">
+          <span class="card-date">15 avril 2026</span>
+          <h3>Ce que le Beth Din m'a vraiment demandé</h3>
+          <p>Déconstruire l'image du tribunal rabbinique, et ce qui compte vraiment ce jour-là.</p>
+          <div class="card-tags"><span class="tag-pill">#Beth-Din</span><span class="tag-pill">#Conversion</span></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="block" id="comment">
+    <div class="block-head"><h2>Commentaire</h2><span class="block-note">espace public</span></div>
+    <div class="comment">
+      <div class="comment-head"><span class="author">Sarah K.</span><span class="date">14 mars 2026</span></div>
+      <p>Merci pour ce témoignage, ça résonne énormément avec mon propre parcours. J'attends la suite avec impatience.</p>
+    </div>
+  </section>
+
+  <section class="block" id="nav">
+    <div class="block-head"><h2>Barre de navigation</h2><span class="block-note">en-tête public</span></div>
+    <div class="navbar">
+      <span class="brand">Chemin de Guer</span>
+      <nav>
+        <a href="#" class="current">Accueil</a>
+        <a href="#">Articles</a>
+        <a href="#">À propos</a>
+        <a href="#">Se connecter</a>
+      </nav>
+    </div>
+  </section>
+
+  <section class="block" id="shabbat">
+    <div class="block-head"><h2>Bandeau de fermeture</h2><span class="block-note">fonctionnalité signature</span></div>
+    <p class="intro">Affiché à la place du contenu public pendant toute la durée du Shabbat, calculée automatiquement.</p>
+    <div class="shabbat-banner">
+      <div class="inner">
+        <div class="flame"></div>
+        <h3>Chemin de Guer fait une pause pour Shabbat</h3>
+        <p>Le site rouvrira de lui-même après la Havdala, aux alentours de 20h47. Shabbat chalom.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="spacing">
+    <div class="block-head"><h2>Échelle d'espacement</h2><span class="block-note">base 4px</span></div>
+    <div class="spacing-list">
+      <div class="spacing-row"><span class="mono-label">4px</span><span class="bar" style="width:4px"></span></div>
+      <div class="spacing-row"><span class="mono-label">8px</span><span class="bar" style="width:8px"></span></div>
+      <div class="spacing-row"><span class="mono-label">12px</span><span class="bar" style="width:12px"></span></div>
+      <div class="spacing-row"><span class="mono-label">16px</span><span class="bar" style="width:16px"></span></div>
+      <div class="spacing-row"><span class="mono-label">24px</span><span class="bar" style="width:24px"></span></div>
+      <div class="spacing-row"><span class="mono-label">32px</span><span class="bar" style="width:32px"></span></div>
+      <div class="spacing-row"><span class="mono-label">48px</span><span class="bar" style="width:48px"></span></div>
+      <div class="spacing-row"><span class="mono-label">64px</span><span class="bar" style="width:64px"></span></div>
+    </div>
+  </section>
+
+  <footer class="note">
+    <p>La rayure bleu, pierre et or qui ouvre cette page reprend, de loin, le rythme des bandes d'un talit. Elle revient en signature discrète : sous l'en-tête, en haut de chaque carte d'article. Cette page est une référence visuelle à utiliser pour implémenter les composants Angular, pas du code à importer directement.</p>
+    <p><a href="cahier-des-charges.html">Voir le cahier des charges</a></p>
+  </footer>
+</div>
+</body>
+</html>
