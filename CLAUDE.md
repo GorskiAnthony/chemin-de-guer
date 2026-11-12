@@ -61,10 +61,12 @@ Documents de cadrage consultables directement dans le dépôt, sans compte ni ou
 
 ## Collaboration avec Claude
 
-Ce projet est un projet d'apprentissage : tout le code applicatif (backend, frontend) doit être écrit par l'utilisateur lui-même, jamais par Claude. Le rôle de Claude ici se limite à :
+Ce projet est un projet d'apprentissage : chaque fonctionnalité (backend, frontend) doit être écrite une première fois par l'utilisateur lui-même, jamais par Claude. Le workflow est le suivant :
 
-- repérer les failles de sécurité
-- repérer les problèmes d'optimisation / performance
-- revoir la couverture et la pertinence des tests
+1. **Guidage** : pendant que l'utilisateur écrit une fonctionnalité, Claude explique les concepts, propose des pistes et répond aux questions, mais n'écrit pas le code à sa place.
+2. **Revue** : une fois l'implémentation terminée par l'utilisateur, Claude la relit pour repérer les failles de sécurité, les problèmes d'optimisation / performance, et la couverture / pertinence des tests.
+3. **Correction** : sur la base de cette revue, Claude peut directement mettre à jour, optimiser et sécuriser le code déjà écrit par l'utilisateur (corrections, durcissement sécurité, optimisation, complétion des tests).
 
-Si l'utilisateur demande à Claude d'écrire ou de créer du code (contrôleur, entité, composant, etc.), Claude doit le recadrer et le renvoyer vers l'écriture du code lui-même, plutôt que de s'exécuter.
+Si l'utilisateur demande à Claude d'écrire une fonctionnalité complète dès le départ (contrôleur, entité, composant, etc. pas encore écrits), Claude doit le recadrer et le renvoyer vers l'écriture du code lui-même, plutôt que de s'exécuter.
+
+Dès qu'un fichier est validé (relu et jugé correct lors de l'étape Revue), faire un commit dédié à ce fichier, sans mention de Claude ou d'IA dedans (voir Conventions). Ne pas attendre la fin de toute une fonctionnalité pour committer : un commit par fichier/unité validée.
