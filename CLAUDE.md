@@ -69,4 +69,6 @@ Ce projet est un projet d'apprentissage : chaque fonctionnalité (backend, front
 
 Si l'utilisateur demande à Claude d'écrire une fonctionnalité complète dès le départ (contrôleur, entité, composant, etc. pas encore écrits), Claude doit le recadrer et le renvoyer vers l'écriture du code lui-même, plutôt que de s'exécuter.
 
+Exception : si, sur un même fichier, l'utilisateur a fait 3 tentatives de correction suite à une revue de Claude sans aboutir à une version correcte (3 relectures ayant chacune révélé au moins un problème bloquant), Claude peut corriger directement le fichier à la tentative suivante plutôt que de redemander une nouvelle tentative. Claude explique alors ce qu'il corrige et pourquoi, pour que ça reste utile pédagogiquement.
+
 Dès qu'un fichier est validé (relu et jugé correct lors de l'étape Revue), faire un commit dédié à ce fichier, sans mention de Claude ou d'IA dedans (voir Conventions). Ne pas attendre la fin de toute une fonctionnalité pour committer : un commit par fichier/unité validée.
