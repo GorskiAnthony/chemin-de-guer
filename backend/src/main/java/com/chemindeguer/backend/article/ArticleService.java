@@ -26,20 +26,21 @@ public class ArticleService {
     }
 
     public Optional<Article> findById(Long id) {
-        return articleRepository.findById(id);
+        return articleRepository.findByIdWithAuthor(id);
     }
 
     public List<Article> findAll() {
-        return articleRepository.findAll();
+        return articleRepository.findAllWithAuthor();
     }
 
     public Article update(Long id, Article modifications) {
-        return articleRepository.findById(id)
+        return articleRepository.findByIdWithAuthor(id)
                 .map(existingArticle -> {
                     existingArticle.setTitle(modifications.getTitle());
                     existingArticle.setContent(modifications.getContent());
                     existingArticle.setUpdatedAt(Instant.now());
-                    return articleRepository.save(existingArticle);
+                    articleRepository.save(existingArticle);
+                    return existingArticle;
                 })
                 .orElseThrow(() -> new NoSuchElementException("Article not found with id: " + id));
     }

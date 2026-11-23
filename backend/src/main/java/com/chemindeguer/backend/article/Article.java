@@ -35,4 +35,10 @@ public class Article {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private StatutArticle statut;
+
+    public Article(String title, String content, Utilisateur author) {
+        this.title = title;
+        this.content = content;
+        this.author = author;
+    }
 }
