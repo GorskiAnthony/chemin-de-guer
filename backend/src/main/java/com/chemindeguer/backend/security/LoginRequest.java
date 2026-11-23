@@ -1,4 +1,4 @@
 package com.chemindeguer.backend.security;
 
-public record LoginRequest() {
+public record LoginRequest(String email, String password) {
 }
