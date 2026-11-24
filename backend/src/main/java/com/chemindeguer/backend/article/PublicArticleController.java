@@ -21,9 +21,9 @@ public class PublicArticleController {
         return articleService.searchPublished(tag, q);
     }
 
-    @GetMapping("/{id}")
-    public ArticleResponse get(@PathVariable Long id) {
-        return articleService.findPublishedById(id);
+    @GetMapping("/{key}")
+    public ArticleResponse get(@PathVariable String key) {
+        return articleService.findPublishedByKey(key);
     }
 
     @GetMapping("/{id}/related")

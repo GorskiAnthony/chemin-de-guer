@@ -32,7 +32,7 @@ public class SeoController {
                 .append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n")
                 .append("  <url><loc>").append(baseUrl).append("/</loc></url>\n");
         for (Article a : articleRepository.findAllPublished()) {
-            xml.append("  <url><loc>").append(baseUrl).append("/articles/").append(a.getId()).append("</loc><lastmod>")
+            xml.append("  <url><loc>").append(baseUrl).append("/articles/").append(a.getSlug() != null ? a.getSlug() : String.valueOf(a.getId())).append("</loc><lastmod>")
                     .append(DateTimeFormatter.ISO_LOCAL_DATE.format(a.getUpdatedAt().atZone(ZoneOffset.UTC)))
                     .append("</lastmod></url>\n");
         }
@@ -49,8 +49,8 @@ public class SeoController {
                 .append("<description>Journal d'un parcours de conversion au judaïsme</description>\n");
         for (Article a : articles) {
             xml.append("<item><title>").append(HtmlUtils.htmlEscape(a.getTitle())).append("</title><link>")
-                    .append(baseUrl).append("/articles/").append(a.getId()).append("</link><guid>")
-                    .append(baseUrl).append("/articles/").append(a.getId()).append("</guid><pubDate>")
+                    .append(baseUrl).append("/articles/").append(a.getSlug() != null ? a.getSlug() : String.valueOf(a.getId())).append("</link><guid>")
+                    .append(baseUrl).append("/articles/").append(a.getSlug() != null ? a.getSlug() : String.valueOf(a.getId())).append("</guid><pubDate>")
                     .append(DateTimeFormatter.RFC_1123_DATE_TIME.format(a.getPublishedAt().atZone(ZoneOffset.UTC)))
                     .append("</pubDate></item>\n");
         }

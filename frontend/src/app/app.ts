@@ -9,6 +9,7 @@ import { ShabbatClosed } from './pages/shabbat-closed';
   selector: 'app-root',
   imports: [RouterOutlet, RouterLink, RouterLinkActive, ShabbatClosed],
   template: `
+    <a class="skip" href="/" (click)="skipToContent($event)">Aller au contenu</a>
     <div class="stripe"></div>
     <div class="wrap">
       <header class="navbar">
@@ -21,7 +22,7 @@ import { ShabbatClosed } from './pages/shabbat-closed';
         </nav>
       </header>
 
-      <main>
+      <main id="main" tabindex="-1">
         @if (closed() && !isAdmin()) {
           <app-shabbat-closed [status]="shabbat()!" />
         } @else {
@@ -50,7 +51,7 @@ import { ShabbatClosed } from './pages/shabbat-closed';
       margin-top: 22px; padding: 14px 22px; background: var(--surface); border: 1px solid var(--border);
       border-radius: 10px; box-shadow: var(--shadow); }
     .brand { font: 600 1.2rem var(--serif); color: var(--blue-strong); text-decoration: none; }
-    .he { color: var(--gold); margin-inline-start: .35rem; }
+    .he { color: var(--gold-ink); margin-inline-start: .35rem; }
     nav { display: flex; gap: 22px; font-size: .92rem; }
     nav a { color: var(--ink-muted); text-decoration: none; padding-block: 2px; border-bottom: 2px solid transparent;
       transition: color 160ms ease, border-color 160ms ease; }
@@ -81,6 +82,11 @@ export class App {
       this.meta.updateTag({ name: 'robots', content: admin ? 'noindex, nofollow, noarchive' : 'index, follow' });
       this.refresh();
     });
+  }
+
+  protected skipToContent(event: Event) {
+    event.preventDefault();
+    document.getElementById('main')?.focus();
   }
 
   private refresh() {

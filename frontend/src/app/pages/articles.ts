@@ -31,7 +31,7 @@ import { Api, Article, TagRef } from '../core/api';
           <div class="stripe-card"></div>
           <div class="body">
             <span class="mono">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</span>
-            <h3><a [routerLink]="['/articles', a.id]">{{ a.title }}</a></h3>
+            <h3><a [routerLink]="['/articles', a.slug ?? a.id]">{{ a.title }}</a></h3>
             <p>{{ a.excerpt }}</p>
             <div>@for (t of a.tags; track t.id) { <span class="tag">#{{ t.name }}</span> }</div>
           </div>

@@ -7,6 +7,7 @@ export type Statut = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
 
 export interface Article {
   id: number;
+  slug: string | null;
   title: string;
   content: string | null;
   excerpt: string;
@@ -18,7 +19,7 @@ export interface Article {
   tags: TagRef[];
 }
 
-export interface ArticleInput { title: string; content: string; statut: Statut; tagIds: number[]; }
+export interface ArticleInput { title: string; slug: string; content: string; statut: Statut; tagIds: number[]; }
 
 export interface Comment {
   id: number;
@@ -68,7 +69,8 @@ export class Api {
     if (q) params = params.set('q', q);
     return this.http.get<Article[]>('/api/public/articles', { params });
   }
-  publicArticle(id: number) { return this.http.get<Article>(`/api/public/articles/${id}`); }
+  /** `key` : slug ou, pour les anciens liens, identifiant numérique. */
+  publicArticle(key: string) { return this.http.get<Article>(`/api/public/articles/${encodeURIComponent(key)}`); }
   related(id: number) { return this.http.get<Article[]>(`/api/public/articles/${id}/related`); }
   publicTags() { return this.http.get<TagRef[]>('/api/public/tags'); }
   comments(articleId: number) { return this.http.get<Comment[]>(`/api/public/articles/${articleId}/comments`); }
