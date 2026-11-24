@@ -48,6 +48,7 @@ public class SeoController {
     @GetMapping(value = "/api/sitemap.xml", produces = MediaType.APPLICATION_XML_VALUE)
     @Transactional(readOnly = true)
     public ResponseEntity<String> sitemap() {
+        if (!site.indexable()) return ResponseEntity.notFound().build();
         List<Article> arts = articles.findAllPublished();
         List<ParashaSummary> pars = parashot.findAllByStatutOrderByPositionAsc(StatutArticle.PUBLISHED);
         Instant lastArticle = arts.stream().map(Article::getUpdatedAt).max(Comparator.naturalOrder()).orElse(null);
@@ -90,6 +91,7 @@ public class SeoController {
     @GetMapping(value = "/api/llms.txt", produces = "text/plain;charset=UTF-8")
     @Transactional(readOnly = true)
     public ResponseEntity<String> llms() {
+        if (!site.indexable()) return ResponseEntity.notFound().build();
         StringBuilder t = new StringBuilder("# ").append(site.name()).append("\n\n> ").append(site.description()).append("\n\n")
                 .append("Journal personnel écrit en français par ").append(site.authorName()).append(" (").append(site.authorUrl())
                 .append("). « Guer » (גר) désigne en hébreu le converti. Le site contient des articles de témoignage et des résumés de la paracha ")
@@ -112,6 +114,7 @@ public class SeoController {
     @GetMapping(value = "/api/llms-full.txt", produces = "text/plain;charset=UTF-8")
     @Transactional(readOnly = true)
     public ResponseEntity<String> llmsFull() {
+        if (!site.indexable()) return ResponseEntity.notFound().build();
         StringBuilder t = new StringBuilder("# ").append(site.name()).append(" : texte intégral\n\n> ").append(site.description()).append("\n\n");
         for (Article a : articles.findAllPublished()) {
             t.append("---\n\n# ").append(a.getTitle()).append("\n\nSource : ").append(site.url("/articles/" + a.getSlug()))

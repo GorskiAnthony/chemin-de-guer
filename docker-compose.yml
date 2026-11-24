@@ -24,6 +24,45 @@ services:
       timeout: 5s
       retries: 10
 
+  # Sauvegarde automatique de la base (quotidienne, vérifiée, copie hors serveur facultative) : voir docs/deploiement.md
+  cdg-backup:
+    build: ./backup
+    restart: unless-stopped
+    logging: *logging
+    environment:
+      DB_HOST: cdg-db
+      DB_NAME: ${DB_NAME:-chemin_de_guer}
+      DB_USER: ${DB_USER:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant dans .env}
+      TZ: ${TZ:-Europe/Paris}
+      BACKUP_CRON: ${BACKUP_CRON:-30 3 * * *}
+      BACKUP_KEEP: ${BACKUP_KEEP:-30}
+      BACKUP_ON_START: ${BACKUP_ON_START:-true}
+      BACKUP_PASSPHRASE: ${BACKUP_PASSPHRASE:-}
+      BACKUP_S3_BUCKET: ${BACKUP_S3_BUCKET:-}
+      BACKUP_S3_ENDPOINT: ${BACKUP_S3_ENDPOINT:-}
+      BACKUP_S3_REGION: ${BACKUP_S3_REGION:-}
+      BACKUP_S3_ACCESS_KEY: ${BACKUP_S3_ACCESS_KEY:-}
+      BACKUP_S3_SECRET_KEY: ${BACKUP_S3_SECRET_KEY:-}
+      BACKUP_S3_PREFIX: ${BACKUP_S3_PREFIX:-chemin-de-guer}
+      BACKUP_SFTP_HOST: ${BACKUP_SFTP_HOST:-}
+      BACKUP_SFTP_PORT: ${BACKUP_SFTP_PORT:-22}
+      BACKUP_SFTP_USER: ${BACKUP_SFTP_USER:-}
+      BACKUP_SFTP_PASSWORD: ${BACKUP_SFTP_PASSWORD:-}
+      BACKUP_SFTP_PATH: ${BACKUP_SFTP_PATH:-chemin-de-guer}
+    volumes:
+      - backups:/backups
+    depends_on:
+      cdg-db:
+        condition: service_healthy
+    # Alerte visuelle (docker ps) : aucune sauvegarde réussie depuis plus de 2 jours
+    healthcheck:
+      test: ["CMD-SHELL", "find /backups/last_success -mmin -2880 2>/dev/null | grep -q ."]
+      interval: 1h
+      timeout: 10s
+      retries: 1
+      start_period: 5m
+
   cdg-backend:
     build: ./backend
     restart: unless-stopped
@@ -43,6 +82,7 @@ services:
       SHABBAT_TIMEZONE: ${SHABBAT_TIMEZONE:-Europe/Paris}
       SHABBAT_MARGIN_MINUTES: ${SHABBAT_MARGIN_MINUTES:-30}
       COMMENTS_ENABLED: ${COMMENTS_ENABLED:-true}
+      SITE_INDEXABLE: ${SITE_INDEXABLE:-false}
       AUTHOR_NAME: ${AUTHOR_NAME:-Anthony Gorski}
       AUTHOR_URL: ${AUTHOR_URL:-https://www.agorski.dev}
       MAIL_HOST: ${MAIL_HOST:-}
@@ -76,3 +116,4 @@ services:
 
 volumes:
   postgres_data:
+  backups:
