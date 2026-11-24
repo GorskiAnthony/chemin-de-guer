@@ -3,6 +3,9 @@ package com.chemindeguer.backend.seo;
 import com.chemindeguer.backend.article.Article;
 import com.chemindeguer.backend.article.ArticleRepository;
 import com.chemindeguer.backend.article.StatutArticle;
+import com.chemindeguer.backend.fete.FeteRepository;
+import com.chemindeguer.backend.fete.FeteSection;
+import com.chemindeguer.backend.fete.FeteSummary;
 import com.chemindeguer.backend.parasha.Aliyah;
 import com.chemindeguer.backend.parasha.ParashaRepository;
 import com.chemindeguer.backend.parasha.ParashaSummary;
@@ -35,12 +38,14 @@ public class SeoController {
 
     private final ArticleRepository articles;
     private final ParashaRepository parashot;
+    private final FeteRepository fetes;
     private final SiteProperties site;
     private final MarkdownRenderer markdown;
 
-    public SeoController(ArticleRepository articles, ParashaRepository parashot, SiteProperties site, MarkdownRenderer markdown) {
+    public SeoController(ArticleRepository articles, ParashaRepository parashot, FeteRepository fetes, SiteProperties site, MarkdownRenderer markdown) {
         this.articles = articles;
         this.parashot = parashot;
+        this.fetes = fetes;
         this.site = site;
         this.markdown = markdown;
     }
@@ -52,14 +57,18 @@ public class SeoController {
         List<Article> arts = articles.findAllPublished();
         List<ParashaSummary> pars = parashot.findAllByStatutOrderByPositionAsc(StatutArticle.PUBLISHED);
         Instant lastArticle = arts.stream().map(Article::getUpdatedAt).max(Comparator.naturalOrder()).orElse(null);
+        List<FeteSummary> fts = fetes.findAllByStatutOrderByPositionAscNameAsc(StatutArticle.PUBLISHED);
+        Instant lastFete = fts.stream().map(FeteSummary::getUpdatedAt).max(Comparator.naturalOrder()).orElse(null);
         Instant lastParasha = pars.stream().map(ParashaSummary::getUpdatedAt).max(Comparator.naturalOrder()).orElse(null);
         StringBuilder xml = new StringBuilder("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n")
                 .append("<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\">\n");
-        url(xml, "/", latest(lastArticle, lastParasha));
+        url(xml, "/", latest(latest(lastArticle, lastParasha), lastFete));
         url(xml, "/articles", lastArticle);
         url(xml, "/paracha", lastParasha);
+        url(xml, "/fetes", lastFete);
         for (Article a : arts) url(xml, "/articles/" + (a.getSlug() != null ? a.getSlug() : a.getId()), a.getUpdatedAt());
         for (ParashaSummary p : pars) url(xml, "/paracha/" + p.getSlug(), p.getUpdatedAt());
+        for (FeteSummary f : fts) url(xml, "/fetes/" + f.getSlug(), f.getUpdatedAt());
         return xmlResponse(xml.append("</urlset>").toString());
     }
 
@@ -105,6 +114,11 @@ public class SeoController {
             t.append("- [Paracha ").append(p.getName()).append("](").append(site.url("/paracha/" + p.getSlug())).append(")")
                     .append(p.getHebrewName() != null ? " (" + p.getHebrewName() + ")" : "").append(", ").append(p.getBook()).append("\n");
         }
+        t.append("\n## Fêtes\n\n");
+        for (FeteSummary f : fetes.findAllByStatutOrderByPositionAscNameAsc(StatutArticle.PUBLISHED)) {
+            t.append("- [").append(f.getName()).append("](").append(site.url("/fetes/" + f.getSlug())).append(")")
+                    .append(f.getHebrewName() != null ? " (" + f.getHebrewName() + ")" : "").append(", ").append(f.getCategory()).append("\n");
+        }
         t.append("\n## Pour aller plus loin\n\n- [Texte intégral de tous les contenus](").append(site.url("/llms-full.txt")).append(")\n")
                 .append("- [Flux RSS](").append(site.url("/rss.xml")).append(")\n")
                 .append("- [Plan du site](").append(site.url("/sitemap.xml")).append(")\n");
@@ -130,6 +144,17 @@ public class SeoController {
             for (Aliyah al : p.getAliyot()) {
                 t.append("## ").append(al.getLabel() == null || al.getLabel().isBlank() ? "Montée " + i : al.getLabel()).append("\n\n")
                         .append(al.getContent()).append("\n\n");
+                i++;
+            }
+        }
+        for (FeteSummary f : fetes.findAllByStatutOrderByPositionAscNameAsc(StatutArticle.PUBLISHED)) {
+            t.append("---\n\n# ").append(f.getName()).append(f.getHebrewName() != null ? " (" + f.getHebrewName() + ")" : "")
+                    .append("\n\nSource : ").append(site.url("/fetes/" + f.getSlug())).append("\nAuteur : ").append(site.authorName()).append("\n\n");
+            if (f.getIntro() != null) t.append(f.getIntro()).append("\n\n");
+            int i = 1;
+            for (FeteSection sec : f.getSections()) {
+                t.append("## ").append(sec.getLabel() == null || sec.getLabel().isBlank() ? "Partie " + i : sec.getLabel()).append("\n\n")
+                        .append(sec.getContent()).append("\n\n");
                 i++;
             }
         }
