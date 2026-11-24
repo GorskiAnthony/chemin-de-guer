@@ -5,11 +5,10 @@ services:
     environment:
       POSTGRES_DB: ${DB_NAME:-chemin_de_guer}
       POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant dans .env}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    # Pas de port publié : la base n'est accessible que depuis le réseau Docker.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
       interval: 5s
@@ -24,12 +23,19 @@ services:
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-chemin_de_guer}
       DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD manquant dans .env}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      APP_PUBLIC_URL: ${APP_PUBLIC_URL:-http://localhost}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      SHABBAT_ENABLED: ${SHABBAT_ENABLED:-true}
+      SHABBAT_GEONAME_ID: ${SHABBAT_GEONAME_ID:-2988507}
+      SHABBAT_TIMEZONE: ${SHABBAT_TIMEZONE:-Europe/Paris}
+      SHABBAT_MARGIN_MINUTES: ${SHABBAT_MARGIN_MINUTES:-30}
     depends_on:
       db:
         condition: service_healthy
-    ports:
-      - "8080:8080"
+    # Pas de port publié : seul nginx (frontend) joint le backend.
 
   frontend:
     build: ./frontend
@@ -37,7 +43,7 @@ services:
     depends_on:
       - backend
     ports:
-      - "80:80"
+      - "${FRONTEND_PORT:-80}:80"
 
 volumes:
   postgres_data:
