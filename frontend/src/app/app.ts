@@ -29,7 +29,15 @@ import { ShabbatClosed } from './pages/shabbat-closed';
       </main>
 
       <footer>
-        <span>Chemin de Guer · journal d'un parcours de conversion</span>
+        <div class="about">
+          <p>Chemin de Guer est un journal tenu et écrit par
+            <a href="https://www.agorski.dev" target="_blank" rel="noopener noreferrer">Anthony Gorski</a>, son auteur.</p>
+          <p class="links">
+            <a href="https://www.agorski.dev" target="_blank" rel="noopener noreferrer">agorski.dev</a>
+            <span aria-hidden="true">·</span>
+            <a href="https://luah-france.netlify.app/" target="_blank" rel="noopener noreferrer">Luah, calendrier hébraïque</a>
+          </p>
+        </div>
         @if (shabbat()?.parasha; as p) { <span class="mono">Paracha : {{ p }} {{ shabbat()?.parashaHebrew }}</span> }
       </footer>
     </div>
@@ -48,8 +56,11 @@ import { ShabbatClosed } from './pages/shabbat-closed';
     nav a.current { color: var(--blue); font-weight: 600; border-bottom-color: var(--gold); }
     @media (hover: hover) and (pointer: fine) { nav a:hover { color: var(--blue); } }
     main { min-height: 62vh; padding-block: 8px 40px; }
-    footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-block: 24px 48px;
-      border-top: 1px solid var(--border); color: var(--ink-muted); font-size: .88rem; }
+    footer { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px; padding-block: 24px 48px;
+      border-top: 1px solid var(--border); color: var(--ink-muted); font-size: .9rem; }
+    footer p { margin: 0 0 4px; }
+    footer a { color: var(--blue); font-weight: 500; }
+    .links { display: flex; gap: 10px; flex-wrap: wrap; }
   `,
 })
 export class App {
