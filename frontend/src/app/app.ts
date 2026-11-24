@@ -18,6 +18,7 @@ import { ShabbatClosed } from './pages/shabbat-closed';
           <a routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
           <a routerLink="/articles" routerLinkActive="current">Articles</a>
           <a routerLink="/paracha" routerLinkActive="current">Paracha</a>
+          <a routerLink="/fetes" routerLinkActive="current">Fêtes</a>
           <a href="/rss.xml">RSS</a>
         </nav>
       </header>

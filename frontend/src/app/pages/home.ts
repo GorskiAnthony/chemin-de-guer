@@ -51,7 +51,7 @@ import { Api, Article, CalendarData } from '../core/api';
             <ul>
               @for (h of c.holidays; track h.date + h.title) {
                 <li><span class="mono">{{ h.date | date: 'd MMM' : undefined : 'fr' }}</span>
-                  <span>{{ h.title }}</span>
+                  @if (h.feteSlug) { <a [routerLink]="['/fetes', h.feteSlug]">{{ h.title }}</a> } @else { <span>{{ h.title }}</span> }
                   @if (h.hebrew) { <span class="he-sm" lang="he" dir="rtl">{{ h.hebrew }}</span> }</li>
               }
             </ul>
@@ -85,13 +85,13 @@ import { Api, Article, CalendarData } from '../core/api';
 
     .week { display: grid; grid-template-columns: 1fr 1.25fr; gap: 20px; margin-bottom: 44px; }
     .today { grid-column: 1; position: relative; overflow: hidden; border-radius: 12px; padding: 30px 28px;
-      background: var(--blue); color: #f3efe2; display: flex; flex-direction: column; justify-content: center; }
+      background: var(--panel); color: #f3efe2; display: flex; flex-direction: column; justify-content: center; }
     .today::before { content: ""; position: absolute; inset: 0;
       background: repeating-linear-gradient(135deg, rgba(255,255,255,.04) 0 10px, transparent 10px 20px); }
     .today > * { position: relative; margin: 0; }
-    .today .caption { color: var(--gold-soft); opacity: .85; margin-bottom: 14px; }
+    .today .caption { color: var(--panel-gold); opacity: .85; margin-bottom: 14px; }
     .hdate { font: 700 clamp(1.7rem, 4vw, 2.3rem) var(--serif); color: #fff; line-height: 1.15; }
-    .hdate-he { font: 400 1.35rem var(--serif); color: var(--gold-soft); margin-top: 6px; text-align: left; }
+    .hdate-he { font: 400 1.35rem var(--serif); color: var(--panel-gold); margin-top: 6px; text-align: left; }
     .greg { margin-top: 18px; font: 400 .85rem var(--mono); opacity: .8; }
     .greg::first-letter { text-transform: uppercase; }
 

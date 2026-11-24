@@ -7,6 +7,8 @@ export const routes: Routes = [
   { path: 'articles/:slug', loadComponent: () => import('./pages/article-page').then((m) => m.ArticlePage) },
   { path: 'paracha', title: 'Paracha', loadComponent: () => import('./pages/parasha-list').then((m) => m.ParashaList) },
   { path: 'paracha/:slug', loadComponent: () => import('./pages/parasha-page').then((m) => m.ParashaPage) },
+  { path: 'fetes', title: 'Fêtes', loadComponent: () => import('./pages/fete-list').then((m) => m.FeteList) },
+  { path: 'fetes/:slug', loadComponent: () => import('./pages/fete-page').then((m) => m.FetePage) },
   { path: 'admin/login', title: 'Connexion', loadComponent: () => import('./admin/login').then((m) => m.Login) },
   {
     path: 'admin',
@@ -37,6 +39,18 @@ export const routes: Routes = [
     canActivate: [authGuard],
     title: 'Modifier une paracha',
     loadComponent: () => import('./admin/parasha-editor').then((m) => m.ParashaEditor),
+  },
+  {
+    path: 'admin/fetes/nouveau',
+    canActivate: [authGuard],
+    title: 'Nouvelle fête',
+    loadComponent: () => import('./admin/fete-editor').then((m) => m.FeteEditor),
+  },
+  {
+    path: 'admin/fetes/:id',
+    canActivate: [authGuard],
+    title: 'Modifier une fête',
+    loadComponent: () => import('./admin/fete-editor').then((m) => m.FeteEditor),
   },
   { path: '**', title: 'Page introuvable', loadComponent: () => import('./pages/not-found').then((m) => m.NotFound) },
 ];

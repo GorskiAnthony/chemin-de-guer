@@ -10,6 +10,7 @@ public record CalendarResponse(String hebrewDate, String hebrewDateHe, ParashaIn
     public record ParashaInfo(String name, String slug, String hebrew, String torah, String haftarah, String summarySlug) {
     }
 
-    public record Holiday(LocalDate date, String title, String hebrew) {
+    /** feteSlug : adresse du résumé publié de cette fête (null s'il n'y en a pas). */
+    public record Holiday(LocalDate date, String title, String hebrew, String feteSlug) {
     }
 }
