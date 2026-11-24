@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { Meta, Title } from '@angular/platform-browser';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Api, Article, Comment } from '../core/api';
 import { renderMarkdown } from '../core/markdown';
 
@@ -13,7 +13,7 @@ import { renderMarkdown } from '../core/markdown';
     <a class="back" routerLink="/">← Tous les articles</a>
     @if (notFound()) { <p class="card">Article introuvable.</p> }
     @if (article(); as a) {
-      <article class="reveal">
+      <article class="reveal sheet">
         <header>
           <p class="mono">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</p>
           <h1>{{ a.title }}</h1>
@@ -26,7 +26,7 @@ import { renderMarkdown } from '../core/markdown';
         <section>
           <h2>À lire aussi</h2>
           @for (r of related(); track r.id) {
-            <p class="rel"><a [routerLink]="['/articles', r.id]">{{ r.title }}</a></p>
+            <p class="rel"><a [routerLink]="['/articles', r.slug ?? r.id]">{{ r.title }}</a></p>
           }
         </section>
       }
@@ -58,6 +58,8 @@ import { renderMarkdown } from '../core/markdown';
   `,
   styles: `
     .back { display: inline-block; margin: 28px 0 8px; font-size: .92rem; text-decoration: none; color: var(--ink-muted); }
+    .sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
+      padding: clamp(1.3rem, 4.5vw, 3rem); }
     header { margin-bottom: 28px; }
     h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 14px; }
     .body { font-size: 1.12rem; line-height: 1.75; }
@@ -72,10 +74,11 @@ import { renderMarkdown } from '../core/markdown';
   `,
 })
 export class ArticlePage {
-  readonly id = input.required<string>();
+  readonly slug = input.required<string>();
   private readonly api = inject(Api);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
+  private readonly router = inject(Router);
 
   protected readonly article = signal<Article | null>(null);
   protected readonly related = signal<Article[]>([]);
@@ -92,20 +95,25 @@ export class ArticlePage {
 
   constructor() {
     effect(() => {
-      const id = Number(this.id());
+      const key = this.slug();
       this.notFound.set(false);
-      this.api.publicArticle(id).subscribe({
+      this.api.publicArticle(key).subscribe({
         next: (a) => {
+          // Ancien lien par identifiant (/articles/1) : on redirige vers l'adresse lisible
+          if (a.slug && key !== a.slug) {
+            this.router.navigate(['/articles', a.slug], { replaceUrl: true });
+            return;
+          }
           this.article.set(a);
           this.title.setTitle(`${a.title} · Chemin de Guer`);
           this.meta.updateTag({ name: 'description', content: a.excerpt });
           this.meta.updateTag({ property: 'og:title', content: a.title });
           this.meta.updateTag({ property: 'og:description', content: a.excerpt });
+          this.api.related(a.id).subscribe({ next: (r) => this.related.set(r), error: () => this.related.set([]) });
+          this.loadComments(a.id);
         },
         error: () => this.notFound.set(true),
       });
-      this.api.related(id).subscribe({ next: (r) => this.related.set(r), error: () => this.related.set([]) });
-      this.loadComments(id);
     });
   }
 
@@ -119,7 +127,7 @@ export class ArticlePage {
     this.sending.set(true);
     this.sent.set(false);
     this.failed.set(false);
-    this.api.postComment(Number(this.id()), {
+    this.api.postComment(this.article()!.id, {
       authorName: this.name(), content: this.message(), website: this.website(),
     }).subscribe({
       next: () => { this.sending.set(false); this.sent.set(true); this.name.set(''); this.message.set(''); },

@@ -66,7 +66,7 @@ import { Api, Article, CalendarData } from '../core/api';
             <div class="stripe-card"></div>
             <div class="body">
               <span class="mono">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</span>
-              <h3><a [routerLink]="['/articles', a.id]">{{ a.title }}</a></h3>
+              <h3><a [routerLink]="['/articles', a.slug ?? a.id]">{{ a.title }}</a></h3>
               <p>{{ a.excerpt }}</p>
               <div>@for (t of a.tags; track t.id) { <span class="tag">#{{ t.name }}</span> }</div>
             </div>
@@ -77,7 +77,7 @@ import { Api, Article, CalendarData } from '../core/api';
   `,
   styles: `
     .hero { text-align: center; padding: 44px 0 30px; }
-    .he { font: 400 1.3rem var(--serif); color: var(--gold); margin: 0 0 6px; }
+    .he { font: 400 1.3rem var(--serif); color: var(--gold-ink); margin: 0 0 6px; }
     h1 { font-size: clamp(2.6rem, 7vw, 4.4rem); margin: 10px 0 0; letter-spacing: -.01em; }
     .sub { max-width: 52ch; margin: 16px auto 0; color: var(--ink-muted); font-size: 1.05rem; }
 
@@ -95,7 +95,7 @@ import { Api, Article, CalendarData } from '../core/api';
 
     .parasha { grid-column: 2; grid-row: 1 / span 2; display: flex; flex-direction: column; gap: 14px; }
     .parasha h2 { margin: 0; font-size: 2rem; }
-    .he-name { font-size: 1.5rem; color: var(--gold); margin-inline-start: .6rem; font-weight: 400; }
+    .he-name { font-size: 1.5rem; color: var(--gold-ink); margin-inline-start: .6rem; font-weight: 400; }
     dl { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 18px; margin: 0; }
     dt { font: 500 .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
     dd { margin: 2px 0 0; font-weight: 500; }
@@ -106,7 +106,7 @@ import { Api, Article, CalendarData } from '../core/api';
     .holidays ul { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 10px; }
     .holidays li { display: flex; gap: 12px; align-items: baseline; flex-wrap: wrap; }
     .holidays .mono { min-width: 3.4rem; }
-    .he-sm { color: var(--gold); margin-inline-start: auto; font-family: var(--serif); }
+    .he-sm { color: var(--gold-ink); margin-inline-start: auto; font-family: var(--serif); }
     .caption { margin-bottom: 4px; }
 
     .head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 18px;

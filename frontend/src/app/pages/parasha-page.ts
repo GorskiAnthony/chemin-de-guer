@@ -33,10 +33,10 @@ import { renderMarkdown } from '../core/markdown';
   styles: `
     .back { display: inline-block; margin: 28px 0 8px; font-size: .92rem; text-decoration: none; color: var(--ink-muted); }
     h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 18px; }
-    .he { color: var(--gold); font-weight: 400; margin-inline-start: .6rem; }
+    .he { color: var(--gold-ink); font-weight: 400; margin-inline-start: .6rem; }
     .intro { font-size: 1.12rem; line-height: 1.75; padding-bottom: 8px; }
     .aliyah { display: grid; grid-template-columns: 2.6rem 1fr; gap: 16px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--border); }
-    .num { width: 2.6rem; height: 2.6rem; border-radius: 50%; background: var(--gold-soft); color: var(--gold);
+    .num { width: 2.6rem; height: 2.6rem; border-radius: 50%; background: var(--gold-soft); color: var(--gold-ink);
       display: grid; place-items: center; font: 600 1rem var(--mono); }
     .aliyah h2 { margin: 2px 0 8px; font-size: 1.35rem; }
     .text { line-height: 1.7; }

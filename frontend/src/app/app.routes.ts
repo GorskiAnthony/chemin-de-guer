@@ -4,7 +4,7 @@ import { authGuard } from './core/auth';
 export const routes: Routes = [
   { path: '', title: 'Chemin de Guer', loadComponent: () => import('./pages/home').then((m) => m.Home) },
   { path: 'articles', title: 'Articles', loadComponent: () => import('./pages/articles').then((m) => m.Articles) },
-  { path: 'articles/:id', loadComponent: () => import('./pages/article-page').then((m) => m.ArticlePage) },
+  { path: 'articles/:slug', loadComponent: () => import('./pages/article-page').then((m) => m.ArticlePage) },
   { path: 'paracha', title: 'Paracha', loadComponent: () => import('./pages/parasha-list').then((m) => m.ParashaList) },
   { path: 'paracha/:slug', loadComponent: () => import('./pages/parasha-page').then((m) => m.ParashaPage) },
   { path: 'admin/login', title: 'Connexion', loadComponent: () => import('./admin/login').then((m) => m.Login) },
