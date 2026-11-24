@@ -58,8 +58,8 @@ services:
     depends_on:
       backend:
         condition: service_healthy
-    ports:
-      - "${FRONTEND_PORT:-80}:80"
+    # Aucun port publié ici : en production, le reverse proxy (Traefik de Dokploy) route vers le port 80
+    # du conteneur. Pour un accès direct (local, VPS sans proxy), voir docker-compose.override.yml.
 
 volumes:
   postgres_data:
