@@ -116,7 +116,8 @@ Cette procédure a été testée : sauvegarde chiffrée, copie S3, suppression v
 
 Dans `/admin`, **Nouvelle paracha** et **Nouvelle fête** servent à écrire ce que vous apprenez. Une paracha est découpée en montées, une fête en parties (histoire et origine, date et durée, coutumes et rituels, prières et lectures, vécu : le bouton *Ajouter les parties types* les prépare, vous pouvez en ajouter, en retirer ou les renommer).
 
-- Choisissez le nom dans la liste de suggestions : la fête est alors classée automatiquement (Fêtes de Tichri, Hiver et printemps, Omer et Chavouot, Été, Jeûnes, Chaque mois), son nom en hébreu est proposé, et elle est **reliée au calendrier de l'accueil**. Un nom hors liste (Yom HaShoah...) est accepté et classé dans « Autres ».
+- Le **nom en hébreu se remplit tout seul** dès que le nom correspond au catalogue (les 54 paracha, les 7 paracha doubles et les fêtes), avec l'orthographe de Hebcal : pas besoin de clavier hébreu. Il suit si vous changez de nom, et un nom saisi à la main n'est jamais écrasé. Les résumés créés sans nom hébreu sont complétés au démarrage du backend. Le nom enregistré est celui du catalogue, même si vous l'avez tapé en minuscules ou avec une apostrophe simple.
+- Pour une fête, choisissez le nom dans la liste de suggestions : la fête est alors classée automatiquement (Fêtes de Tichri, Hiver et printemps, Omer et Chavouot, Été, Jeûnes, Chaque mois), son nom en hébreu est proposé, et elle est **reliée au calendrier de l'accueil**. Un nom hors liste (Yom HaShoah...) est accepté et classé dans « Autres ».
 - Une fête publiée affiche sa **prochaine date**, calculée automatiquement à partir du calendrier hébraïque, avec le nombre de jours restants.
 - Sur l'accueil, la fête annoncée devient un lien vers votre résumé dès que celui-ci est publié. Le même principe s'applique à la paracha de la semaine.
 - Un résumé en brouillon n'est visible nulle part côté public.

@@ -14,11 +14,11 @@ const DEFAULT_LABELS = ['1re montée', '2e montée', '3e montée', '4e montée',
       <div class="two">
         <div>
           <label for="n">Nom (orthographe Hebcal)</label>
-          <input id="n" list="catalog" required maxlength="80" [value]="name()" (input)="name.set($any($event.target).value)">
+          <input id="n" list="catalog" required maxlength="80" [value]="name()" (input)="onName($any($event.target).value)">
           <datalist id="catalog">@for (c of catalog(); track c.name) { <option [value]="c.name">{{ c.book }}</option> }</datalist>
         </div>
         <div>
-          <label for="h">Nom en hébreu</label>
+          <label for="h">Nom en hébreu (rempli automatiquement)</label>
           <input id="h" dir="rtl" lang="he" maxlength="80" [value]="hebrewName()" (input)="hebrewName.set($any($event.target).value)">
         </div>
       </div>
@@ -72,6 +72,7 @@ export class ParashaEditor {
   protected readonly catalog = signal<CatalogEntry[]>([]);
   protected readonly busy = signal(false);
   protected readonly error = signal('');
+  private autoHebrew = '';
 
   constructor() {
     this.api.parashaCatalog().subscribe((c) => this.catalog.set(c));
@@ -87,6 +88,22 @@ export class ParashaEditor {
       });
     });
   }
+
+  /**
+   * Le nom hébreu se remplit tout seul dès que le nom correspond à une parasha du catalogue (orthographe Hebcal),
+   * et suit si on change de parasha. Un nom hébreu saisi à la main n'est jamais écrasé.
+   */
+  protected onName(value: string) {
+    this.name.set(value);
+    const known = this.catalog().find((c) => this.norm(c.name) === this.norm(value));
+    if (known && (this.hebrewName() === '' || this.hebrewName() === this.autoHebrew)) {
+      this.hebrewName.set(known.hebrew);
+      this.autoHebrew = known.hebrew;
+    }
+  }
+
+  /** Compare sans tenir compte de la casse, des espaces ni du type d'apostrophe. */
+  private norm(s: string) { return s.trim().toLowerCase().replace(/[\u2018\u2019']/g, ''); }
 
   protected prefill() {
     this.aliyot.update((current) => [...current, ...DEFAULT_LABELS.slice(current.length).map((label) => ({ label, content: '' }))]);
