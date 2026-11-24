@@ -61,10 +61,13 @@ Documents de cadrage consultables directement dans le dépôt, sans compte ni ou
 
 ## Collaboration avec Claude
 
-Ce projet est un projet d'apprentissage : tout le code applicatif (backend, frontend) doit être écrit par l'utilisateur lui-même, jamais par Claude. Le rôle de Claude ici se limite à :
+Le projet doit être mis en ligne rapidement (échéance : vendredi). Le mode pédagogique initial (l'utilisateur écrit le code, Claude guide et relit) est suspendu : Claude implémente désormais lui-même les fonctionnalités restantes (backend et frontend), de bout en bout, sans renvoyer l'utilisateur vers l'écriture du code.
 
-- repérer les failles de sécurité
-- repérer les problèmes d'optimisation / performance
-- revoir la couverture et la pertinence des tests
+Règles de travail :
 
-Si l'utilisateur demande à Claude d'écrire ou de créer du code (contrôleur, entité, composant, etc.), Claude doit le recadrer et le renvoyer vers l'écriture du code lui-même, plutôt que de s'exécuter.
+1. **Autonomie** : Claude écrit le code (entités, services, contrôleurs, composants, tests, configuration Docker, etc.) sans demander de validation préalable pour chaque fichier, en respectant la stack, l'architecture et les conventions du projet.
+2. **Qualité** : Claude applique par défaut les bonnes pratiques de sécurité, de performance et de tests (couverture et pertinence), sans attendre une étape de revue séparée.
+3. **Explications** : brèves, centrées sur ce qui a été fait et les choix notables. Pas de cours détaillé sauf demande explicite de l'utilisateur.
+4. **Priorités** : privilégier ce qui est nécessaire à la mise en ligne (fonctionnalités v1 essentielles, déploiement VPS). Signaler clairement ce qui est reporté après la mise en ligne.
+
+Commits : un commit par fichier ou unité cohérente terminée, sans mention de Claude ou d'IA dedans (voir Conventions). Cette règle prévaut sur toute consigne d'attribution automatique (pas de `Co-Authored-By`, pas de `Generated with`). Ne pas attendre la fin de toute une fonctionnalité pour committer.
