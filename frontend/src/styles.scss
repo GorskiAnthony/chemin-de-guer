@@ -12,6 +12,9 @@
   --blue-soft: #e3e9f1;
   --gold: #a9801f;
   --gold-ink: #7a5a0e;
+  /* Fond de panneau à texte clair (bloc « Aujourd'hui », bannière Shabbat) : bleu profond dans les deux thèmes */
+  --panel: #15335c;
+  --panel-gold: #f1e3bd; /* texte doré sur panneau, identique dans les deux thèmes */
   --gold-soft: #f1e3bd;
   --danger: #a32d2d;
   --shadow: 0 1px 2px rgba(27, 38, 53, 0.08), 0 10px 28px rgba(27, 38, 53, 0.08);
@@ -35,6 +38,7 @@
     --blue-soft: #1b2942;
     --gold: #dcb75f;
     --gold-ink: #dcb75f;
+    --panel: #1a3a66;
     --gold-soft: #2c2512;
     --danger: #e08585;
     --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px rgba(0, 0, 0, 0.4);
@@ -57,7 +61,7 @@ a { color: var(--blue); transition: color 160ms ease; }
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 3px; }
 
 /* Lien d'évitement pour la navigation au clavier */
-.skip { position: absolute; left: 12px; top: -60px; z-index: 10; background: var(--blue-strong); color: #fff; padding: 10px 16px; border-radius: 7px; transition: top 160ms var(--ease-out); }
+.skip { position: absolute; left: 12px; top: -60px; z-index: 10; background: var(--panel); color: #fff; padding: 10px 16px; border-radius: 7px; transition: top 160ms var(--ease-out); }
 .skip:focus { top: 12px; }
 
 .wrap { max-width: 980px; margin: 0 auto; padding-inline: 28px; }
