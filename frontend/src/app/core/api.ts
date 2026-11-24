@@ -17,9 +17,11 @@ export interface Article {
   updatedAt: string;
   publishedAt: string | null;
   tags: TagRef[];
+  commentsOpen: boolean;
 }
 
-export interface ArticleInput { title: string; slug: string; content: string; statut: Statut; tagIds: number[]; }
+export interface ArticleInput { title: string; slug: string; content: string; statut: Statut; tagIds: number[]; commentsOpen: boolean; }
+export interface Settings { commentsEnabled: boolean; }
 
 export interface Comment {
   id: number;
@@ -102,6 +104,8 @@ export class Api {
   createParasha(p: ParashaInput) { return this.http.post<Parasha>('/api/parashot', p); }
   updateParasha(id: number, p: ParashaInput) { return this.http.put<Parasha>(`/api/parashot/${id}`, p); }
   deleteParasha(id: number) { return this.http.delete<void>(`/api/parashot/${id}`); }
+  settings() { return this.http.get<Settings>('/api/settings'); }
+  updateSettings(s: Settings) { return this.http.put<Settings>('/api/settings', s); }
   adminComments() { return this.http.get<Comment[]>('/api/comments'); }
   approveComment(id: number) { return this.http.post<void>(`/api/comments/${id}/approve`, {}); }
   deleteComment(id: number) { return this.http.delete<void>(`/api/comments/${id}`); }
