@@ -31,6 +31,7 @@ public class SeoPageService {
     private static final DateTimeFormatter FR_DATE = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH).withZone(ZoneId.of("Europe/Paris"));
     private static final String OG_DEFAULT = "/og-default.png";
     private static final String ROBOTS_INDEX = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
+    static final String ROBOTS_NOINDEX = "noindex, nofollow, noarchive";
 
     private final ArticleRepository articles;
     private final ParashaRepository parashot;
@@ -245,7 +246,7 @@ public class SeoPageService {
         StringBuilder t = new StringBuilder("\n<!-- SEO : balises générées par le serveur -->\n");
         t.append("<title>").append(esc(h.title)).append("</title>\n");
         t.append(meta("name", "description", h.description));
-        t.append(meta("name", "robots", h.robots));
+        t.append(meta("name", "robots", site.indexable() ? h.robots : ROBOTS_NOINDEX));
         t.append(meta("name", "author", site.authorName()));
         if (h.path != null) {
             String url = site.url("/".equals(h.path) ? "/" : h.path);
