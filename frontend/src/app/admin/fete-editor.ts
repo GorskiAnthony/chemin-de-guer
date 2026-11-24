@@ -24,7 +24,7 @@ const DEFAULT_SECTIONS = [
           <datalist id="catalog">@for (c of catalog(); track c.name) { <option [value]="c.name">{{ c.category }}</option> }</datalist>
         </div>
         <div>
-          <label for="h">Nom en hébreu</label>
+          <label for="h">Nom en hébreu (rempli automatiquement)</label>
           <input id="h" dir="rtl" lang="he" maxlength="80" [value]="hebrewName()" (input)="hebrewName.set($any($event.target).value)">
         </div>
       </div>
@@ -80,6 +80,7 @@ export class FeteEditor {
   protected readonly catalog = signal<FeteCatalogEntry[]>([]);
   protected readonly busy = signal(false);
   protected readonly error = signal('');
+  private autoHebrew = '';
 
   constructor() {
     this.api.feteCatalog().subscribe((c) => this.catalog.set(c));
@@ -96,12 +97,17 @@ export class FeteEditor {
     });
   }
 
-  /** Quand le nom correspond à une fête du catalogue, le nom en hébreu est proposé automatiquement. */
+  /** Le nom hébreu se remplit tout seul quand le nom correspond au catalogue, et suit si on change de fête. Une saisie à la main n'est jamais écrasée. */
   protected onName(value: string) {
     this.name.set(value);
-    const known = this.catalog().find((c) => c.name.toLowerCase() === value.trim().toLowerCase());
-    if (known && !this.hebrewName()) this.hebrewName.set(known.hebrew);
+    const known = this.catalog().find((c) => this.norm(c.name) === this.norm(value));
+    if (known && (this.hebrewName() === '' || this.hebrewName() === this.autoHebrew)) {
+      this.hebrewName.set(known.hebrew);
+      this.autoHebrew = known.hebrew;
+    }
   }
+
+  private norm(s: string) { return s.trim().toLowerCase().replace(/[\u2018\u2019']/g, ''); }
 
   protected prefill() {
     this.sections.update((current) => [

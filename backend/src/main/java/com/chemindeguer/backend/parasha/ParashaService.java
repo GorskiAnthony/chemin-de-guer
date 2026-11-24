@@ -71,9 +71,10 @@ public class ParashaService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette paracha existe déjà");
         });
         var entry = ParashotCatalog.find(r.name());
-        p.setName(r.name().trim());
+        // Nom du catalogue (orthographe Hebcal) quand la parasha est connue, pour rester cohérent avec l'accueil
+        p.setName(entry != null ? entry.name() : r.name().trim());
         p.setSlug(slug);
-        p.setHebrewName(r.hebrewName() == null || r.hebrewName().isBlank() ? null : r.hebrewName().trim());
+        p.setHebrewName(r.hebrewName() == null || r.hebrewName().isBlank() ? (entry != null ? entry.hebrew() : null) : r.hebrewName().trim());
         p.setBook(entry != null ? entry.book() : "Autres");
         p.setPosition(entry != null ? entry.position() : 999);
         p.setIntro(r.intro());

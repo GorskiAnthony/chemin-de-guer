@@ -49,7 +49,7 @@ export interface Parasha {
   intro: string | null; aliyot: Aliyah[] | null; statut: Statut; updatedAt: string;
 }
 export interface ParashaInput { name: string; hebrewName: string; intro: string; aliyot: Aliyah[]; statut: Statut; }
-export interface CatalogEntry { name: string; book: string; position: number; }
+export interface CatalogEntry { name: string; hebrew: string; book: string; position: number; }
 
 export interface FeteSection { label: string | null; content: string | null; }
 export interface Fete {
