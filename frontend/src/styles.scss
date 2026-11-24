@@ -1,1 +1,139 @@
-/* You can add global styles to this file, and also import other style files */
+/* Design system : docs/design-system.html */
+:root {
+  --bg: #ece6d6;
+  --surface: #ffffff;
+  --surface-raised: #f7f2e4;
+  --ink: #1b2635;
+  --ink-muted: #5d6a7a;
+  --border: #d9cfb2;
+  --blue: #15335c;
+  --blue-strong: #0b1f3c;
+  --blue-soft: #e3e9f1;
+  --gold: #a9801f;
+  --gold-soft: #f1e3bd;
+  --danger: #a32d2d;
+  --shadow: 0 1px 2px rgba(27, 38, 53, 0.08), 0 10px 28px rgba(27, 38, 53, 0.08);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --serif: "Frank Ruhl Libre", Georgia, serif;
+  --mono: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1420;
+    --surface: #141d2c;
+    --surface-raised: #1a2538;
+    --ink: #ece6d6;
+    --ink-muted: #96a2b4;
+    --border: #273048;
+    --blue: #7fa6d9;
+    --blue-strong: #a9c6ea;
+    --blue-soft: #1b2942;
+    --gold: #dcb75f;
+    --gold-soft: #2c2512;
+    --danger: #e08585;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px rgba(0, 0, 0, 0.4);
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Work Sans", -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: var(--serif); color: var(--blue-strong); line-height: 1.2; text-wrap: balance; }
+a { color: var(--blue); transition: color 160ms ease; }
+
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 28px; }
+.narrow { max-width: 720px; margin-inline: auto; }
+
+.mono { font-family: var(--mono); font-size: .78rem; color: var(--ink-muted); }
+.muted { color: var(--ink-muted); }
+.error { color: var(--danger); }
+.caption { font: 500 .78rem var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-muted); margin: 0; }
+
+/* Boutons */
+.btn {
+  display: inline-block; cursor: pointer; text-decoration: none;
+  font: 600 .95rem "Work Sans", sans-serif;
+  padding: 11px 22px; border-radius: 7px; border: 1px solid transparent;
+  background: var(--blue); color: var(--surface);
+  transition: transform 160ms var(--ease-out), background-color 160ms ease, border-color 160ms ease, opacity 160ms ease;
+  &:active { transform: scale(0.97); }
+  &:disabled { opacity: .45; cursor: not-allowed; }
+  &.secondary { background: transparent; color: var(--blue); border-color: var(--blue); }
+  &.gold { background: var(--gold); color: #2a2106; }
+  &.ghost { background: transparent; color: var(--ink-muted); border-color: var(--border); }
+  &.danger { background: transparent; color: var(--danger); border-color: var(--danger); }
+  &.small { padding: 6px 14px; font-size: .85rem; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .btn:hover { background: var(--blue-strong); }
+  .btn.secondary:hover { background: var(--blue-soft); }
+  .btn.gold:hover { filter: brightness(1.08); background: var(--gold); }
+  .btn.ghost:hover { border-color: var(--ink-muted); background: transparent; }
+  .btn.danger:hover { background: var(--danger); color: #fff; }
+}
+
+/* Champs */
+label { display: block; font: 500 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); margin: 18px 0 6px; }
+input, textarea, select {
+  width: 100%; font: inherit; font-size: .95rem; padding: 10px 12px;
+  border: 1px solid var(--border); border-radius: 7px; background: var(--surface); color: var(--ink);
+  transition: border-color 160ms ease, box-shadow 160ms ease;
+  &:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 3px var(--blue-soft); }
+}
+textarea { resize: vertical; min-height: 80px; }
+
+/* Pastilles et badges */
+.tag {
+  display: inline-flex; align-items: center; padding: 5px 13px; border-radius: 999px; border: 0;
+  font: 400 .78rem var(--mono); background: var(--blue-soft); color: var(--blue);
+  text-decoration: none; margin: 0 6px 6px 0;
+  transition: transform 160ms var(--ease-out), background-color 160ms ease, color 160ms ease;
+}
+button.tag { cursor: pointer; &:active { transform: scale(0.96); } &.on { background: var(--blue); color: var(--surface); } }
+.badge {
+  display: inline-flex; align-items: center; gap: 6px; padding: 3px 11px; border-radius: 999px;
+  font-size: .78rem; font-weight: 500;
+  &::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+  &.published { background: var(--gold-soft); color: var(--gold); }
+  &.draft { background: var(--surface-raised); color: var(--ink-muted); border: 1px solid var(--border); }
+  &.pending { background: var(--blue-soft); color: var(--blue); }
+}
+
+/* Cartes */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; box-shadow: var(--shadow); }
+.article-card {
+  display: flex; flex-direction: column; overflow: hidden; padding: 0;
+  .stripe-card { height: 4px; background: linear-gradient(90deg, var(--blue), var(--gold)); }
+  .body { padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
+  h3 { margin: 0; font-size: 1.3rem; a { color: inherit; text-decoration: none; } }
+  p { margin: 0; color: var(--ink-muted); font-size: .92rem; flex: 1; }
+}
+
+/* Commentaire */
+.comment { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--blue); border-radius: 8px; padding: 16px 18px; margin-bottom: 12px; }
+.comment p { margin: 8px 0 0; font-size: .94rem; white-space: pre-line; }
+
+/* Entrée en cascade : courte, non bloquante */
+.reveal { opacity: 0; transform: translateY(8px); animation: reveal 300ms var(--ease-out) forwards;
+  &:nth-child(1) { animation-delay: 0ms; } &:nth-child(2) { animation-delay: 45ms; }
+  &:nth-child(3) { animation-delay: 80ms; } &:nth-child(4) { animation-delay: 105ms; }
+  &:nth-child(n+5) { animation-delay: 125ms; } }
+@keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+@media (hover: hover) and (pointer: fine) {
+  .article-card { transition: transform 200ms var(--ease-out), border-color 200ms ease; &:hover { transform: translateY(-2px); border-color: var(--gold); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transform: none; animation-duration: 150ms; animation-delay: 0ms !important; }
+  .btn:active, button.tag:active { transform: none; }
+  .article-card:hover { transform: none; }
+}
