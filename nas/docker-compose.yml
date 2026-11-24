@@ -1,0 +1,19 @@
+# À lancer SUR LE NAS (application Docker du NAS, ou `docker compose up -d` en SSH).
+# Le NAS se connecte au VPS et copie les sauvegardes de Chemin de Guer. Voir nas/README.md.
+services:
+  cdg-pull:
+    image: alpine:3.22
+    container_name: cdg-backup-pull
+    restart: unless-stopped
+    environment:
+      VPS_HOST: ${VPS_HOST:?Renseignez VPS_HOST (adresse ou IP du VPS)}
+      VPS_USER: ${VPS_USER:-cdgbackup}
+      VPS_PORT: ${VPS_PORT:-22}
+      PULL_EVERY_HOURS: ${PULL_EVERY_HOURS:-6}
+      KEEP_COUNT: ${KEEP_COUNT:-0}
+      TZ: Europe/Paris
+    volumes:
+      - ./pull.sh:/pull.sh:ro
+      - ./ssh:/ssh                       # clé privée du NAS et empreinte approuvée du VPS
+      - ${DEST_DIR:-./backups}:/backups  # où les sauvegardes sont copiées sur le NAS
+    entrypoint: ["sh", "/pull.sh"]
