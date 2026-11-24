@@ -2,3 +2,8 @@
 .DS_Store
 
 backups/
+
+# Kit NAS : clés, configuration locale et sauvegardes copiées
+nas/.env
+nas/ssh/
+nas/backups/
