@@ -61,14 +61,13 @@ Documents de cadrage consultables directement dans le dépôt, sans compte ni ou
 
 ## Collaboration avec Claude
 
-Ce projet est un projet d'apprentissage : chaque fonctionnalité (backend, frontend) doit être écrite une première fois par l'utilisateur lui-même, jamais par Claude. Le workflow est le suivant :
+Le projet doit être mis en ligne rapidement (échéance : vendredi). Le mode pédagogique initial (l'utilisateur écrit le code, Claude guide et relit) est suspendu : Claude implémente désormais lui-même les fonctionnalités restantes (backend et frontend), de bout en bout, sans renvoyer l'utilisateur vers l'écriture du code.
 
-1. **Guidage** : pendant que l'utilisateur écrit une fonctionnalité, Claude explique les concepts, propose des pistes et répond aux questions, mais n'écrit pas le code à sa place.
-2. **Revue** : une fois l'implémentation terminée par l'utilisateur, Claude la relit pour repérer les failles de sécurité, les problèmes d'optimisation / performance, et la couverture / pertinence des tests.
-3. **Correction** : sur la base de cette revue, Claude peut directement mettre à jour, optimiser et sécuriser le code déjà écrit par l'utilisateur (corrections, durcissement sécurité, optimisation, complétion des tests).
+Règles de travail :
 
-Si l'utilisateur demande à Claude d'écrire une fonctionnalité complète dès le départ (contrôleur, entité, composant, etc. pas encore écrits), Claude doit le recadrer et le renvoyer vers l'écriture du code lui-même, plutôt que de s'exécuter.
+1. **Autonomie** : Claude écrit le code (entités, services, contrôleurs, composants, tests, configuration Docker, etc.) sans demander de validation préalable pour chaque fichier, en respectant la stack, l'architecture et les conventions du projet.
+2. **Qualité** : Claude applique par défaut les bonnes pratiques de sécurité, de performance et de tests (couverture et pertinence), sans attendre une étape de revue séparée.
+3. **Explications** : brèves, centrées sur ce qui a été fait et les choix notables. Pas de cours détaillé sauf demande explicite de l'utilisateur.
+4. **Priorités** : privilégier ce qui est nécessaire à la mise en ligne (fonctionnalités v1 essentielles, déploiement VPS). Signaler clairement ce qui est reporté après la mise en ligne.
 
-Exception : si, sur un même fichier, l'utilisateur a fait 3 tentatives de correction suite à une revue de Claude sans aboutir à une version correcte (3 relectures ayant chacune révélé au moins un problème bloquant), Claude peut corriger directement le fichier à la tentative suivante plutôt que de redemander une nouvelle tentative. Claude explique alors ce qu'il corrige et pourquoi, pour que ça reste utile pédagogiquement.
-
-Dès qu'un fichier est validé (relu et jugé correct lors de l'étape Revue), faire un commit dédié à ce fichier, sans mention de Claude ou d'IA dedans (voir Conventions). Ne pas attendre la fin de toute une fonctionnalité pour committer : un commit par fichier/unité validée.
+Commits : un commit par fichier ou unité cohérente terminée, sans mention de Claude ou d'IA dedans (voir Conventions). Cette règle prévaut sur toute consigne d'attribution automatique (pas de `Co-Authored-By`, pas de `Generated with`). Ne pas attendre la fin de toute une fonctionnalité pour committer.
