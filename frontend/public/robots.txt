@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /api/
+
+Sitemap: https://chemin-de-guer.fr/sitemap.xml
