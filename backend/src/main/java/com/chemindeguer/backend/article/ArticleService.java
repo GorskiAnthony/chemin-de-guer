@@ -36,6 +36,7 @@ public class ArticleService {
                 .orElseThrow(() -> new NoSuchElementException("Utilisateur non trouvé"));
         var article = new Article(request.title().trim(), request.content(), author);
         Instant now = Instant.now();
+        article.setDescription(blankToNull(request.description()));
         article.setCreatedAt(now);
         article.setUpdatedAt(now);
         article.setSlug(uniqueSlug(request.slug() == null || request.slug().isBlank() ? request.title() : request.slug(), null));
@@ -51,6 +52,7 @@ public class ArticleService {
                 .orElseThrow(() -> new NoSuchElementException("Article non trouvé"));
         article.setTitle(request.title().trim());
         article.setContent(request.content());
+        article.setDescription(blankToNull(request.description()));
         article.setUpdatedAt(Instant.now());
         // Le slug ne change pas avec le titre (les liens existants restent valides) : uniquement s'il est modifié explicitement
         if (request.slug() != null && !request.slug().isBlank() && !request.slug().equals(article.getSlug())) {
@@ -102,6 +104,10 @@ public class ArticleService {
         var missing = articleRepository.findAllBySlugIsNull();
         missing.forEach(a -> a.setSlug(uniqueSlug(a.getTitle(), a.getId())));
         return missing.size();
+    }
+
+    private static String blankToNull(String s) {
+        return s == null || s.isBlank() ? null : s.trim();
     }
 
     private String uniqueSlug(String text, Long selfId) {
