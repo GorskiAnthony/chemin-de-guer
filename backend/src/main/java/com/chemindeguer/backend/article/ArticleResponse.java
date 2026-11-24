@@ -6,7 +6,7 @@ import java.time.Instant;
 import java.util.Comparator;
 import java.util.List;
 
-public record ArticleResponse(Long id, String title, String content, String excerpt, String authorEmail,
+public record ArticleResponse(Long id, String slug, String title, String content, String excerpt, String authorEmail,
                               StatutArticle statut, Instant createdAt, Instant updatedAt, Instant publishedAt,
                               List<TagRef> tags) {
 
@@ -20,18 +20,18 @@ public record ArticleResponse(Long id, String title, String content, String exce
                 .sorted(Comparator.comparing(Tag::getName))
                 .map(t -> new TagRef(t.getId(), t.getName(), t.getSlug()))
                 .toList();
-        return new ArticleResponse(a.getId(), a.getTitle(), a.getContent(), excerpt(a.getContent()),
+        return new ArticleResponse(a.getId(), a.getSlug(), a.getTitle(), a.getContent(), excerpt(a.getContent()),
                 a.getAuthor().getEmail(), a.getStatut(), a.getCreatedAt(), a.getUpdatedAt(), a.getPublishedAt(), tags);
     }
 
     /** Version liste publique : pas de contenu complet ni d'email d'auteur. */
     public ArticleResponse summary() {
-        return new ArticleResponse(id, title, null, excerpt, null, statut, createdAt, updatedAt, publishedAt, tags);
+        return new ArticleResponse(id, slug, title, null, excerpt, null, statut, createdAt, updatedAt, publishedAt, tags);
     }
 
     /** Version publique complète : sans email d'auteur. */
     public ArticleResponse publicView() {
-        return new ArticleResponse(id, title, content, excerpt, null, statut, createdAt, updatedAt, publishedAt, tags);
+        return new ArticleResponse(id, slug, title, content, excerpt, null, statut, createdAt, updatedAt, publishedAt, tags);
     }
 
     static String excerpt(String content) {
