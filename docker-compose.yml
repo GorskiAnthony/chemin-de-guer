@@ -4,8 +4,10 @@ x-logging: &logging
     max-size: "10m"
     max-file: "3"
 
+# Les noms de services sont préfixés (cdg-) : sur un hôte partagé comme Dokploy, des noms génériques
+# (db, backend, frontend) peuvent entrer en collision avec ceux d'autres projets sur le même réseau Docker.
 services:
-  db:
+  cdg-db:
     image: postgres:16-alpine
     restart: unless-stopped
     logging: *logging
@@ -22,12 +24,12 @@ services:
       timeout: 5s
       retries: 10
 
-  backend:
+  cdg-backend:
     build: ./backend
     restart: unless-stopped
     logging: *logging
     environment:
-      DB_HOST: db
+      DB_HOST: cdg-db
       DB_PORT: 5432
       DB_NAME: ${DB_NAME:-chemin_de_guer}
       DB_USER: ${DB_USER:-postgres}
@@ -41,9 +43,9 @@ services:
       SHABBAT_TIMEZONE: ${SHABBAT_TIMEZONE:-Europe/Paris}
       SHABBAT_MARGIN_MINUTES: ${SHABBAT_MARGIN_MINUTES:-30}
     depends_on:
-      db:
+      cdg-db:
         condition: service_healthy
-    # Pas de port publié : seul nginx (frontend) joint le backend.
+    # Pas de port publié : seul nginx (cdg-frontend) joint le backend.
     healthcheck:
       test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/8080 && printf 'GET /actuator/health HTTP/1.0\\r\\n\\r\\n' >&3 && grep -q '\"status\":\"UP\"' <&3"]
       interval: 10s
@@ -51,12 +53,12 @@ services:
       retries: 12
       start_period: 30s
 
-  frontend:
+  cdg-frontend:
     build: ./frontend
     restart: unless-stopped
     logging: *logging
     depends_on:
-      backend:
+      cdg-backend:
         condition: service_healthy
     # Aucun port publié ici : en production, le reverse proxy (Traefik de Dokploy) route vers le port 80
     # du conteneur. Pour un accès direct (local, VPS sans proxy), voir docker-compose.override.yml.
