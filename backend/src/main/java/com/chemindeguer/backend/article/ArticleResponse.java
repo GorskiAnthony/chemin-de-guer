@@ -8,7 +8,7 @@ import java.util.List;
 
 public record ArticleResponse(Long id, String slug, String title, String content, String excerpt, String authorEmail,
                               StatutArticle statut, Instant createdAt, Instant updatedAt, Instant publishedAt,
-                              List<TagRef> tags) {
+                              List<TagRef> tags, boolean commentsOpen) {
 
     public record TagRef(Long id, String name, String slug) {
     }
@@ -21,17 +21,22 @@ public record ArticleResponse(Long id, String slug, String title, String content
                 .map(t -> new TagRef(t.getId(), t.getName(), t.getSlug()))
                 .toList();
         return new ArticleResponse(a.getId(), a.getSlug(), a.getTitle(), a.getContent(), excerpt(a.getContent()),
-                a.getAuthor().getEmail(), a.getStatut(), a.getCreatedAt(), a.getUpdatedAt(), a.getPublishedAt(), tags);
+                a.getAuthor().getEmail(), a.getStatut(), a.getCreatedAt(), a.getUpdatedAt(), a.getPublishedAt(), tags, a.commentsAllowed());
     }
 
     /** Version liste publique : pas de contenu complet ni d'email d'auteur. */
     public ArticleResponse summary() {
-        return new ArticleResponse(id, slug, title, null, excerpt, null, statut, createdAt, updatedAt, publishedAt, tags);
+        return new ArticleResponse(id, slug, title, null, excerpt, null, statut, createdAt, updatedAt, publishedAt, tags, commentsOpen);
     }
 
     /** Version publique complète : sans email d'auteur. */
     public ArticleResponse publicView() {
-        return new ArticleResponse(id, slug, title, content, excerpt, null, statut, createdAt, updatedAt, publishedAt, tags);
+        return new ArticleResponse(id, slug, title, content, excerpt, null, statut, createdAt, updatedAt, publishedAt, tags, commentsOpen);
+    }
+
+    /** Côté public : commentaires ouverts seulement si l'interrupteur général ET celui de l'article le sont. */
+    public ArticleResponse withCommentsOpen(boolean open) {
+        return new ArticleResponse(id, slug, title, content, excerpt, authorEmail, statut, createdAt, updatedAt, publishedAt, tags, open);
     }
 
     static String excerpt(String content) {

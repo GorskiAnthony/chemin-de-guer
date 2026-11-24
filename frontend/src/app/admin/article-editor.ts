@@ -25,6 +25,9 @@ import { renderMarkdown } from '../core/markdown';
         <option value="ARCHIVED">Archivé</option>
       </select>
 
+      <label class="check commentaires"><input type="checkbox" [checked]="commentsOpen()" (change)="commentsOpen.set($any($event.target).checked)">
+        Autoriser les commentaires sur cet article</label>
+
       <label>Tags</label>
       @for (t of tags(); track t.id) {
         <label class="check"><input type="checkbox" [checked]="tagIds().includes(t.id)" (change)="toggle(t.id)"> {{ t.name }}</label>
@@ -48,6 +51,7 @@ import { renderMarkdown } from '../core/markdown';
   styles: `
     .check { display: inline-flex; align-items: center; gap: .3rem; margin-inline-end: 1rem; font-weight: 400; }
     .check input { width: auto; }
+    .commentaires { margin-top: 18px; text-transform: none; letter-spacing: 0; font: 500 .95rem 'Work Sans', sans-serif; color: var(--ink); }
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 800px) { .split { grid-template-columns: 1fr; } }
     .preview { min-height: 12rem; }
@@ -61,6 +65,7 @@ export class ArticleEditor {
 
   protected readonly title = signal('');
   protected readonly slug = signal('');
+  protected readonly commentsOpen = signal(true);
   protected readonly content = signal('');
   protected readonly statut = signal<Statut>('DRAFT');
   protected readonly tagIds = signal<number[]>([]);
@@ -77,6 +82,7 @@ export class ArticleEditor {
       this.api.adminArticle(Number(id)).subscribe((a) => {
         this.title.set(a.title);
         this.slug.set(a.slug ?? '');
+        this.commentsOpen.set(a.commentsOpen);
         this.content.set(a.content ?? '');
         this.statut.set(a.statut);
         this.tagIds.set(a.tags.map((t) => t.id));
@@ -92,7 +98,7 @@ export class ArticleEditor {
     e.preventDefault();
     this.busy.set(true);
     this.error.set('');
-    const input = { title: this.title(), slug: this.slug().trim(), content: this.content(), statut: this.statut(), tagIds: this.tagIds() };
+    const input = { title: this.title(), slug: this.slug().trim(), content: this.content(), statut: this.statut(), tagIds: this.tagIds(), commentsOpen: this.commentsOpen() };
     const id = this.id();
     const request = id ? this.api.updateArticle(Number(id), input) : this.api.createArticle(input);
     request.subscribe({

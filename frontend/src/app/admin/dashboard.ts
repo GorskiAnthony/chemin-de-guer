@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { Api, Article, Comment, Parasha, TagRef } from '../core/api';
 import { Auth } from '../core/auth';
@@ -47,12 +47,28 @@ import { Auth } from '../core/auth';
       </div>
     } @empty { <p class="muted">Aucun résumé de paracha.</p> }
 
-    <h2>Commentaires</h2>
-    @for (c of comments(); track c.id) {
+    <div class="com-head">
+      <h2>Commentaires
+        @if (pendingCount() > 0) { <span class="badge pending">{{ pendingCount() }} en attente</span> }
+      </h2>
+      <button class="btn small" [class.secondary]="commentsEnabled()" [class.danger]="!commentsEnabled()" (click)="toggleComments()">
+        {{ commentsEnabled() ? 'Fermer tous les commentaires' : 'Rouvrir les commentaires' }}
+      </button>
+    </div>
+    @if (!commentsEnabled()) {
+      <p class="card notice">Les commentaires sont fermés sur tout le site : personne ne peut en envoyer. Ceux déjà approuvés restent visibles.</p>
+    }
+    <div class="filters" role="group" aria-label="Filtrer les commentaires">
+      <button class="tag" [class.on]="filter() === 'PENDING'" (click)="filter.set('PENDING')">À modérer ({{ pendingCount() }})</button>
+      <button class="tag" [class.on]="filter() === 'APPROVED'" (click)="filter.set('APPROVED')">Approuvés</button>
+      <button class="tag" [class.on]="filter() === 'ALL'" (click)="filter.set('ALL')">Tous</button>
+    </div>
+    @for (c of visibleComments(); track c.id) {
       <div class="card row reveal">
         <div>
           <strong>{{ c.authorName }}</strong> sur « {{ c.articleTitle }} »
           <span class="badge" [class.pending]="c.statut === 'PENDING'" [class.published]="c.statut !== 'PENDING'">{{ c.statut === 'PENDING' ? 'En attente' : 'Approuvé' }}</span>
+          <div class="muted">{{ c.createdAt | date: 'd MMM y, HH:mm' : undefined : 'fr' }}</div>
           <div class="msg">{{ c.content }}</div>
         </div>
         <div>
@@ -60,7 +76,7 @@ import { Auth } from '../core/auth';
           <button class="btn small danger" (click)="removeComment(c)">Supprimer</button>
         </div>
       </div>
-    } @empty { <p class="muted">Aucun commentaire.</p> }
+    } @empty { <p class="muted">{{ filter() === 'PENDING' ? 'Aucun commentaire à modérer.' : 'Aucun commentaire.' }}</p> }
 
     <h2>Tags</h2>
     <div>
@@ -82,6 +98,11 @@ import { Auth } from '../core/auth';
     .row .btn { margin-inline-start: .4rem; }
     .msg { white-space: pre-line; margin-top: .3rem; }
     .x { border: 0; background: none; cursor: pointer; color: inherit; font-size: 1rem; }
+    .com-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .com-head h2 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .filters { margin-bottom: 14px; }
+    button.tag { border: 0; cursor: pointer; font-family: var(--mono); }
+    .notice { margin-bottom: 14px; border-left: 3px solid var(--danger); }
     .newtag { display: flex; gap: .5rem; max-width: 360px; margin-top: .6rem; }
   `,
 })
@@ -94,6 +115,16 @@ export class Dashboard {
   protected readonly tags = signal<TagRef[]>([]);
   protected readonly parashot = signal<Parasha[]>([]);
   protected readonly newTag = signal('');
+  protected readonly commentsEnabled = signal(true);
+  protected readonly filter = signal<'PENDING' | 'APPROVED' | 'ALL'>('PENDING');
+  protected readonly pendingCount = computed(() => this.comments().filter((c) => c.statut === 'PENDING').length);
+  protected readonly visibleComments = computed(() => {
+    const f = this.filter();
+    const list = this.comments().filter((c) => f === 'ALL' || c.statut === f);
+    // À modérer d'abord, puis du plus récent au plus ancien
+    return [...list].sort((a, b) =>
+      (a.statut === 'PENDING' ? 0 : 1) - (b.statut === 'PENDING' ? 0 : 1) || b.createdAt.localeCompare(a.createdAt));
+  });
 
   constructor() { this.reload(); }
 
@@ -104,6 +135,7 @@ export class Dashboard {
     this.api.adminComments().subscribe((c) => this.comments.set(c));
     this.api.publicTags().subscribe((t) => this.tags.set(t));
     this.api.adminParashot().subscribe((p) => this.parashot.set(p));
+    this.api.settings().subscribe((st) => this.commentsEnabled.set(st.commentsEnabled));
   }
 
   protected removeArticle(a: Article) {
@@ -113,6 +145,11 @@ export class Dashboard {
   protected removeParasha(p: Parasha) {
     if (!confirm(`Supprimer « ${p.name} » ?`)) return;
     this.api.deleteParasha(p.id).subscribe(() => this.reload());
+  }
+  protected toggleComments() {
+    const next = !this.commentsEnabled();
+    if (!next && !confirm('Fermer les commentaires sur tout le site ?')) return;
+    this.api.updateSettings({ commentsEnabled: next }).subscribe((st) => this.commentsEnabled.set(st.commentsEnabled));
   }
   protected approve(c: Comment) { this.api.approveComment(c.id).subscribe(() => this.reload()); }
   protected removeComment(c: Comment) {
