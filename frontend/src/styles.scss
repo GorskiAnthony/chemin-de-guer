@@ -126,6 +126,16 @@ button.tag { cursor: pointer; &:active { transform: scale(0.96); } &.on { backgr
   .body { padding: 20px; display: flex; flex-direction: column; gap: 10px; flex: 1; }
   h3 { margin: 0; font-size: 1.3rem; a { color: inherit; text-decoration: none; } }
   p { margin: 0; color: var(--ink-muted); font-size: .92rem; flex: 1; }
+
+  /* Toute la carte est cliquable : le lien du titre est étendu à la carte entière (un seul lien, lu une fois par
+     les lecteurs d'écran, accessible au clavier). */
+  position: relative;
+  cursor: pointer;
+  h3 a::after { content: ""; position: absolute; inset: 0; z-index: 1; }
+  /* Le focus clavier entoure la carte entière plutôt que le seul titre */
+  h3 a:focus-visible { outline: none; }
+  &:has(h3 a:focus-visible) { outline: 3px solid var(--blue); outline-offset: 3px; }
+  &:active { transform: scale(0.99); }
 }
 
 /* Commentaire */
@@ -144,7 +154,7 @@ button.tag { cursor: pointer; &:active { transform: scale(0.96); } &.on { backgr
 @media (prefers-reduced-motion: reduce) {
   .reveal { transform: none; animation-duration: 150ms; animation-delay: 0ms !important; }
   .btn:active, button.tag:active { transform: none; }
-  .article-card:hover { transform: none; }
+  .article-card:hover, .article-card:active { transform: none; }
 }
 
 /* Contenu rédigé en Markdown (articles, paracha, aperçu) */
