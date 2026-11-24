@@ -112,6 +112,15 @@ La restauration **remplace** le contenu actuel de la base. Pour une sauvegarde c
 
 Cette procédure a été testée : sauvegarde chiffrée, copie S3, suppression volontaire d'un article, restauration, article retrouvé.
 
+## Résumés de paracha et de fêtes
+
+Dans `/admin`, **Nouvelle paracha** et **Nouvelle fête** servent à écrire ce que vous apprenez. Une paracha est découpée en montées, une fête en parties (histoire et origine, date et durée, coutumes et rituels, prières et lectures, vécu : le bouton *Ajouter les parties types* les prépare, vous pouvez en ajouter, en retirer ou les renommer).
+
+- Choisissez le nom dans la liste de suggestions : la fête est alors classée automatiquement (Fêtes de Tichri, Hiver et printemps, Omer et Chavouot, Été, Jeûnes, Chaque mois), son nom en hébreu est proposé, et elle est **reliée au calendrier de l'accueil**. Un nom hors liste (Yom HaShoah...) est accepté et classé dans « Autres ».
+- Une fête publiée affiche sa **prochaine date**, calculée automatiquement à partir du calendrier hébraïque, avec le nombre de jours restants.
+- Sur l'accueil, la fête annoncée devient un lien vers votre résumé dès que celui-ci est publié. Le même principe s'applique à la paracha de la semaine.
+- Un résumé en brouillon n'est visible nulle part côté public.
+
 ## Indexation par les moteurs de recherche
 
 Par défaut (`SITE_INDEXABLE=false`) le site demande à **ne pas être indexé** :
@@ -126,14 +135,14 @@ Pour rouvrir le site aux moteurs : `SITE_INDEXABLE=true` dans Dokploy puis redé
 
 ## Référencement, partage et moteurs de réponse (SEO / GEO)
 
-Le site est une application Angular : les robots des réseaux sociaux et de la plupart des IA n'exécutent pas JavaScript. Pour qu'ils voient le vrai contenu, nginx envoie les pages publiques (`/`, `/articles`, `/articles/<slug>`, `/paracha`, `/paracha/<slug>`) au backend, qui renvoie `index.html` enrichi :
+Le site est une application Angular : les robots des réseaux sociaux et de la plupart des IA n'exécutent pas JavaScript. Pour qu'ils voient le vrai contenu, nginx envoie les pages publiques (`/`, `/articles`, `/articles/<slug>`, `/paracha`, `/paracha/<slug>`, `/fetes`, `/fetes/<slug>`) au backend, qui renvoie `index.html` enrichi :
 
 - balises `title`, `description`, `canonical`, `hreflang`, Open Graph et Twitter Card, propres à chaque page ;
 - données structurées JSON-LD (`WebSite`, `Person`, `Blog`, `BlogPosting`/`Article`, `BreadcrumbList`) ;
 - le texte complet de la page (masqué visuellement, remplacé au démarrage de l'application), donc lisible sans JavaScript ;
 - un vrai code **404** pour les adresses inconnues et une redirection **301** de `/articles/<id>` vers `/articles/<slug>`.
 
-Chaque article et chaque paracha a **sa propre image de partage** (1200 x 630, le titre sur le fond du site), générée à la demande sur `/og/articles/<slug>.png` et `/og/paracha/<slug>.png` ; les pages d'ensemble utilisent `/og-default.png`.
+Chaque article, chaque paracha et chaque fête a **sa propre image de partage** (1200 x 630, le titre sur le fond du site), générée à la demande sur `/og/articles/<slug>.png`, `/og/paracha/<slug>.png` et `/og/fetes/<slug>.png` ; les pages d'ensemble utilisent `/og-default.png`.
 
 Autres fichiers : `/sitemap.xml` (pages, articles, paracha avec date de modification), `/rss.xml` (texte intégral), `/robots.txt`, et pour les moteurs de réponse `/llms.txt` (résumé du site) et `/llms-full.txt` (texte intégral). `/admin` et `/api` ne sont jamais indexés (`X-Robots-Tag: noindex`).
 
