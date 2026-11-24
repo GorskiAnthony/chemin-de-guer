@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, OnInit, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Api, Article, TagRef } from '../core/api';
+import { Seo } from '../core/seo';
 
 @Component({
   selector: 'app-articles',
@@ -49,7 +50,9 @@ import { Api, Article, TagRef } from '../core/api';
     .empty { text-align: center; padding: 40px 0; }
   `,
 })
-export class Articles {
+export class Articles implements OnInit {
+  /** Recherche transmise par l'adresse : /articles?q=... (utilisée par les moteurs de recherche) */
+  readonly q = input<string>();
   private readonly api = inject(Api);
   protected readonly articles = signal<Article[]>([]);
   protected readonly tags = signal<TagRef[]>([]);
@@ -59,7 +62,16 @@ export class Articles {
   private timer?: ReturnType<typeof setTimeout>;
 
   constructor() {
+    inject(Seo).set({
+      title: 'Articles · Chemin de Guer',
+      description: "Tous les articles du journal : témoignages et étapes d'un parcours de conversion au judaïsme.",
+      path: '/articles',
+    });
     this.api.publicTags().subscribe({ next: (t) => this.tags.set(t), error: () => {} });
+  }
+
+  ngOnInit() {
+    this.query.set(this.q() ?? '');
     this.load();
   }
 

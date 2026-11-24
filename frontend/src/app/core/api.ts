@@ -11,6 +11,7 @@ export interface Article {
   title: string;
   content: string | null;
   excerpt: string;
+  description: string | null;
   authorEmail: string | null;
   statut: Statut;
   createdAt: string;
@@ -20,7 +21,7 @@ export interface Article {
   commentsOpen: boolean;
 }
 
-export interface ArticleInput { title: string; slug: string; content: string; statut: Statut; tagIds: number[]; commentsOpen: boolean; }
+export interface ArticleInput { title: string; slug: string; description: string; content: string; statut: Statut; tagIds: number[]; commentsOpen: boolean; }
 export interface Settings { commentsEnabled: boolean; }
 
 export interface Comment {

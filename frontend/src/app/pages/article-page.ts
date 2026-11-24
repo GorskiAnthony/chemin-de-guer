@@ -1,13 +1,15 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
 import { Router, RouterLink } from '@angular/router';
 import { Api, Article, Comment } from '../core/api';
 import { renderMarkdown } from '../core/markdown';
+import { Seo } from '../core/seo';
+import { SITE } from '../core/site';
+import { Share } from './share';
 
 @Component({
   selector: 'app-article-page',
-  imports: [RouterLink, DatePipe],
+  imports: [RouterLink, DatePipe, Share],
   template: `
     <div class="narrow">
     <a class="back" routerLink="/">← Tous les articles</a>
@@ -15,11 +17,20 @@ import { renderMarkdown } from '../core/markdown';
     @if (article(); as a) {
       <article class="reveal sheet">
         <header>
-          <p class="mono">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</p>
           <h1>{{ a.title }}</h1>
+          <p class="byline">
+            Par <a [href]="site.authorUrl" target="_blank" rel="noopener noreferrer">{{ site.author }}</a>
+            <span aria-hidden="true"> · </span>
+            <time [attr.datetime]="a.publishedAt">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</time>
+            <span aria-hidden="true"> · </span>{{ readingTime() }} min de lecture
+          </p>
+          @if (updated()) {
+            <p class="byline">Mis à jour le <time [attr.datetime]="a.updatedAt">{{ a.updatedAt | date: 'd MMMM y' : undefined : 'fr' }}</time></p>
+          }
           <div>@for (t of a.tags; track t.id) { <span class="tag">#{{ t.name }}</span> }</div>
         </header>
         <div class="body" [innerHTML]="html()"></div>
+        <app-share [path]="'/articles/' + (a.slug ?? a.id)" [title]="a.title" />
       </article>
 
       @if (related().length) {
@@ -65,6 +76,7 @@ import { renderMarkdown } from '../core/markdown';
     .sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
       padding: clamp(1.3rem, 4.5vw, 3rem); }
     header { margin-bottom: 28px; }
+    .byline { margin: 0 0 4px; font-size: .92rem; color: var(--ink-muted); }
     h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 14px; }
     .body { font-size: 1.12rem; line-height: 1.75; }
     :host ::ng-deep .body :is(h2, h3, h4) { margin-top: 2.2rem; }
@@ -81,8 +93,8 @@ import { renderMarkdown } from '../core/markdown';
 export class ArticlePage {
   readonly slug = input.required<string>();
   private readonly api = inject(Api);
-  private readonly title = inject(Title);
-  private readonly meta = inject(Meta);
+  private readonly seo = inject(Seo);
+  protected readonly site = SITE;
   private readonly router = inject(Router);
 
   protected readonly article = signal<Article | null>(null);
@@ -90,6 +102,11 @@ export class ArticlePage {
   protected readonly comments = signal<Comment[]>([]);
   protected readonly notFound = signal(false);
   protected readonly html = computed(() => renderMarkdown(this.article()?.content ?? ''));
+  protected readonly readingTime = computed(() => Math.max(1, Math.round((this.article()?.content ?? '').split(/\s+/).length / 200)));
+  protected readonly updated = computed(() => {
+    const a = this.article();
+    return !!a && !!a.publishedAt && new Date(a.updatedAt).getTime() - new Date(a.publishedAt).getTime() > 86_400_000;
+  });
 
   protected readonly name = signal('');
   protected readonly message = signal('');
@@ -110,14 +127,17 @@ export class ArticlePage {
             return;
           }
           this.article.set(a);
-          this.title.setTitle(`${a.title} · Chemin de Guer`);
-          this.meta.updateTag({ name: 'description', content: a.excerpt });
-          this.meta.updateTag({ property: 'og:title', content: a.title });
-          this.meta.updateTag({ property: 'og:description', content: a.excerpt });
+          this.seo.set({
+            title: `${a.title} · ${SITE.name}`,
+            description: a.excerpt,
+            path: `/articles/${a.slug ?? a.id}`,
+            image: a.slug ? `/og/articles/${a.slug}.png` : undefined,
+            type: 'article',
+          });
           this.api.related(a.id).subscribe({ next: (r) => this.related.set(r), error: () => this.related.set([]) });
           this.loadComments(a.id);
         },
-        error: () => this.notFound.set(true),
+        error: () => { this.notFound.set(true); this.seo.set({ title: `Article introuvable · ${SITE.name}`, description: 'Cet article n’existe pas.', path: '/articles', noindex: true }); },
       });
     });
   }

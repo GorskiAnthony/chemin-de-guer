@@ -1,6 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Seo } from '../core/seo';
+import { SITE } from '../core/site';
 import { Api, Article, CalendarData } from '../core/api';
 
 @Component({
@@ -127,6 +129,7 @@ export class Home {
   protected readonly now = new Date();
 
   constructor() {
+    inject(Seo).set({ title: "Chemin de Guer · Journal d'un parcours de conversion au judaïsme", description: SITE.description, path: '/' });
     this.api.calendar().subscribe({ next: (c) => this.cal.set(c), error: () => this.cal.set(null) });
     this.api.publicArticles().subscribe({ next: (a) => this.articles.set(a.slice(0, 3)), error: () => {} });
   }

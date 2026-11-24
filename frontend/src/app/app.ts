@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { filter } from 'rxjs';
-import { Meta } from '@angular/platform-browser';
+import { Seo } from './core/seo';
 import { Api, ShabbatStatus } from './core/api';
 import { ShabbatClosed } from './pages/shabbat-closed';
 
@@ -68,7 +68,7 @@ import { ShabbatClosed } from './pages/shabbat-closed';
 export class App {
   private readonly api = inject(Api);
   private readonly router = inject(Router);
-  private readonly meta = inject(Meta);
+  private readonly seo = inject(Seo);
   protected readonly shabbat = signal<ShabbatStatus | null>(null);
   protected readonly closed = signal(false);
   protected readonly isAdmin = signal(false);
@@ -79,7 +79,7 @@ export class App {
       const admin = e.urlAfterRedirects.startsWith('/admin');
       this.isAdmin.set(admin);
       // Doublon de l'en-tête X-Robots-Tag : l'administration ne doit jamais être indexée
-      this.meta.updateTag({ name: 'robots', content: admin ? 'noindex, nofollow, noarchive' : 'index, follow' });
+      if (admin) this.seo.noindex();
       this.refresh();
     });
   }

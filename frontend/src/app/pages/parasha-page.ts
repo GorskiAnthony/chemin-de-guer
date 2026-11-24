@@ -1,12 +1,14 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { Title } from '@angular/platform-browser';
 import { RouterLink } from '@angular/router';
 import { Api, Parasha } from '../core/api';
 import { renderMarkdown } from '../core/markdown';
+import { Seo } from '../core/seo';
+import { SITE } from '../core/site';
+import { Share } from './share';
 
 @Component({
   selector: 'app-parasha-page',
-  imports: [RouterLink],
+  imports: [RouterLink, Share],
   template: `
     <div class="narrow">
       <a class="back" routerLink="/paracha">← Toutes les parashiot</a>
@@ -27,6 +29,7 @@ import { renderMarkdown } from '../core/markdown';
             </div>
           </section>
         }
+        <app-share [path]="'/paracha/' + p.slug" [title]="'Paracha ' + p.name" />
       }
     </div>
   `,
@@ -47,7 +50,7 @@ import { renderMarkdown } from '../core/markdown';
 export class ParashaPage {
   readonly slug = input.required<string>();
   private readonly api = inject(Api);
-  private readonly title = inject(Title);
+  private readonly seo = inject(Seo);
   protected readonly p = signal<Parasha | null>(null);
   protected readonly notFound = signal(false);
   protected readonly intro = computed(() => renderMarkdown(this.p()?.intro ?? ''));
@@ -56,8 +59,18 @@ export class ParashaPage {
     effect(() => {
       this.notFound.set(false);
       this.api.publicParasha(this.slug()).subscribe({
-        next: (p) => { this.p.set(p); this.title.setTitle(`${p.name} · Chemin de Guer`); },
-        error: () => this.notFound.set(true),
+        next: (p) => {
+          this.p.set(p);
+          const intro = (p.intro ?? '').replace(/[#>*_`\[\]-]/g, '').replace(/\s+/g, ' ').trim();
+          this.seo.set({
+            title: `Paracha ${p.name} : résumé par montée · ${SITE.name}`,
+            description: intro.length > 40 ? intro.slice(0, 157).trim() + (intro.length > 157 ? '…' : '') : `Mon résumé de la paracha ${p.name}, montée par montée.`,
+            path: `/paracha/${p.slug}`,
+            image: `/og/paracha/${p.slug}.png`,
+            type: 'article',
+          });
+        },
+        error: () => { this.notFound.set(true); this.seo.set({ title: `Paracha introuvable · ${SITE.name}`, description: 'Cette paracha n’existe pas.', path: '/paracha', noindex: true }); },
       });
     });
   }

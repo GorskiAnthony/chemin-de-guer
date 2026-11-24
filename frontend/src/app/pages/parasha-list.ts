@@ -1,5 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { Seo } from '../core/seo';
+import { SITE } from '../core/site';
 import { Api, Parasha } from '../core/api';
 
 @Component({
@@ -53,6 +55,7 @@ export class ParashaList {
   });
 
   constructor() {
+    inject(Seo).set({ title: "Paracha · Chemin de Guer", description: 'Mes résumés de la paracha de la semaine, montée par montée, de Berechit à Devarim.', path: '/paracha' });
     this.api.publicParashot().subscribe({
       next: (p) => { this.items.set(p); this.loading.set(false); },
       error: () => this.loading.set(false),
