@@ -45,11 +45,19 @@ public class Article {
     @Column(nullable = false)
     private StatutArticle statut;
 
+    /** Commentaires ouverts sur cet article (par défaut oui). Nullable en base pour les articles antérieurs. */
+    @Column(name = "comments_open", columnDefinition = "boolean default true")
+    private Boolean commentsOpen = Boolean.TRUE;
+
     @ManyToMany
     @JoinTable(name = "article_tag",
             joinColumns = @JoinColumn(name = "article_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id"))
     private Set<Tag> tags = new HashSet<>();
+
+    public boolean commentsAllowed() {
+        return commentsOpen == null || commentsOpen;
+    }
 
     public Article(String title, String content, Utilisateur author) {
         this.title = title;

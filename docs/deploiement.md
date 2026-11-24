@@ -69,6 +69,36 @@ Sur un VPS qui héberge plusieurs projets, Dokploy place les services sur un ré
 - **Connexion impossible au back-office** : `COOKIE_SECURE=true` exige HTTPS. Vérifier que le site est bien servi en `https://`.
 - **Plus de connexion possible après 5 erreurs** : normal, limitation de 15 minutes par IP.
 
+## Modération des commentaires
+
+Aucun commentaire n'est public avant votre approbation. Dans `/admin` :
+
+- le compteur **« N en attente »** et l'onglet **À modérer** (affiché par défaut, les plus récents d'abord) ;
+- **Approuver** ou **Supprimer** chaque commentaire ;
+- **Fermer tous les commentaires** (interrupteur général, immédiat, sans redéploiement) ;
+- sur chaque article, la case **« Autoriser les commentaires »** dans l'éditeur.
+
+Les commentaires déjà approuvés restent visibles quand les commentaires sont fermés.
+
+Protections automatiques : un visiteur ne peut pas envoyer plus de **3 commentaires par 10 minutes**, la file de modération est plafonnée à 300 commentaires en attente, et un champ piège écarte les robots simples. Le site ne conserve ni adresse IP ni email des commentateurs.
+
+### Être prévenu par email (facultatif)
+
+Sans serveur SMTP configuré, rien n'est envoyé et le site fonctionne normalement. Pour recevoir un email à chaque nouveau commentaire, ajouter dans l'onglet Environment de Dokploy :
+
+```
+MAIL_HOST=smtp.votre-fournisseur.fr
+MAIL_PORT=587
+MAIL_USERNAME=<identifiant SMTP>
+MAIL_PASSWORD=<mot de passe SMTP ou mot de passe d'application>
+MAIL_FROM=<adresse expéditrice, souvent identique à l'identifiant>
+MAIL_TO=<adresse qui reçoit les alertes, par défaut ADMIN_EMAIL>
+```
+
+Puis redéployer. Port 587 avec STARTTLS (valeur par défaut). Pour le port 465 (SSL direct), ajouter `MAIL_STARTTLS=false` et utiliser un fournisseur compatible avec STARTTLS sur 587 de préférence. Un échec d'envoi (mauvais mot de passe, serveur injoignable) est noté dans les logs du backend (`Notification email impossible`) mais n'empêche jamais l'enregistrement du commentaire.
+
+Le message contient l'article, le nom, un extrait du commentaire et le lien vers `/admin`.
+
 ## Option B : VPS sans Dokploy
 
 ## Prérequis

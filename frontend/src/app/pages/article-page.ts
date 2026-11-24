@@ -39,6 +39,9 @@ import { renderMarkdown } from '../core/markdown';
             <p>{{ c.content }}</p></div>
         } @empty { <p class="muted">Aucun commentaire pour le moment.</p> }
 
+        @if (!a.commentsOpen) {
+          <p class="card closed">Les commentaires sont fermés sur cet article.</p>
+        } @else {
         <form class="card form" (submit)="submit($event)">
           <h3>Laisser un commentaire</h3>
           <label for="name">Nom</label>
@@ -50,8 +53,9 @@ import { renderMarkdown } from '../core/markdown';
                  [value]="website()" (input)="website.set($any($event.target).value)">
           <p><button class="btn" type="submit" [disabled]="sending()">Envoyer</button></p>
           @if (sent()) { <p class="muted">Merci ! Votre commentaire sera visible après modération.</p> }
-          @if (failed()) { <p class="error">L'envoi a échoué, réessayez plus tard.</p> }
+          @if (failed()) { <p class="error" role="alert">{{ failed() }}</p> }
         </form>
+        }
       </section>
     }
     </div>
@@ -69,6 +73,7 @@ import { renderMarkdown } from '../core/markdown';
     section h2 { font-size: 1.5rem; }
     .rel { margin: .4rem 0; font: 600 1.05rem var(--serif); }
     .form { margin-top: 1.5rem; }
+    .closed { margin-top: 1.5rem; color: var(--ink-muted); }
     .form h3 { margin: 0; }
     .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   `,
@@ -91,7 +96,7 @@ export class ArticlePage {
   protected readonly website = signal('');
   protected readonly sending = signal(false);
   protected readonly sent = signal(false);
-  protected readonly failed = signal(false);
+  protected readonly failed = signal('');
 
   constructor() {
     effect(() => {
@@ -126,12 +131,18 @@ export class ArticlePage {
     if (!this.name().trim() || !this.message().trim()) return;
     this.sending.set(true);
     this.sent.set(false);
-    this.failed.set(false);
+    this.failed.set('');
     this.api.postComment(this.article()!.id, {
       authorName: this.name(), content: this.message(), website: this.website(),
     }).subscribe({
       next: () => { this.sending.set(false); this.sent.set(true); this.name.set(''); this.message.set(''); },
-      error: () => { this.sending.set(false); this.failed.set(true); },
+      error: (err) => {
+        this.sending.set(false);
+        this.failed.set(
+          err.status === 429 ? 'Vous avez envoyé plusieurs commentaires à la suite. Réessayez dans quelques minutes.'
+          : err.status === 403 ? 'Les commentaires sont fermés.'
+          : "L'envoi a échoué, réessayez plus tard.");
+      },
     });
   }
 }

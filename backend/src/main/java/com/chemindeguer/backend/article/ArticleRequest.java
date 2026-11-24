@@ -11,5 +11,6 @@ public record ArticleRequest(
         @Size(max = 100) @Pattern(regexp = "^[a-z0-9]+(-[a-z0-9]+)*$|^$", message = "slug invalide") String slug,
         @NotBlank @Size(max = 100_000) String content,
         StatutArticle statut,
-        List<Long> tagIds) {
+        List<Long> tagIds,
+        Boolean commentsOpen) {
 }
