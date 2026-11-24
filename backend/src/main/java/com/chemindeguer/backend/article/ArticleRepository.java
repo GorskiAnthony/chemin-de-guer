@@ -8,6 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ArticleRepository extends JpaRepository<Article, Long> {
+    Optional<Article> findBySlug(String slug);
+
+    List<Article> findAllBySlugIsNull();
+
+    @Query("SELECT a FROM Article a JOIN FETCH a.author WHERE a.slug = :slug AND a.statut = 'PUBLISHED'")
+    Optional<Article> findPublishedBySlug(@Param("slug") String slug);
+
     Optional<Article> findByIdAndStatut(Long id, StatutArticle statut);
 
     @Query("SELECT a FROM Article a JOIN FETCH a.author WHERE a.id = :id")

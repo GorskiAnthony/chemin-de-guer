@@ -1,5 +1,6 @@
 package com.chemindeguer.backend.article;
 
+import com.chemindeguer.backend.common.Slugs;
 import com.chemindeguer.backend.tag.Tag;
 import com.chemindeguer.backend.tag.TagRepository;
 import com.chemindeguer.backend.user.UserRepository;
@@ -33,6 +34,7 @@ public class ArticleService {
         Instant now = Instant.now();
         article.setCreatedAt(now);
         article.setUpdatedAt(now);
+        article.setSlug(uniqueSlug(request.slug() == null || request.slug().isBlank() ? request.title() : request.slug(), null));
         applyStatut(article, request.statut());
         article.setTags(resolveTags(request.tagIds()));
         return ArticleResponse.from(articleRepository.save(article));
@@ -45,6 +47,12 @@ public class ArticleService {
         article.setTitle(request.title().trim());
         article.setContent(request.content());
         article.setUpdatedAt(Instant.now());
+        // Le slug ne change pas avec le titre (les liens existants restent valides) : uniquement s'il est modifié explicitement
+        if (request.slug() != null && !request.slug().isBlank() && !request.slug().equals(article.getSlug())) {
+            article.setSlug(uniqueSlug(request.slug(), article.getId()));
+        } else if (article.getSlug() == null) {
+            article.setSlug(uniqueSlug(request.title(), article.getId()));
+        }
         applyStatut(article, request.statut());
         article.setTags(resolveTags(request.tagIds()));
         return ArticleResponse.from(article);
@@ -69,10 +77,33 @@ public class ArticleService {
         return articleRepository.findAllWithAuthor().stream().map(ArticleResponse::from).toList();
     }
 
+    /** Accepte un slug, ou un identifiant numérique (anciens liens /articles/1). */
     @Transactional(readOnly = true)
-    public ArticleResponse findPublishedById(Long id) {
-        return articleRepository.findPublishedById(id).map(a -> ArticleResponse.from(a).publicView())
+    public ArticleResponse findPublishedByKey(String key) {
+        var found = key.matches("\\d{1,18}")
+                ? articleRepository.findPublishedById(Long.parseLong(key))
+                : articleRepository.findPublishedBySlug(key);
+        return found.map(a -> ArticleResponse.from(a).publicView())
                 .orElseThrow(() -> new NoSuchElementException("Article non trouvé"));
+    }
+
+    /** Renseigne le slug des articles créés avant son introduction. */
+    @Transactional
+    public int backfillSlugs() {
+        var missing = articleRepository.findAllBySlugIsNull();
+        missing.forEach(a -> a.setSlug(uniqueSlug(a.getTitle(), a.getId())));
+        return missing.size();
+    }
+
+    private String uniqueSlug(String text, Long selfId) {
+        String base = Slugs.forArticle(text);
+        String candidate = base;
+        int i = 2;
+        while (articleRepository.findBySlug(candidate).filter(a -> !a.getId().equals(selfId)).isPresent()) {
+            String suffix = "-" + i++;
+            candidate = (base.length() + suffix.length() > 100 ? base.substring(0, 100 - suffix.length()) : base) + suffix;
+        }
+        return candidate;
     }
 
     @Transactional(readOnly = true)

@@ -38,7 +38,7 @@ import { Api, Parasha } from '../core/api';
     .item:active { transform: scale(0.98); }
     @media (hover: hover) and (pointer: fine) { .item:hover { transform: translateY(-2px); border-color: var(--blue); } }
     .name { font: 600 1.15rem var(--serif); color: var(--blue-strong); }
-    .he { color: var(--gold); font-family: var(--serif); }
+    .he { color: var(--gold-ink); font-family: var(--serif); }
     .empty { text-align: center; padding: 40px 0; }
   `,
 })

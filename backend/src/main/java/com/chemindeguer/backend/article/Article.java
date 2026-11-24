@@ -23,6 +23,10 @@ public class Article {
     @Column(nullable = false)
     private String title;
 
+    /** Adresse lisible de l'article. Nullable en base pour les articles antérieurs, renseignée au démarrage. */
+    @Column(unique = true, length = 100)
+    private String slug;
+
     @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 

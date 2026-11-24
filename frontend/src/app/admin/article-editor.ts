@@ -13,6 +13,11 @@ import { renderMarkdown } from '../core/markdown';
       <label for="t">Titre</label>
       <input id="t" required maxlength="200" [value]="title()" (input)="title.set($any($event.target).value)">
 
+      <label for="sl">Adresse (slug)</label>
+      <input id="sl" maxlength="100" pattern="[a-z0-9]+(-[a-z0-9]+)*" placeholder="générée depuis le titre si vide"
+             [value]="slug()" (input)="slug.set($any($event.target).value)">
+      <p class="hint">Lettres minuscules, chiffres et tirets. Ex : <code>mon-premier-shabbat</code>. Le lien public sera <code>/articles/{{ slug() || '…' }}</code>.</p>
+
       <label for="s">Statut</label>
       <select id="s" [value]="statut()" (change)="statut.set($any($event.target).value)">
         <option value="DRAFT">Brouillon</option>
@@ -46,6 +51,7 @@ import { renderMarkdown } from '../core/markdown';
     .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 800px) { .split { grid-template-columns: 1fr; } }
     .preview { min-height: 12rem; }
+    .hint { margin: 6px 0 0; font-size: .85rem; color: var(--ink-muted); }
   `,
 })
 export class ArticleEditor {
@@ -54,6 +60,7 @@ export class ArticleEditor {
   private readonly router = inject(Router);
 
   protected readonly title = signal('');
+  protected readonly slug = signal('');
   protected readonly content = signal('');
   protected readonly statut = signal<Statut>('DRAFT');
   protected readonly tagIds = signal<number[]>([]);
@@ -69,6 +76,7 @@ export class ArticleEditor {
       if (!id) return;
       this.api.adminArticle(Number(id)).subscribe((a) => {
         this.title.set(a.title);
+        this.slug.set(a.slug ?? '');
         this.content.set(a.content ?? '');
         this.statut.set(a.statut);
         this.tagIds.set(a.tags.map((t) => t.id));
@@ -84,7 +92,7 @@ export class ArticleEditor {
     e.preventDefault();
     this.busy.set(true);
     this.error.set('');
-    const input = { title: this.title(), content: this.content(), statut: this.statut(), tagIds: this.tagIds() };
+    const input = { title: this.title(), slug: this.slug().trim(), content: this.content(), statut: this.statut(), tagIds: this.tagIds() };
     const id = this.id();
     const request = id ? this.api.updateArticle(Number(id), input) : this.api.createArticle(input);
     request.subscribe({
