@@ -2,6 +2,7 @@ package com.chemindeguer.backend.seo;
 
 import com.chemindeguer.backend.article.ArticleRepository;
 import com.chemindeguer.backend.article.StatutArticle;
+import com.chemindeguer.backend.fete.FeteRepository;
 import com.chemindeguer.backend.parasha.ParashaRepository;
 import com.chemindeguer.backend.tag.Tag;
 import org.springframework.http.CacheControl;
@@ -23,11 +24,13 @@ public class OgImageController {
     private final OgImageService images;
     private final ArticleRepository articles;
     private final ParashaRepository parashot;
+    private final FeteRepository fetes;
 
-    public OgImageController(OgImageService images, ArticleRepository articles, ParashaRepository parashot) {
+    public OgImageController(OgImageService images, ArticleRepository articles, ParashaRepository parashot, FeteRepository fetes) {
         this.images = images;
         this.articles = articles;
         this.parashot = parashot;
+        this.fetes = fetes;
     }
 
     @GetMapping("/api/og/articles/{file}")
@@ -50,6 +53,16 @@ public class OgImageController {
         var p = found.get();
         return png(images.render("p:" + slug + ":" + p.getUpdatedAt().toEpochMilli(), "Résumé de paracha · " + p.getBook(),
                 "Paracha " + p.getName(), p.getHebrewName()));
+    }
+
+    @GetMapping("/api/og/fetes/{file}")
+    @Transactional(readOnly = true)
+    public ResponseEntity<byte[]> fete(@PathVariable String file) {
+        String slug = stripPng(file);
+        var found = fetes.findBySlugAndStatut(slug, StatutArticle.PUBLISHED);
+        if (found.isEmpty()) return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        var f = found.get();
+        return png(images.render("f:" + slug + ":" + f.getUpdatedAt().toEpochMilli(), "Fête · " + f.getCategory(), f.getName(), f.getHebrewName()));
     }
 
     private static String stripPng(String file) {

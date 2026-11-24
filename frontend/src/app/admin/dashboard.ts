@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Api, Article, Comment, Parasha, TagRef } from '../core/api';
+import { Api, Article, Comment, Fete, Parasha, TagRef } from '../core/api';
 import { Auth } from '../core/auth';
 
 @Component({
@@ -13,6 +13,7 @@ import { Auth } from '../core/auth';
       <div>
         <a class="btn gold" routerLink="/admin/articles/nouveau">Nouvel article</a>
         <a class="btn secondary" routerLink="/admin/parashot/nouveau">Nouvelle paracha</a>
+        <a class="btn secondary" routerLink="/admin/fetes/nouveau">Nouvelle fête</a>
         <button class="btn ghost" (click)="logout()">Déconnexion</button>
       </div>
     </div>
@@ -46,6 +47,21 @@ import { Auth } from '../core/auth';
         </div>
       </div>
     } @empty { <p class="muted">Aucun résumé de paracha.</p> }
+
+    <h2>Fêtes</h2>
+    @for (f of fetes(); track f.id) {
+      <div class="card row reveal">
+        <div>
+          <strong>{{ f.name }}</strong>
+          <span class="badge" [class.published]="f.statut === 'PUBLISHED'" [class.draft]="f.statut !== 'PUBLISHED'">{{ label(f.statut) }}</span>
+          <div class="muted">{{ f.category }}</div>
+        </div>
+        <div>
+          <a class="btn small ghost" [routerLink]="['/admin/fetes', f.id]">Modifier</a>
+          <button class="btn small danger" (click)="removeFete(f)">Supprimer</button>
+        </div>
+      </div>
+    } @empty { <p class="muted">Aucun résumé de fête.</p> }
 
     <div class="com-head">
       <h2>Commentaires
@@ -114,6 +130,7 @@ export class Dashboard {
   protected readonly comments = signal<Comment[]>([]);
   protected readonly tags = signal<TagRef[]>([]);
   protected readonly parashot = signal<Parasha[]>([]);
+  protected readonly fetes = signal<Fete[]>([]);
   protected readonly newTag = signal('');
   protected readonly commentsEnabled = signal(true);
   protected readonly filter = signal<'PENDING' | 'APPROVED' | 'ALL'>('PENDING');
@@ -135,6 +152,7 @@ export class Dashboard {
     this.api.adminComments().subscribe((c) => this.comments.set(c));
     this.api.publicTags().subscribe((t) => this.tags.set(t));
     this.api.adminParashot().subscribe((p) => this.parashot.set(p));
+    this.api.adminFetes().subscribe((f) => this.fetes.set(f));
     this.api.settings().subscribe((st) => this.commentsEnabled.set(st.commentsEnabled));
   }
 
@@ -150,6 +168,10 @@ export class Dashboard {
     const next = !this.commentsEnabled();
     if (!next && !confirm('Fermer les commentaires sur tout le site ?')) return;
     this.api.updateSettings({ commentsEnabled: next }).subscribe((st) => this.commentsEnabled.set(st.commentsEnabled));
+  }
+  protected removeFete(f: Fete) {
+    if (!confirm(`Supprimer « ${f.name} » ?`)) return;
+    this.api.deleteFete(f.id).subscribe(() => this.reload());
   }
   protected approve(c: Comment) { this.api.approveComment(c.id).subscribe(() => this.reload()); }
   protected removeComment(c: Comment) {

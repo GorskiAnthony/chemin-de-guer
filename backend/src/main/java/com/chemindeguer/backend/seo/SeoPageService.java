@@ -3,7 +3,11 @@ package com.chemindeguer.backend.seo;
 import com.chemindeguer.backend.article.Article;
 import com.chemindeguer.backend.article.ArticleRepository;
 import com.chemindeguer.backend.article.StatutArticle;
+import com.chemindeguer.backend.calendar.CalendarService;
 import com.chemindeguer.backend.common.Excerpts;
+import com.chemindeguer.backend.fete.FeteRepository;
+import com.chemindeguer.backend.fete.FeteSection;
+import com.chemindeguer.backend.fete.FeteSummary;
 import com.chemindeguer.backend.parasha.Aliyah;
 import com.chemindeguer.backend.parasha.ParashaRepository;
 import com.chemindeguer.backend.parasha.ParashaSummary;
@@ -29,21 +33,26 @@ import static com.chemindeguer.backend.seo.Html.esc;
 public class SeoPageService {
     private static final Pattern KEY = Pattern.compile("[a-z0-9-]{1,100}");
     private static final DateTimeFormatter FR_DATE = DateTimeFormatter.ofPattern("d MMMM yyyy", Locale.FRENCH).withZone(ZoneId.of("Europe/Paris"));
+    private static final DateTimeFormatter FETE_DATE = DateTimeFormatter.ofPattern("EEEE d MMMM yyyy", Locale.FRENCH);
     private static final String OG_DEFAULT = "/og-default.png";
     private static final String ROBOTS_INDEX = "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1";
     static final String ROBOTS_NOINDEX = "noindex, nofollow, noarchive";
 
     private final ArticleRepository articles;
     private final ParashaRepository parashot;
+    private final FeteRepository fetes;
+    private final CalendarService calendar;
     private final ShellProvider shell;
     private final MarkdownRenderer markdown;
     private final JsonMapper json;
     private final SiteProperties site;
 
-    public SeoPageService(ArticleRepository articles, ParashaRepository parashot, ShellProvider shell,
+    public SeoPageService(ArticleRepository articles, ParashaRepository parashot, FeteRepository fetes, CalendarService calendar, ShellProvider shell,
                           MarkdownRenderer markdown, JsonMapper json, SiteProperties site) {
         this.articles = articles;
         this.parashot = parashot;
+        this.fetes = fetes;
+        this.calendar = calendar;
         this.shell = shell;
         this.markdown = markdown;
         this.json = json;
@@ -61,9 +70,11 @@ public class SeoPageService {
         if (seg.length == 0) return home(base);
         if (seg.length == 1 && seg[0].equals("articles")) return articleList(base);
         if (seg.length == 1 && seg[0].equals("paracha")) return parashaList(base);
+        if (seg.length == 1 && seg[0].equals("fetes")) return feteList(base);
         if (seg.length == 2 && KEY.matcher(seg[1]).matches()) {
             if (seg[0].equals("articles")) return article(base, seg[1]);
             if (seg[0].equals("paracha")) return parasha(base, seg[1]);
+            if (seg[0].equals("fetes")) return fete(base, seg[1]);
         }
         return notFound(base);
     }
@@ -78,7 +89,8 @@ public class SeoPageService {
         StringBuilder body = new StringBuilder("<h1>").append(esc(site.name())).append("</h1><p>").append(esc(site.description())).append("</p>");
         body.append("<h2>Derniers articles</h2>").append(articleLinks(latest));
         body.append("<p><a href=\"").append(esc(site.url("/articles"))).append("\">Tous les articles</a> · <a href=\"")
-                .append(esc(site.url("/paracha"))).append("\">Résumés de paracha</a></p>");
+                .append(esc(site.url("/paracha"))).append("\">Résumés de paracha</a> · <a href=\"")
+                .append(esc(site.url("/fetes"))).append("\">Fêtes</a></p>");
         return SeoPage.ok(compose(base, h, body.toString()));
     }
 
@@ -204,6 +216,79 @@ public class SeoPageService {
         for (Aliyah a : p.getAliyot()) {
             String label = a.getLabel() == null || a.getLabel().isBlank() ? "Montée " + i : a.getLabel();
             body.append("<section><h2>").append(esc(label)).append("</h2>").append(markdown.toHtml(a.getContent())).append("</section>");
+            i++;
+        }
+        body.append("</article>");
+        return SeoPage.ok(compose(base, h, body.toString()));
+    }
+
+
+    private SeoPage feteList(String base) {
+        List<FeteSummary> all = fetes.findAllByStatutOrderByPositionAscNameAsc(StatutArticle.PUBLISHED);
+        Head h = new Head("Fêtes · Chemin de Guer", "Mes résumés des fêtes juives : histoire, coutumes, prières et ce que j'en ai appris.", "/fetes");
+        h.ogType = "website";
+        h.jsonLd.add(graph(websiteNode(), personNode(), collectionPage("Fêtes", h.description, "/fetes"),
+                breadcrumb(List.of(crumb("Accueil", "/"), crumb("Fêtes", "/fetes")))));
+        StringBuilder body = new StringBuilder("<h1>Fêtes</h1>");
+        String category = null;
+        for (FeteSummary f : all) {
+            if (!f.getCategory().equals(category)) {
+                if (category != null) body.append("</ul>");
+                category = f.getCategory();
+                body.append("<h2>").append(esc(category)).append("</h2><ul>");
+            }
+            body.append("<li><a href=\"").append(esc(site.url("/fetes/" + f.getSlug()))).append("\">").append(esc(f.getName())).append("</a>");
+            if (f.getHebrewName() != null) body.append(" <span lang=\"he\" dir=\"rtl\">").append(esc(f.getHebrewName())).append("</span>");
+            body.append("</li>");
+        }
+        if (category != null) body.append("</ul>");
+        return SeoPage.ok(compose(base, h, body.toString()));
+    }
+
+    private SeoPage fete(String base, String slug) {
+        Optional<FeteSummary> found = fetes.findBySlugAndStatut(slug, StatutArticle.PUBLISHED);
+        if (found.isEmpty()) return notFound(base);
+        FeteSummary f = found.get();
+        String path = "/fetes/" + f.getSlug();
+        String intro = Excerpts.of(f.getIntro(), 160);
+        String description = intro.isBlank() ? "Mon résumé de la fête de " + f.getName() + " : histoire, coutumes et ce que j'en ai appris." : intro;
+        java.time.LocalDate next = calendar.nextOccurrence(f.getSlug());
+        Head h = new Head(f.getName() + " : résumé de la fête · " + site.name(), description, path);
+        h.ogTitle = f.getName();
+        h.ogType = "article";
+        h.image = "/og/fetes/" + f.getSlug() + ".png";
+        h.imageAlt = f.getName() + " · " + site.name();
+        h.modified = f.getUpdatedAt();
+        h.published = f.getCreatedAt();
+        h.tags = List.of("Fêtes", f.getCategory());
+
+        Map<String, Object> article = new LinkedHashMap<>();
+        article.put("@type", "Article");
+        article.put("@id", site.url(path) + "#article");
+        article.put("headline", f.getName() + " : résumé de la fête");
+        article.put("description", description);
+        article.put("url", site.url(path));
+        article.put("mainEntityOfPage", Map.of("@type", "WebPage", "@id", site.url(path)));
+        article.put("datePublished", iso(f.getCreatedAt()));
+        article.put("dateModified", iso(f.getUpdatedAt()));
+        article.put("inLanguage", "fr-FR");
+        article.put("about", f.getName() + (f.getHebrewName() != null ? " (" + f.getHebrewName() + ")" : ""));
+        article.put("author", Map.of("@id", site.url("/#person")));
+        article.put("publisher", Map.of("@id", site.url("/#person")));
+        article.put("isPartOf", Map.of("@id", site.url("/#website")));
+        article.put("image", List.of(site.url(h.image)));
+        h.jsonLd.add(graph(websiteNode(), personNode(), article,
+                breadcrumb(List.of(crumb("Accueil", "/"), crumb("Fêtes", "/fetes"), crumb(f.getName(), path)))));
+
+        StringBuilder body = new StringBuilder("<article><h1>").append(esc(f.getName()));
+        if (f.getHebrewName() != null) body.append(" <span lang=\"he\" dir=\"rtl\">").append(esc(f.getHebrewName())).append("</span>");
+        body.append("</h1><p>").append(esc(f.getCategory())).append("</p>");
+        if (next != null) body.append("<p>Prochaine date : <time datetime=\"").append(next).append("\">").append(FETE_DATE.format(next)).append("</time></p>");
+        body.append(markdown.toHtml(f.getIntro()));
+        int i = 1;
+        for (FeteSection sec : f.getSections()) {
+            String label = sec.getLabel() == null || sec.getLabel().isBlank() ? "Partie " + i : sec.getLabel();
+            body.append("<section><h2>").append(esc(label)).append("</h2>").append(markdown.toHtml(sec.getContent())).append("</section>");
             i++;
         }
         body.append("</article>");

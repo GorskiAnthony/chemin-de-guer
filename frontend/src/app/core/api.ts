@@ -51,6 +51,16 @@ export interface Parasha {
 export interface ParashaInput { name: string; hebrewName: string; intro: string; aliyot: Aliyah[]; statut: Statut; }
 export interface CatalogEntry { name: string; book: string; position: number; }
 
+export interface FeteSection { label: string | null; content: string | null; }
+export interface Fete {
+  id: number; name: string; slug: string; hebrewName: string | null; category: string;
+  intro: string | null; sections: FeteSection[] | null; statut: Statut; updatedAt: string;
+  /** Prochaine occurrence de la fête (AAAA-MM-JJ), calculée à partir du calendrier hébraïque. */
+  nextDate: string | null;
+}
+export interface FeteInput { name: string; hebrewName: string; intro: string; sections: FeteSection[]; statut: Statut; }
+export interface FeteCatalogEntry { name: string; hebrew: string; category: string; position: number; }
+
 export interface CalendarData {
   hebrewDate: string | null;
   hebrewDateHe: string | null;
@@ -58,7 +68,7 @@ export interface CalendarData {
   candleLighting: string | null;
   havdalah: string | null;
   city: string | null;
-  holidays: { date: string; title: string; hebrew: string | null }[];
+  holidays: { date: string; title: string; hebrew: string | null; feteSlug: string | null }[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -85,6 +95,9 @@ export class Api {
   calendar() { return this.http.get<CalendarData>('/api/public/calendar'); }
   publicParashot() { return this.http.get<Parasha[]>('/api/public/parashot'); }
   publicParasha(slug: string) { return this.http.get<Parasha>(`/api/public/parashot/${slug}`); }
+  publicFetes() { return this.http.get<Fete[]>('/api/public/fetes'); }
+  publicFete(slug: string) { return this.http.get<Fete>(`/api/public/fetes/${slug}`); }
+  feteCatalog() { return this.http.get<FeteCatalogEntry[]>('/api/public/fetes/catalog'); }
   parashaCatalog() { return this.http.get<CatalogEntry[]>('/api/public/parashot/catalog'); }
 
   // Auth
@@ -107,6 +120,11 @@ export class Api {
   deleteParasha(id: number) { return this.http.delete<void>(`/api/parashot/${id}`); }
   settings() { return this.http.get<Settings>('/api/settings'); }
   updateSettings(s: Settings) { return this.http.put<Settings>('/api/settings', s); }
+  adminFetes() { return this.http.get<Fete[]>('/api/fetes'); }
+  adminFete(id: number) { return this.http.get<Fete>(`/api/fetes/${id}`); }
+  createFete(f: FeteInput) { return this.http.post<Fete>('/api/fetes', f); }
+  updateFete(id: number, f: FeteInput) { return this.http.put<Fete>(`/api/fetes/${id}`, f); }
+  deleteFete(id: number) { return this.http.delete<void>(`/api/fetes/${id}`); }
   adminComments() { return this.http.get<Comment[]>('/api/comments'); }
   approveComment(id: number) { return this.http.post<void>(`/api/comments/${id}/approve`, {}); }
   deleteComment(id: number) { return this.http.delete<void>(`/api/comments/${id}`); }
