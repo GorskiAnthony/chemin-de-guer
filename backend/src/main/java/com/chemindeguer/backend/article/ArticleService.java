@@ -1,6 +1,7 @@
 package com.chemindeguer.backend.article;
 
 import com.chemindeguer.backend.common.Slugs;
+import com.chemindeguer.backend.settings.SettingsService;
 import com.chemindeguer.backend.tag.Tag;
 import com.chemindeguer.backend.tag.TagRepository;
 import com.chemindeguer.backend.user.UserRepository;
@@ -19,11 +20,14 @@ public class ArticleService {
     private final ArticleRepository articleRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
+    private final SettingsService settings;
 
-    public ArticleService(ArticleRepository articleRepository, TagRepository tagRepository, UserRepository userRepository) {
+    public ArticleService(ArticleRepository articleRepository, TagRepository tagRepository, UserRepository userRepository,
+                          SettingsService settings) {
         this.articleRepository = articleRepository;
         this.tagRepository = tagRepository;
         this.userRepository = userRepository;
+        this.settings = settings;
     }
 
     @Transactional
@@ -36,6 +40,7 @@ public class ArticleService {
         article.setUpdatedAt(now);
         article.setSlug(uniqueSlug(request.slug() == null || request.slug().isBlank() ? request.title() : request.slug(), null));
         applyStatut(article, request.statut());
+        article.setCommentsOpen(request.commentsOpen() == null ? Boolean.TRUE : request.commentsOpen());
         article.setTags(resolveTags(request.tagIds()));
         return ArticleResponse.from(articleRepository.save(article));
     }
@@ -54,6 +59,9 @@ public class ArticleService {
             article.setSlug(uniqueSlug(request.title(), article.getId()));
         }
         applyStatut(article, request.statut());
+        if (request.commentsOpen() != null) {
+            article.setCommentsOpen(request.commentsOpen());
+        }
         article.setTags(resolveTags(request.tagIds()));
         return ArticleResponse.from(article);
     }
@@ -83,7 +91,8 @@ public class ArticleService {
         var found = key.matches("\\d{1,18}")
                 ? articleRepository.findPublishedById(Long.parseLong(key))
                 : articleRepository.findPublishedBySlug(key);
-        return found.map(a -> ArticleResponse.from(a).publicView())
+        boolean globalOpen = settings.commentsEnabled();
+        return found.map(a -> ArticleResponse.from(a).publicView().withCommentsOpen(a.commentsAllowed() && globalOpen))
                 .orElseThrow(() -> new NoSuchElementException("Article non trouvé"));
     }
 

@@ -72,9 +72,7 @@ public class AuthController {
         return ResponseEntity.ok(authentication.getName());
     }
 
-    /** nginx transmet l'IP réelle dans X-Real-IP. */
     private String clientKey(HttpServletRequest request) {
-        String real = request.getHeader("X-Real-IP");
-        return real != null && !real.isBlank() ? real : request.getRemoteAddr();
+        return com.chemindeguer.backend.common.ClientIp.of(request);
     }
 }
