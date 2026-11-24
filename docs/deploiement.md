@@ -92,6 +92,8 @@ BACKUP_S3_SECRET_KEY=<clé secrète>
 
 **SFTP** (un autre serveur) : `BACKUP_SFTP_HOST`, `BACKUP_SFTP_USER`, `BACKUP_SFTP_PASSWORD`, et `BACKUP_SFTP_PATH` (dossier distant).
 
+**Sur un NAS** : le NAS peut aller chercher lui-même les sauvegardes sur le VPS, sans rien ouvrir chez vous. Guide complet (testé) dans [`nas/README.md`](../nas/README.md).
+
 **Chiffrement (conseillé pour la copie distante)** : `BACKUP_PASSPHRASE=<phrase longue>` chiffre les sauvegardes en AES-256 (`.sql.gz.enc`). **Conservez cette phrase en lieu sûr, hors du serveur** : sans elle, les sauvegardes chiffrées sont inutilisables.
 
 Après avoir ajouté les variables, redéployer puis vérifier dans les logs du service `cdg-backup` : `Copie hors serveur : activée` puis `OK : copie hors serveur effectuée`. Côté distant, seules les 30 plus récentes sont gardées (la suppression se fait par nombre et non par âge : si les sauvegardes s'arrêtent, rien n'est effacé).

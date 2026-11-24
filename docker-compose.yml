@@ -51,7 +51,9 @@ services:
       BACKUP_SFTP_PASSWORD: ${BACKUP_SFTP_PASSWORD:-}
       BACKUP_SFTP_PATH: ${BACKUP_SFTP_PATH:-chemin-de-guer}
     volumes:
-      - backups:/backups
+      # BACKUP_DIR : dossier du serveur où déposer les sauvegardes (chemin absolu, par exemple /var/backups/chemin-de-guer),
+      # utile pour qu'un NAS les récupère ; sans valeur, un volume Docker est utilisé.
+      - ${BACKUP_DIR:-backups}:/backups
     depends_on:
       cdg-db:
         condition: service_healthy
