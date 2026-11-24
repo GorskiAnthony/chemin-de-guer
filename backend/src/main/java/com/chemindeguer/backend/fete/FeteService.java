@@ -75,7 +75,7 @@ public class FeteService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette fête existe déjà");
         });
         var entry = FetesCatalog.find(r.name());
-        f.setName(r.name().trim());
+        f.setName(entry != null ? entry.name() : r.name().trim());
         f.setSlug(slug);
         f.setHebrewName(r.hebrewName() == null || r.hebrewName().isBlank() ? (entry != null ? entry.hebrew() : null) : r.hebrewName().trim());
         f.setCategory(entry != null ? entry.category() : FetesCatalog.OTHER_CATEGORY);

@@ -59,6 +59,8 @@ import { ShabbatClosed } from './pages/shabbat-closed';
     nav a.current { color: var(--blue); font-weight: 600; border-bottom-color: var(--gold); }
     @media (hover: hover) and (pointer: fine) { nav a:hover { color: var(--blue); } }
     main { min-height: 62vh; padding-block: 8px 40px; }
+    /* « main » n'est qu'une cible du lien d'évitement : pas de cadre de focus autour de tout le contenu */
+    main:focus, main:focus-visible { outline: none; }
     footer { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 14px; padding-block: 24px 48px;
       border-top: 1px solid var(--border); color: var(--ink-muted); font-size: .9rem; }
     footer p { margin: 0 0 4px; }
