@@ -60,7 +60,7 @@ Sur un VPS qui héberge plusieurs projets, Dokploy place les services sur un ré
 ### Mises à jour et sauvegardes
 
 - Un nouveau déploiement (bouton **Deploy**, ou *Auto Deploy* par webhook GitHub) reconstruit les images. Les données restent dans le volume `postgres_data`.
-- Ne jamais supprimer ce volume. Prévoir une sauvegarde régulière, par la fonction de sauvegarde de volumes de Dokploy si votre version la propose, sinon avec `scripts/backup.sh` (voir plus bas), et la copier hors du serveur.
+- Ne jamais supprimer ce volume `postgres_data`. Les sauvegardes sont automatiques (service `cdg-backup`) : voir la section **Sauvegardes** plus bas, et surtout **configurer la copie hors serveur**.
 
 ### Problèmes fréquents avec Dokploy
 
@@ -68,6 +68,61 @@ Sur un VPS qui héberge plusieurs projets, Dokploy place les services sur un ré
 - **Pas de certificat HTTPS** : le DNS doit déjà pointer vers le VPS, et les ports 80 et 443 doivent être ouverts chez OVH.
 - **Connexion impossible au back-office** : `COOKIE_SECURE=true` exige HTTPS. Vérifier que le site est bien servi en `https://`.
 - **Plus de connexion possible après 5 erreurs** : normal, limitation de 15 minutes par IP.
+
+## Sauvegardes
+
+Le service `cdg-backup` (inclus dans `docker-compose.yml`, donc déployé aussi par Dokploy) sauvegarde la base **tous les jours à 3 h 30** (heure de Paris) :
+
+- dump compressé, **vérifié** (archive lisible et dump complet, sinon la sauvegarde est supprimée et une erreur est journalisée) ;
+- les **30 plus récentes** sont conservées (`BACKUP_KEEP`), dans le volume `backups` du serveur ;
+- une première sauvegarde est faite à chaque démarrage du service, pour vérifier immédiatement la configuration ;
+- le conteneur passe en **unhealthy** (visible dans `docker ps` et Dokploy) si aucune sauvegarde n'a réussi depuis plus de 2 jours.
+
+Une sauvegarde qui reste sur le même serveur ne protège pas d'une perte du serveur. **Configurez une copie hors serveur**, au choix :
+
+**S3 compatible** (OVH Object Storage, Scaleway, Backblaze B2...). Créer un conteneur (bucket) privé et un utilisateur avec clés d'accès S3, puis dans Dokploy, onglet Environment :
+
+```
+BACKUP_S3_ENDPOINT=https://s3.gra.io.cloud.ovh.net   # exemple OVH Object Storage, région Gravelines
+BACKUP_S3_REGION=gra
+BACKUP_S3_BUCKET=nom-du-bucket
+BACKUP_S3_ACCESS_KEY=<clé d'accès>
+BACKUP_S3_SECRET_KEY=<clé secrète>
+```
+
+**SFTP** (un autre serveur) : `BACKUP_SFTP_HOST`, `BACKUP_SFTP_USER`, `BACKUP_SFTP_PASSWORD`, et `BACKUP_SFTP_PATH` (dossier distant).
+
+**Chiffrement (conseillé pour la copie distante)** : `BACKUP_PASSPHRASE=<phrase longue>` chiffre les sauvegardes en AES-256 (`.sql.gz.enc`). **Conservez cette phrase en lieu sûr, hors du serveur** : sans elle, les sauvegardes chiffrées sont inutilisables.
+
+Après avoir ajouté les variables, redéployer puis vérifier dans les logs du service `cdg-backup` : `Copie hors serveur : activée` puis `OK : copie hors serveur effectuée`. Côté distant, seules les 30 plus récentes sont gardées (la suppression se fait par nombre et non par âge : si les sauvegardes s'arrêtent, rien n'est effacé).
+
+### Restaurer
+
+Le backend doit être arrêté pendant la restauration. Sur le VPS (en SSH) :
+
+```bash
+docker ps --format '{{.Names}}' | grep -E 'cdg-(backup|backend)'      # repérer les noms des conteneurs
+docker exec <conteneur-backup> ls -1t /backups                         # sauvegardes disponibles
+docker stop <conteneur-backend>
+docker exec -i <conteneur-backup> restore.sh --yes /backups/chemin_de_guer_AAAAMMJJ_HHMMSS.sql.gz
+docker start <conteneur-backend>
+```
+
+La restauration **remplace** le contenu actuel de la base. Pour une sauvegarde chiffrée, le fichier se termine par `.enc` et `BACKUP_PASSPHRASE` doit être défini sur le service. Pour récupérer une sauvegarde depuis le stockage distant (par exemple après la perte du serveur) : redéployer le projet sur le nouveau serveur avec les mêmes variables, puis `docker exec <conteneur-backup> sh -c '. /etc/backup.env; rclone copy "$BACKUP_REMOTE/FICHIER" /backups/'` et lancer `restore.sh`.
+
+Cette procédure a été testée : sauvegarde chiffrée, copie S3, suppression volontaire d'un article, restauration, article retrouvé.
+
+## Indexation par les moteurs de recherche
+
+Par défaut (`SITE_INDEXABLE=false`) le site demande à **ne pas être indexé** :
+
+- chaque page porte `<meta name="robots" content="noindex, nofollow, noarchive">` et l'en-tête `X-Robots-Tag` équivalent (pages, images de partage, flux, API, administration) ;
+- `/robots.txt` refuse les robots d'IA ; il n'interdit pas l'exploration aux autres robots, volontairement : un robot doit pouvoir lire la directive `noindex` (sinon l'adresse peut quand même apparaître dans les résultats), et les aperçus de partage doivent continuer de fonctionner ;
+- `/sitemap.xml`, `/llms.txt` et `/llms-full.txt` répondent 404 ; le flux RSS reste disponible.
+
+Les **aperçus de partage** (WhatsApp, Facebook, LinkedIn, X) ne sont pas affectés : titre, description et image restent présents. Le `noindex` n'est pas une protection d'accès : toute personne qui connaît l'adresse peut lire le site, et les moteurs déjà passés avant cette directive peuvent mettre plusieurs semaines à retirer une page de leurs résultats.
+
+Pour rouvrir le site aux moteurs : `SITE_INDEXABLE=true` dans Dokploy puis redéployer (balises `index`, sitemap, `llms.txt` et `robots.txt` ouvert reviennent).
 
 ## Référencement, partage et moteurs de réponse (SEO / GEO)
 
@@ -84,7 +139,7 @@ Autres fichiers : `/sitemap.xml` (pages, articles, paracha avec date de modifica
 
 **Écrire une description** : dans l'éditeur d'article, le champ *Description* devient la balise `description` et l'aperçu des réseaux (160 caractères conseillés). Si elle est vide, le premier vrai paragraphe est utilisé.
 
-Variables : `APP_PUBLIC_URL` (adresse utilisée dans toutes les balises, obligatoirement en `https://` en production), `AUTHOR_NAME` et `AUTHOR_URL` (auteur des données structurées).
+Ces éléments (sitemap, `llms.txt`, balises `index`) ne sont actifs que si `SITE_INDEXABLE=true` (voir ci-dessus). Variables : `APP_PUBLIC_URL` (adresse utilisée dans toutes les balises, obligatoirement en `https://` en production), `AUTHOR_NAME` et `AUTHOR_URL` (auteur des données structurées).
 
 ### Vérifier après un déploiement
 
@@ -175,24 +230,6 @@ docker compose up -d --build
 ```
 
 Les données sont conservées dans le volume `postgres_data`. Ne jamais utiliser `docker compose down -v` en production : l'option `-v` supprime la base.
-
-## Sauvegardes
-
-```bash
-./scripts/backup.sh      # crée backups/chemin_de_guer_AAAAMMJJ_HHMMSS.sql.gz, garde les 14 dernières
-```
-
-Exemple de sauvegarde quotidienne à 3 h (`crontab -e`) :
-
-```
-0 3 * * * cd /chemin/vers/chemin-de-guer && ./scripts/backup.sh >> backups/backup.log 2>&1
-```
-
-Copier régulièrement le dossier `backups/` hors du serveur. Restauration :
-
-```bash
-gunzip -c backups/FICHIER.sql.gz | docker compose exec -T cdg-db psql -U postgres chemin_de_guer
-```
 
 ## Dépannage
 
