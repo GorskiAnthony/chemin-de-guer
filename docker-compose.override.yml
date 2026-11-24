@@ -1,0 +1,6 @@
+# Chargé automatiquement par `docker compose up` (local ou VPS sans reverse proxy).
+# Non chargé par Dokploy, qui utilise uniquement docker-compose.yml.
+services:
+  frontend:
+    ports:
+      - "${FRONTEND_PORT:-80}:80"
