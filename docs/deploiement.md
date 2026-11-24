@@ -1,13 +1,13 @@
 # Mise en ligne sur un VPS
 
-Le projet se déploie par Docker Compose. Seul le service `frontend` (nginx) reçoit le trafic : la base et le backend restent sur le réseau interne de Docker.
+Le projet se déploie par Docker Compose. Seul le service `cdg-frontend` (nginx) reçoit le trafic : la base et le backend restent sur le réseau interne de Docker.
 
 - **Option A : avec Dokploy** (recommandé si Dokploy est déjà installé sur le VPS)
 - **Option B : sans Dokploy**, accès direct par IP en HTTP
 
 ## Option A : Dokploy
 
-Le projet est un déploiement **Compose** : le fichier `docker-compose.yml` contient déjà PostgreSQL, il ne faut donc **pas** créer de base de données séparée dans Dokploy. Ne pas déployer le backend et le frontend comme deux « Applications » distinctes : nginx joint le backend par le nom `backend`, qui n'existerait pas.
+Le projet est un déploiement **Compose** : le fichier `docker-compose.yml` contient déjà PostgreSQL, il ne faut donc **pas** créer de base de données séparée dans Dokploy. Ne pas déployer le backend et le frontend comme deux « Applications » distinctes : nginx joint le backend par le nom `cdg-backend`, qui n'existerait pas.
 
 ### 1. DNS
 
@@ -42,7 +42,7 @@ Onglet **Domains**, **Add Domain** :
 | Champ | Valeur |
 | --- | --- |
 | Host | `votre-domaine.fr` |
-| Service Name | `frontend` |
+| Service Name | `cdg-frontend` |
 | Port | `80` |
 | HTTPS | activé |
 | Certificate | Let's Encrypt |
@@ -53,6 +53,10 @@ Répéter pour `www.votre-domaine.fr` si besoin.
 
 Bouton **Deploy**, puis suivre les logs. Les services démarrent dans l'ordre : base, backend (healthcheck), frontend. Le compte administrateur est créé au premier démarrage (voir plus bas).
 
+### Pourquoi les services s'appellent `cdg-*`
+
+Sur un VPS qui héberge plusieurs projets, Dokploy place les services sur un réseau Docker partagé. Des noms génériques comme `db` ou `backend` peuvent alors désigner le conteneur d'un autre projet : l'API répond avec les erreurs d'une autre application, ou le backend se connecte à la mauvaise base. Les noms préfixés évitent ce conflit. Dans les réglages avancés du service Compose, activer aussi **Isolated Deployment** ajoute une protection supplémentaire.
+
 ### Mises à jour et sauvegardes
 
 - Un nouveau déploiement (bouton **Deploy**, ou *Auto Deploy* par webhook GitHub) reconstruit les images. Les données restent dans le volume `postgres_data`.
@@ -60,7 +64,7 @@ Bouton **Deploy**, puis suivre les logs. Les services démarrent dans l'ordre : 
 
 ### Problèmes fréquents avec Dokploy
 
-- **404 ou « Bad Gateway » de Traefik** : vérifier que le domaine pointe sur le service `frontend` et le port `80`, et que le DNS est propagé.
+- **404 ou « Bad Gateway » de Traefik** : vérifier que le domaine pointe sur le service `cdg-frontend` et le port `80`, et que le DNS est propagé.
 - **Pas de certificat HTTPS** : le DNS doit déjà pointer vers le VPS, et les ports 80 et 443 doivent être ouverts chez OVH.
 - **Connexion impossible au back-office** : `COOKIE_SECURE=true` exige HTTPS. Vérifier que le site est bien servi en `https://`.
 - **Plus de connexion possible après 5 erreurs** : normal, limitation de 15 minutes par IP.
@@ -100,7 +104,7 @@ Puis lancer :
 
 ```bash
 docker compose up -d --build
-docker compose ps        # les 3 services doivent être "Up", db et backend "healthy"
+docker compose ps        # les 3 services doivent être "Up", cdg-db et cdg-backend "healthy"
 ```
 
 Le site est accessible sur `http://IP_DU_VPS`, le back-office sur `/admin/login`. Dans ce mode, `docker-compose.override.yml` est chargé automatiquement et publie le port défini par `FRONTEND_PORT` (80 par défaut).
@@ -131,22 +135,22 @@ Exemple de sauvegarde quotidienne à 3 h (`crontab -e`) :
 Copier régulièrement le dossier `backups/` hors du serveur. Restauration :
 
 ```bash
-gunzip -c backups/FICHIER.sql.gz | docker compose exec -T db psql -U postgres chemin_de_guer
+gunzip -c backups/FICHIER.sql.gz | docker compose exec -T cdg-db psql -U postgres chemin_de_guer
 ```
 
 ## Dépannage
 
 ```bash
-docker compose logs -f backend    # erreurs applicatives
-docker compose logs -f frontend   # nginx
-docker compose restart backend
+docker compose logs -f cdg-backend    # erreurs applicatives
+docker compose logs -f cdg-frontend   # nginx
+docker compose restart cdg-backend
 ```
 
-- **502 Bad Gateway** : le backend n'est pas encore démarré ou a planté, voir `docker compose logs backend`.
+- **502 Bad Gateway** : le backend n'est pas encore démarré ou a planté, voir `docker compose logs cdg-backend`.
 - **Impossible de se connecter** : vérifier que `ADMIN_EMAIL` et `ADMIN_PASSWORD` étaient définis au premier démarrage. Si la base contient déjà un utilisateur, ces variables sont ignorées.
 - **Site « fermé pour Shabbat » hors Shabbat** : vérifier `SHABBAT_TIMEZONE` et l'heure du serveur, ou désactiver avec `SHABBAT_ENABLED=false`.
 - **Calendrier absent de l'accueil** : le backend n'arrive pas à joindre hebcal.com (accès sortant bloqué).
 
 ## Quand un nom de domaine sera disponible
 
-Placer un reverse proxy (Traefik ou nginx) avec Let's Encrypt devant le service `frontend`, puis passer `COOKIE_SECURE=true` et `APP_PUBLIC_URL=https://votre-domaine`. Voir l'issue #18.
+Placer un reverse proxy (Traefik ou nginx) avec Let's Encrypt devant le service `cdg-frontend`, puis passer `COOKIE_SECURE=true` et `APP_PUBLIC_URL=https://votre-domaine`. Voir l'issue #18.
