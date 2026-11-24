@@ -69,6 +69,32 @@ Sur un VPS qui héberge plusieurs projets, Dokploy place les services sur un ré
 - **Connexion impossible au back-office** : `COOKIE_SECURE=true` exige HTTPS. Vérifier que le site est bien servi en `https://`.
 - **Plus de connexion possible après 5 erreurs** : normal, limitation de 15 minutes par IP.
 
+## Référencement, partage et moteurs de réponse (SEO / GEO)
+
+Le site est une application Angular : les robots des réseaux sociaux et de la plupart des IA n'exécutent pas JavaScript. Pour qu'ils voient le vrai contenu, nginx envoie les pages publiques (`/`, `/articles`, `/articles/<slug>`, `/paracha`, `/paracha/<slug>`) au backend, qui renvoie `index.html` enrichi :
+
+- balises `title`, `description`, `canonical`, `hreflang`, Open Graph et Twitter Card, propres à chaque page ;
+- données structurées JSON-LD (`WebSite`, `Person`, `Blog`, `BlogPosting`/`Article`, `BreadcrumbList`) ;
+- le texte complet de la page (masqué visuellement, remplacé au démarrage de l'application), donc lisible sans JavaScript ;
+- un vrai code **404** pour les adresses inconnues et une redirection **301** de `/articles/<id>` vers `/articles/<slug>`.
+
+Chaque article et chaque paracha a **sa propre image de partage** (1200 x 630, le titre sur le fond du site), générée à la demande sur `/og/articles/<slug>.png` et `/og/paracha/<slug>.png` ; les pages d'ensemble utilisent `/og-default.png`.
+
+Autres fichiers : `/sitemap.xml` (pages, articles, paracha avec date de modification), `/rss.xml` (texte intégral), `/robots.txt`, et pour les moteurs de réponse `/llms.txt` (résumé du site) et `/llms-full.txt` (texte intégral). `/admin` et `/api` ne sont jamais indexés (`X-Robots-Tag: noindex`).
+
+**Écrire une description** : dans l'éditeur d'article, le champ *Description* devient la balise `description` et l'aperçu des réseaux (160 caractères conseillés). Si elle est vide, le premier vrai paragraphe est utilisé.
+
+Variables : `APP_PUBLIC_URL` (adresse utilisée dans toutes les balises, obligatoirement en `https://` en production), `AUTHOR_NAME` et `AUTHOR_URL` (auteur des données structurées).
+
+### Vérifier après un déploiement
+
+1. Ouvrir `https://votre-domaine/articles/<slug>` puis « Afficher le code source » : les balises et le texte doivent y figurer.
+2. Aperçu de partage : [Facebook Sharing Debugger](https://developers.facebook.com/tools/debug/) (aussi valable pour WhatsApp), [LinkedIn Post Inspector](https://www.linkedin.com/post-inspector/), validateur de cartes de X. Ces outils permettent de forcer le rafraîchissement du cache d'un lien déjà partagé.
+3. Données structurées : [Rich Results Test](https://search.google.com/test/rich-results) de Google.
+4. Google Search Console : ajouter le site, soumettre `https://votre-domaine/sitemap.xml`, puis demander l'indexation des premières pages.
+
+Le backend lit `index.html` sur `http://cdg-frontend/index.html` (variable `SEO_SHELL_URL` pour la changer). Si le backend est indisponible, nginx sert la page statique de l'application.
+
 ## Modération des commentaires
 
 Aucun commentaire n'est public avant votre approbation. Dans `/admin` :

@@ -43,6 +43,8 @@ services:
       SHABBAT_TIMEZONE: ${SHABBAT_TIMEZONE:-Europe/Paris}
       SHABBAT_MARGIN_MINUTES: ${SHABBAT_MARGIN_MINUTES:-30}
       COMMENTS_ENABLED: ${COMMENTS_ENABLED:-true}
+      AUTHOR_NAME: ${AUTHOR_NAME:-Anthony Gorski}
+      AUTHOR_URL: ${AUTHOR_URL:-https://www.agorski.dev}
       MAIL_HOST: ${MAIL_HOST:-}
       MAIL_PORT: ${MAIL_PORT:-587}
       MAIL_USERNAME: ${MAIL_USERNAME:-}
