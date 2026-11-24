@@ -14,7 +14,6 @@ export interface PageSeo {
   noindex?: boolean;
 }
 
-const ROBOTS_INDEX = 'index, follow, max-image-preview:large, max-snippet:-1';
 
 /**
  * Met à jour les balises SEO et de partage lors de la navigation interne.
@@ -26,6 +25,9 @@ export class Seo {
   private readonly titleService = inject(Title);
   private readonly meta = inject(Meta);
   private readonly doc = inject(DOCUMENT);
+  /** Directive robots envoyée par le serveur (index ou noindex selon le réglage SITE_INDEXABLE) ; noindex par défaut. */
+  private readonly serverRobots =
+    this.doc.head.querySelector('meta[name="robots"]')?.getAttribute('content') ?? 'noindex, nofollow, noarchive';
 
   set(page: PageSeo): void {
     const origin = this.doc.location.origin;
@@ -33,7 +35,7 @@ export class Seo {
     const image = origin + (page.image ?? '/og-default.png');
     this.titleService.setTitle(page.title);
     this.meta.updateTag({ name: 'description', content: page.description });
-    this.meta.updateTag({ name: 'robots', content: page.noindex ? 'noindex, nofollow' : ROBOTS_INDEX });
+    this.meta.updateTag({ name: 'robots', content: page.noindex ? 'noindex, nofollow' : this.serverRobots });
     this.meta.updateTag({ property: 'og:title', content: page.title });
     this.meta.updateTag({ property: 'og:description', content: page.description });
     this.meta.updateTag({ property: 'og:url', content: url });
