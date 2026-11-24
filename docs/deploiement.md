@@ -1,6 +1,71 @@
 # Mise en ligne sur un VPS
 
-Déploiement par Docker Compose, accès direct par IP en HTTP (pas de nom de domaine pour l'instant). Seul le service `frontend` (nginx) est exposé : la base et le backend restent sur le réseau interne de Docker.
+Le projet se déploie par Docker Compose. Seul le service `frontend` (nginx) reçoit le trafic : la base et le backend restent sur le réseau interne de Docker.
+
+- **Option A : avec Dokploy** (recommandé si Dokploy est déjà installé sur le VPS)
+- **Option B : sans Dokploy**, accès direct par IP en HTTP
+
+## Option A : Dokploy
+
+Le projet est un déploiement **Compose** : le fichier `docker-compose.yml` contient déjà PostgreSQL, il ne faut donc **pas** créer de base de données séparée dans Dokploy. Ne pas déployer le backend et le frontend comme deux « Applications » distinctes : nginx joint le backend par le nom `backend`, qui n'existerait pas.
+
+### 1. DNS
+
+Chez l'hébergeur du domaine, un enregistrement `A` vers l'IP du VPS (et un second pour `www`, ou un `CNAME` vers le domaine). La propagation peut prendre de quelques minutes à quelques heures.
+
+### 2. Créer le service dans Dokploy
+
+1. Dans le projet, **Create Service**, puis **Compose**.
+2. **Provider** : GitHub (ou Git avec `https://github.com/GorskiAnthony/chemin-de-guer.git`), branche `main`.
+3. **Compose Path** : `./docker-compose.yml`. Type : *Docker Compose*.
+
+Si le projet existe déjà sous forme d'« Applications » séparées, les supprimer et repartir de ce service Compose.
+
+### 3. Variables d'environnement
+
+Onglet **Environment** du service :
+
+```
+DB_PASSWORD=<mot de passe long et unique>
+ADMIN_EMAIL=<votre email>
+ADMIN_PASSWORD=<12 caractères minimum>
+APP_PUBLIC_URL=https://votre-domaine.fr
+COOKIE_SECURE=true
+```
+
+`DB_NAME`, `DB_USER` et les réglages Shabbat ont des valeurs par défaut. Ne pas définir `FRONTEND_PORT` : Dokploy n'utilise pas `docker-compose.override.yml`, aucun port n'est publié sur la machine et c'est Traefik qui route vers le conteneur.
+
+### 4. Domaine et HTTPS
+
+Onglet **Domains**, **Add Domain** :
+
+| Champ | Valeur |
+| --- | --- |
+| Host | `votre-domaine.fr` |
+| Service Name | `frontend` |
+| Port | `80` |
+| HTTPS | activé |
+| Certificate | Let's Encrypt |
+
+Répéter pour `www.votre-domaine.fr` si besoin.
+
+### 5. Déployer
+
+Bouton **Deploy**, puis suivre les logs. Les services démarrent dans l'ordre : base, backend (healthcheck), frontend. Le compte administrateur est créé au premier démarrage (voir plus bas).
+
+### Mises à jour et sauvegardes
+
+- Un nouveau déploiement (bouton **Deploy**, ou *Auto Deploy* par webhook GitHub) reconstruit les images. Les données restent dans le volume `postgres_data`.
+- Ne jamais supprimer ce volume. Prévoir une sauvegarde régulière, par la fonction de sauvegarde de volumes de Dokploy si votre version la propose, sinon avec `scripts/backup.sh` (voir plus bas), et la copier hors du serveur.
+
+### Problèmes fréquents avec Dokploy
+
+- **404 ou « Bad Gateway » de Traefik** : vérifier que le domaine pointe sur le service `frontend` et le port `80`, et que le DNS est propagé.
+- **Pas de certificat HTTPS** : le DNS doit déjà pointer vers le VPS, et les ports 80 et 443 doivent être ouverts chez OVH.
+- **Connexion impossible au back-office** : `COOKIE_SECURE=true` exige HTTPS. Vérifier que le site est bien servi en `https://`.
+- **Plus de connexion possible après 5 erreurs** : normal, limitation de 15 minutes par IP.
+
+## Option B : VPS sans Dokploy
 
 ## Prérequis
 
@@ -38,7 +103,7 @@ docker compose up -d --build
 docker compose ps        # les 3 services doivent être "Up", db et backend "healthy"
 ```
 
-Le site est accessible sur `http://IP_DU_VPS`, le back-office sur `/admin/login`.
+Le site est accessible sur `http://IP_DU_VPS`, le back-office sur `/admin/login`. Dans ce mode, `docker-compose.override.yml` est chargé automatiquement et publie le port défini par `FRONTEND_PORT` (80 par défaut).
 
 Le compte administrateur est créé au premier démarrage, uniquement si la base ne contient aucun utilisateur. Une fois connecté, `ADMIN_PASSWORD` peut être retiré du `.env`.
 
