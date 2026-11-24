@@ -42,6 +42,15 @@ services:
       SHABBAT_GEONAME_ID: ${SHABBAT_GEONAME_ID:-2988507}
       SHABBAT_TIMEZONE: ${SHABBAT_TIMEZONE:-Europe/Paris}
       SHABBAT_MARGIN_MINUTES: ${SHABBAT_MARGIN_MINUTES:-30}
+      COMMENTS_ENABLED: ${COMMENTS_ENABLED:-true}
+      MAIL_HOST: ${MAIL_HOST:-}
+      MAIL_PORT: ${MAIL_PORT:-587}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM: ${MAIL_FROM:-}
+      MAIL_TO: ${MAIL_TO:-}
+      MAIL_AUTH: ${MAIL_AUTH:-true}
+      MAIL_STARTTLS: ${MAIL_STARTTLS:-true}
     depends_on:
       cdg-db:
         condition: service_healthy
