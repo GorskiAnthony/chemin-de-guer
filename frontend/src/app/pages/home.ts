@@ -7,40 +7,48 @@ import { Api, Article, TagRef } from '../core/api';
   selector: 'app-home',
   imports: [RouterLink, DatePipe],
   template: `
-    <h1>Journal de conversion</h1>
-    <p class="muted">Un chemin vers le judaïsme, étape après étape.</p>
+    <section class="hero">
+      <p class="he">גר</p>
+      <p class="caption">Journal de conversion</p>
+      <h1>Chemin de Guer</h1>
+      <p class="sub">Un parcours vers le judaïsme raconté pas à pas : les doutes, les rencontres, les étapes qui comptent.</p>
+    </section>
 
-    <div class="filters">
-      <input type="search" placeholder="Rechercher un article" aria-label="Rechercher"
+    <section class="filters">
+      <input type="search" placeholder="Rechercher un article" aria-label="Rechercher un article"
              [value]="query()" (input)="onSearch($any($event.target).value)">
       <div class="tags">
         <button class="tag" [class.on]="!tag()" (click)="selectTag('')">Tous</button>
         @for (t of tags(); track t.id) {
-          <button class="tag" [class.on]="tag() === t.slug" (click)="selectTag(t.slug)">{{ t.name }}</button>
+          <button class="tag" [class.on]="tag() === t.slug" (click)="selectTag(t.slug)">#{{ t.name }}</button>
         }
       </div>
-    </div>
+    </section>
 
-    @if (loading()) { <p class="muted">Chargement…</p> }
-    @if (!loading() && articles().length === 0) { <p class="muted">Aucun article pour le moment.</p> }
-    @for (a of articles(); track a.id) {
-      <article class="card item reveal">
-        <h2><a [routerLink]="['/articles', a.id]">{{ a.title }}</a></h2>
-        <p class="muted meta">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</p>
-        <p>{{ a.excerpt }}</p>
-        @for (t of a.tags; track t.id) { <span class="tag">{{ t.name }}</span> }
-      </article>
-    }
+    @if (!loading() && articles().length === 0) { <p class="muted empty">Aucun article pour le moment.</p> }
+    <div class="grid">
+      @for (a of articles(); track a.id) {
+        <article class="card article-card reveal">
+          <div class="stripe-card"></div>
+          <div class="body">
+            <span class="mono">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</span>
+            <h3><a [routerLink]="['/articles', a.id]">{{ a.title }}</a></h3>
+            <p>{{ a.excerpt }}</p>
+            <div>@for (t of a.tags; track t.id) { <span class="tag">#{{ t.name }}</span> }</div>
+          </div>
+        </article>
+      }
+    </div>
   `,
   styles: `
-    .filters { margin: 1.5rem 0; }
-    .tags { margin-top: .8rem; }
-    button.tag { border: 0; cursor: pointer; font-family: inherit; }
-    button.tag.on { background: var(--blue); color: var(--surface); }
-    .item { margin-bottom: 1rem; }
-    .item h2 { margin: 0 0 .2rem; font-size: 1.5rem; }
-    .item h2 a { text-decoration: none; }
-    .meta { margin: 0 0 .6rem; font-size: .85rem; }
+    .hero { text-align: center; padding: 56px 0 34px; }
+    .he { font: 400 1.3rem var(--serif); color: var(--gold); margin: 0 0 6px; direction: rtl; }
+    h1 { font-size: clamp(2.6rem, 7vw, 4.4rem); margin: 10px 0 0; letter-spacing: -.01em; }
+    .sub { max-width: 52ch; margin: 16px auto 0; color: var(--ink-muted); font-size: 1.05rem; }
+    .filters { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
+    .filters input { max-width: 360px; margin-bottom: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+    .empty { text-align: center; padding: 40px 0; }
   `,
 })
 export class Home {

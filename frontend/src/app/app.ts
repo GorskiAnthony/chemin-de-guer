@@ -1,44 +1,56 @@
 import { Component, inject, signal } from '@angular/core';
-import { NavigationEnd, Router, RouterLink, RouterOutlet } from '@angular/router';
+import { NavigationEnd, Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { filter } from 'rxjs';
 import { Api, ShabbatStatus } from './core/api';
 import { ShabbatClosed } from './pages/shabbat-closed';
-import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, RouterLink, ShabbatClosed],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ShabbatClosed],
   template: `
-    <header class="top">
-      <div class="container bar">
+    <div class="stripe"></div>
+    <div class="wrap">
+      <header class="navbar">
         <a routerLink="/" class="brand">Chemin de Guer <span class="he">גר</span></a>
         <nav>
-          <a routerLink="/">Articles</a>
+          <a routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="{ exact: true }">Articles</a>
           <a href="/rss.xml">RSS</a>
           <a href="https://luah-france.netlify.app/" target="_blank" rel="noopener noreferrer">Luah</a>
         </nav>
-      </div>
-    </header>
-    <main class="container">
-      @if (closed() && !isAdmin()) {
-        <app-shabbat-closed [status]="shabbat()!" />
-      } @else {
-        <router-outlet />
-      }
-    </main>
-    <footer class="container muted foot">
-      Chemin de Guer · Journal d'un parcours de conversion
-      @if (shabbat()?.parasha; as p) { · Paracha de la semaine : {{ p }} }
-    </footer>
+      </header>
+
+      <main>
+        @if (closed() && !isAdmin()) {
+          <app-shabbat-closed [status]="shabbat()!" />
+        } @else {
+          <router-outlet />
+        }
+      </main>
+
+      <footer>
+        <span>Chemin de Guer · journal d'un parcours de conversion</span>
+        @if (shabbat()?.parasha; as p) { <span class="mono">Paracha : {{ p }} {{ shabbat()?.parashaHebrew }}</span> }
+      </footer>
+    </div>
   `,
   styles: `
-    .top { background: var(--blue-strong); color: #fff; border-bottom: 4px solid var(--gold); }
-    .bar { display: flex; justify-content: space-between; align-items: center; padding-block: 1rem; flex-wrap: wrap; gap: .5rem; }
-    .brand { font: 700 1.5rem "Frank Ruhl Libre", serif; color: #fff; text-decoration: none; }
-    .he { color: var(--gold-soft); margin-inline-start: .3rem; }
-    nav a { color: #fff; margin-inline-start: 1.2rem; text-decoration: none; font-weight: 500; }
-    nav a:hover { color: var(--gold-soft); }
-    main { padding-block: 2rem; min-height: 70vh; }
-    .foot { padding-block: 1.5rem 2.5rem; font-size: .9rem; }
+    :host { display: block; }
+    .stripe { height: 7px; background: repeating-linear-gradient(90deg,
+      var(--blue) 0 28px, var(--surface) 28px 34px, var(--blue) 34px 62px,
+      var(--surface) 62px 68px, var(--gold) 68px 72px, var(--surface) 72px 78px); }
+    .navbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
+      margin-top: 22px; padding: 14px 22px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 10px; box-shadow: var(--shadow); }
+    .brand { font: 600 1.2rem var(--serif); color: var(--blue-strong); text-decoration: none; }
+    .he { color: var(--gold); margin-inline-start: .35rem; }
+    nav { display: flex; gap: 22px; font-size: .92rem; }
+    nav a { color: var(--ink-muted); text-decoration: none; padding-block: 2px; border-bottom: 2px solid transparent;
+      transition: color 160ms ease, border-color 160ms ease; }
+    nav a.current { color: var(--blue); font-weight: 600; border-bottom-color: var(--gold); }
+    @media (hover: hover) and (pointer: fine) { nav a:hover { color: var(--blue); } }
+    main { min-height: 62vh; padding-block: 8px 40px; }
+    footer { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px; padding-block: 24px 48px;
+      border-top: 1px solid var(--border); color: var(--ink-muted); font-size: .88rem; }
   `,
 })
 export class App {

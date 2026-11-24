@@ -21,7 +21,7 @@ import { Auth } from '../core/auth';
       <div class="card row reveal">
         <div>
           <strong>{{ a.title }}</strong>
-          <span class="tag">{{ label(a.statut) }}</span>
+          <span class="badge" [class.published]="a.statut === 'PUBLISHED'" [class.draft]="a.statut !== 'PUBLISHED'">{{ label(a.statut) }}</span>
           <div class="muted">Modifié le {{ a.updatedAt | date: 'd MMM y, HH:mm' : undefined : 'fr' }}</div>
         </div>
         <div>
@@ -36,7 +36,7 @@ import { Auth } from '../core/auth';
       <div class="card row reveal">
         <div>
           <strong>{{ c.authorName }}</strong> sur « {{ c.articleTitle }} »
-          <span class="tag">{{ c.statut === 'PENDING' ? 'En attente' : 'Approuvé' }}</span>
+          <span class="badge" [class.pending]="c.statut === 'PENDING'" [class.published]="c.statut !== 'PENDING'">{{ c.statut === 'PENDING' ? 'En attente' : 'Approuvé' }}</span>
           <div class="msg">{{ c.content }}</div>
         </div>
         <div>
@@ -58,6 +58,8 @@ import { Auth } from '../core/auth';
     </form>
   `,
   styles: `
+    h2 { margin-top: 2.2rem; font-size: 1.5rem; }
+    .row .muted { font: 400 .78rem var(--mono); margin-top: 4px; }
     .head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; }
     .head .btn { margin-inline-start: .5rem; }
     .row { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: .6rem; flex-wrap: wrap; }

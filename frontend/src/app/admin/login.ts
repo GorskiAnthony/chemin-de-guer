@@ -15,7 +15,7 @@ import { Auth } from '../core/auth';
       <p><button class="btn" type="submit" [disabled]="busy()">Se connecter</button></p>
     </form>
   `,
-  styles: `form { max-width: 420px; margin: 2rem auto; }`,
+  styles: `form { max-width: 420px; margin: 56px auto; } h1 { margin-top: 0; }`,
 })
 export class Login {
   private readonly auth = inject(Auth);

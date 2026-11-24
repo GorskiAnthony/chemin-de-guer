@@ -9,13 +9,16 @@ import { renderMarkdown } from '../core/markdown';
   selector: 'app-article-page',
   imports: [RouterLink, DatePipe],
   template: `
-    <a routerLink="/">← Tous les articles</a>
+    <div class="narrow">
+    <a class="back" routerLink="/">← Tous les articles</a>
     @if (notFound()) { <p class="card">Article introuvable.</p> }
     @if (article(); as a) {
-      <article>
-        <h1>{{ a.title }}</h1>
-        <p class="muted">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</p>
-        @for (t of a.tags; track t.id) { <span class="tag">{{ t.name }}</span> }
+      <article class="reveal">
+        <header>
+          <p class="mono">{{ a.publishedAt | date: 'd MMMM y' : undefined : 'fr' }}</p>
+          <h1>{{ a.title }}</h1>
+          <div>@for (t of a.tags; track t.id) { <span class="tag">#{{ t.name }}</span> }</div>
+        </header>
         <div class="body" [innerHTML]="html()"></div>
       </article>
 
@@ -23,7 +26,7 @@ import { renderMarkdown } from '../core/markdown';
         <section>
           <h2>À lire aussi</h2>
           @for (r of related(); track r.id) {
-            <p><a [routerLink]="['/articles', r.id]">{{ r.title }}</a></p>
+            <p class="rel"><a [routerLink]="['/articles', r.id]">{{ r.title }}</a></p>
           }
         </section>
       }
@@ -31,12 +34,12 @@ import { renderMarkdown } from '../core/markdown';
       <section>
         <h2>Commentaires</h2>
         @for (c of comments(); track c.id) {
-          <div class="card comment"><strong>{{ c.authorName }}</strong>
-            <span class="muted"> · {{ c.createdAt | date: 'd MMMM y' : undefined : 'fr' }}</span>
+          <div class="comment"><strong>{{ c.authorName }}</strong>
+            <span class="mono"> · {{ c.createdAt | date: 'd MMMM y' : undefined : 'fr' }}</span>
             <p>{{ c.content }}</p></div>
         } @empty { <p class="muted">Aucun commentaire pour le moment.</p> }
 
-        <form class="card" (submit)="submit($event)">
+        <form class="card form" (submit)="submit($event)">
           <h3>Laisser un commentaire</h3>
           <label for="name">Nom</label>
           <input id="name" maxlength="80" required [value]="name()" (input)="name.set($any($event.target).value)">
@@ -51,14 +54,20 @@ import { renderMarkdown } from '../core/markdown';
         </form>
       </section>
     }
+    </div>
   `,
   styles: `
-    .body { margin: 1.5rem 0; font-size: 1.08rem; }
-    .body :is(h2, h3, h4) { margin-top: 2rem; }
-    .body blockquote { border-inline-start: 4px solid var(--gold); margin-inline: 0; padding-inline-start: 1rem; color: var(--ink-muted); }
-    section { margin-top: 2.5rem; }
-    .comment { margin-bottom: .8rem; }
-    .comment p { margin: .4rem 0 0; white-space: pre-line; }
+    .back { display: inline-block; margin: 28px 0 8px; font-size: .92rem; text-decoration: none; color: var(--ink-muted); }
+    header { margin-bottom: 28px; }
+    h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 14px; }
+    .body { font-size: 1.12rem; line-height: 1.75; }
+    :host ::ng-deep .body :is(h2, h3, h4) { margin-top: 2.2rem; }
+    :host ::ng-deep .body blockquote { border-inline-start: 3px solid var(--gold); margin-inline: 0; padding-inline-start: 1.1rem; color: var(--ink-muted); font-family: var(--serif); font-size: 1.25rem; }
+    section { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
+    section h2 { font-size: 1.5rem; }
+    .rel { margin: .4rem 0; font: 600 1.05rem var(--serif); }
+    .form { margin-top: 1.5rem; }
+    .form h3 { margin: 0; }
     .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   `,
 })
