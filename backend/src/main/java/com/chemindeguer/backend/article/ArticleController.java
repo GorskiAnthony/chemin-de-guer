@@ -1,69 +1,47 @@
 package com.chemindeguer.backend.article;
 
-import com.chemindeguer.backend.user.UserRepository;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
+/** API d'administration (authentification requise). */
 @RestController
 @RequestMapping("/api/articles")
 public class ArticleController {
 
     private final ArticleService articleService;
-    private final UserRepository userRepository;
 
-    public record ArticleRequest(String title, String content) {}
-    public record ArticleResponse(Long id, String title, String content, String authorEmail) {
-        public static ArticleResponse from(Article article) {
-            return new ArticleResponse(article.getId(), article.getTitle(), article.getContent(), article.getAuthor().getEmail());
-        }
-    }
-
-    public ArticleController(ArticleService articleService, UserRepository userRepository) {
+    public ArticleController(ArticleService articleService) {
         this.articleService = articleService;
-        this.userRepository = userRepository;
     }
 
     @PostMapping
-    public ArticleResponse create(@RequestBody ArticleRequest request) {
-
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        var user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Utilisateur non trouvé"));
-        var article = new Article(request.title(), request.content(), user);
-        var createdArticle = articleService.create(article);
-        return ArticleResponse.from(createdArticle);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ArticleResponse create(@Valid @RequestBody ArticleRequest request, Authentication authentication) {
+        return articleService.create(request, authentication.getName());
     }
 
     @GetMapping
     public List<ArticleResponse> findAll() {
-
-        return articleService.findAll().stream().map(ArticleResponse::from).toList();
+        return articleService.findAll();
     }
 
     @GetMapping("/{id}")
     public ArticleResponse findById(@PathVariable Long id) {
-
-        return articleService.findById(id).map(ArticleResponse::from).orElseThrow(() -> new NoSuchElementException("Article non trouvé"));
+        return articleService.findById(id);
     }
 
     @PutMapping("/{id}")
-    public ArticleResponse update(@PathVariable Long id, @RequestBody ArticleRequest request) {
-        var modifications = new Article(request.title(), request.content(), null);
-        var updatedArticle = articleService.update(id, modifications);
-        return ArticleResponse.from(updatedArticle);
+    public ArticleResponse update(@PathVariable Long id, @Valid @RequestBody ArticleRequest request) {
+        return articleService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Long id) {
-
         articleService.delete(id);
-    }
-
-    @ExceptionHandler(NoSuchElementException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public void handleNotFound() {
     }
 }
