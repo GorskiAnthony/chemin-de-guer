@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { Api, Article, Comment, TagRef } from '../core/api';
+import { Api, Article, Comment, Parasha, TagRef } from '../core/api';
 import { Auth } from '../core/auth';
 
 @Component({
@@ -12,6 +12,7 @@ import { Auth } from '../core/auth';
       <h1>Administration</h1>
       <div>
         <a class="btn gold" routerLink="/admin/articles/nouveau">Nouvel article</a>
+        <a class="btn secondary" routerLink="/admin/parashot/nouveau">Nouvelle paracha</a>
         <button class="btn ghost" (click)="logout()">Déconnexion</button>
       </div>
     </div>
@@ -30,6 +31,21 @@ import { Auth } from '../core/auth';
         </div>
       </div>
     } @empty { <p class="muted">Aucun article.</p> }
+
+    <h2>Paracha</h2>
+    @for (p of parashot(); track p.id) {
+      <div class="card row reveal">
+        <div>
+          <strong>{{ p.name }}</strong>
+          <span class="badge" [class.published]="p.statut === 'PUBLISHED'" [class.draft]="p.statut !== 'PUBLISHED'">{{ label(p.statut) }}</span>
+          <div class="muted">{{ p.book }}</div>
+        </div>
+        <div>
+          <a class="btn small ghost" [routerLink]="['/admin/parashot', p.id]">Modifier</a>
+          <button class="btn small danger" (click)="removeParasha(p)">Supprimer</button>
+        </div>
+      </div>
+    } @empty { <p class="muted">Aucun résumé de paracha.</p> }
 
     <h2>Commentaires</h2>
     @for (c of comments(); track c.id) {
@@ -76,6 +92,7 @@ export class Dashboard {
   protected readonly articles = signal<Article[]>([]);
   protected readonly comments = signal<Comment[]>([]);
   protected readonly tags = signal<TagRef[]>([]);
+  protected readonly parashot = signal<Parasha[]>([]);
   protected readonly newTag = signal('');
 
   constructor() { this.reload(); }
@@ -86,11 +103,16 @@ export class Dashboard {
     this.api.adminArticles().subscribe((a) => this.articles.set(a));
     this.api.adminComments().subscribe((c) => this.comments.set(c));
     this.api.publicTags().subscribe((t) => this.tags.set(t));
+    this.api.adminParashot().subscribe((p) => this.parashot.set(p));
   }
 
   protected removeArticle(a: Article) {
     if (!confirm(`Supprimer « ${a.title} » ?`)) return;
     this.api.deleteArticle(a.id).subscribe(() => this.reload());
+  }
+  protected removeParasha(p: Parasha) {
+    if (!confirm(`Supprimer « ${p.name} » ?`)) return;
+    this.api.deleteParasha(p.id).subscribe(() => this.reload());
   }
   protected approve(c: Comment) { this.api.approveComment(c.id).subscribe(() => this.reload()); }
   protected removeComment(c: Comment) {

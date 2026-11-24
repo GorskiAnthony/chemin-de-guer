@@ -13,9 +13,10 @@ import { ShabbatClosed } from './pages/shabbat-closed';
       <header class="navbar">
         <a routerLink="/" class="brand">Chemin de Guer <span class="he">גר</span></a>
         <nav>
-          <a routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="{ exact: true }">Articles</a>
+          <a routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+          <a routerLink="/articles" routerLinkActive="current">Articles</a>
+          <a routerLink="/paracha" routerLinkActive="current">Paracha</a>
           <a href="/rss.xml">RSS</a>
-          <a href="https://luah-france.netlify.app/" target="_blank" rel="noopener noreferrer">Luah</a>
         </nav>
       </header>
 
@@ -35,9 +36,7 @@ import { ShabbatClosed } from './pages/shabbat-closed';
   `,
   styles: `
     :host { display: block; }
-    .stripe { height: 7px; background: repeating-linear-gradient(90deg,
-      var(--blue) 0 28px, var(--surface) 28px 34px, var(--blue) 34px 62px,
-      var(--surface) 62px 68px, var(--gold) 68px 72px, var(--surface) 72px 78px); }
+    .stripe { height: 5px; background: linear-gradient(90deg, var(--blue-strong), var(--blue) 55%, var(--gold)); }
     .navbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;
       margin-top: 22px; padding: 14px 22px; background: var(--surface); border: 1px solid var(--border);
       border-radius: 10px; box-shadow: var(--shadow); }

@@ -4,14 +4,13 @@ import { RouterLink } from '@angular/router';
 import { Api, Article, TagRef } from '../core/api';
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-articles',
   imports: [RouterLink, DatePipe],
   template: `
     <section class="hero">
-      <p class="he">גר</p>
       <p class="caption">Journal de conversion</p>
-      <h1>Chemin de Guer</h1>
-      <p class="sub">Un parcours vers le judaïsme raconté pas à pas : les doutes, les rencontres, les étapes qui comptent.</p>
+      <h1>Articles</h1>
+      <p class="sub">Les doutes, les rencontres, les étapes qui comptent.</p>
     </section>
 
     <section class="filters">
@@ -41,9 +40,8 @@ import { Api, Article, TagRef } from '../core/api';
     </div>
   `,
   styles: `
-    .hero { text-align: center; padding: 56px 0 34px; }
-    .he { font: 400 1.3rem var(--serif); color: var(--gold); margin: 0 0 6px; direction: rtl; }
-    h1 { font-size: clamp(2.6rem, 7vw, 4.4rem); margin: 10px 0 0; letter-spacing: -.01em; }
+    .hero { text-align: center; padding: 44px 0 28px; }
+    h1 { font-size: clamp(2.2rem, 6vw, 3.4rem); margin: 8px 0 0; }
     .sub { max-width: 52ch; margin: 16px auto 0; color: var(--ink-muted); font-size: 1.05rem; }
     .filters { margin-bottom: 28px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
     .filters input { max-width: 360px; margin-bottom: 14px; }
@@ -51,7 +49,7 @@ import { Api, Article, TagRef } from '../core/api';
     .empty { text-align: center; padding: 40px 0; }
   `,
 })
-export class Home {
+export class Articles {
   private readonly api = inject(Api);
   protected readonly articles = signal<Article[]>([]);
   protected readonly tags = signal<TagRef[]>([]);

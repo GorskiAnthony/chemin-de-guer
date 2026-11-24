@@ -39,6 +39,24 @@ export interface ShabbatStatus {
   city: string | null;
 }
 
+export interface Aliyah { label: string | null; content: string | null; }
+export interface Parasha {
+  id: number; name: string; slug: string; hebrewName: string | null; book: string;
+  intro: string | null; aliyot: Aliyah[] | null; statut: Statut; updatedAt: string;
+}
+export interface ParashaInput { name: string; hebrewName: string; intro: string; aliyot: Aliyah[]; statut: Statut; }
+export interface CatalogEntry { name: string; book: string; position: number; }
+
+export interface CalendarData {
+  hebrewDate: string | null;
+  hebrewDateHe: string | null;
+  parasha: { name: string; slug: string; hebrew: string; torah: string | null; haftarah: string | null; summarySlug: string | null } | null;
+  candleLighting: string | null;
+  havdalah: string | null;
+  city: string | null;
+  holidays: { date: string; title: string; hebrew: string | null }[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class Api {
   private readonly http = inject(HttpClient);
@@ -59,6 +77,11 @@ export class Api {
   }
   shabbat() { return this.http.get<ShabbatStatus>('/api/public/shabbat'); }
 
+  calendar() { return this.http.get<CalendarData>('/api/public/calendar'); }
+  publicParashot() { return this.http.get<Parasha[]>('/api/public/parashot'); }
+  publicParasha(slug: string) { return this.http.get<Parasha>(`/api/public/parashot/${slug}`); }
+  parashaCatalog() { return this.http.get<CatalogEntry[]>('/api/public/parashot/catalog'); }
+
   // Auth
   login(email: string, password: string) { return this.http.post<void>('/api/auth/login', { email, password }); }
   logout() { return this.http.post<void>('/api/auth/logout', {}); }
@@ -72,6 +95,11 @@ export class Api {
   deleteArticle(id: number) { return this.http.delete<void>(`/api/articles/${id}`); }
   createTag(name: string) { return this.http.post<TagRef>('/api/tags', { name }); }
   deleteTag(id: number) { return this.http.delete<void>(`/api/tags/${id}`); }
+  adminParashot() { return this.http.get<Parasha[]>('/api/parashot'); }
+  adminParasha(id: number) { return this.http.get<Parasha>(`/api/parashot/${id}`); }
+  createParasha(p: ParashaInput) { return this.http.post<Parasha>('/api/parashot', p); }
+  updateParasha(id: number, p: ParashaInput) { return this.http.put<Parasha>(`/api/parashot/${id}`, p); }
+  deleteParasha(id: number) { return this.http.delete<void>(`/api/parashot/${id}`); }
   adminComments() { return this.http.get<Comment[]>('/api/comments'); }
   approveComment(id: number) { return this.http.post<void>(`/api/comments/${id}/approve`, {}); }
   deleteComment(id: number) { return this.http.delete<void>(`/api/comments/${id}`); }
