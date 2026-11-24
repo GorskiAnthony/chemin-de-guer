@@ -1,1 +1,116 @@
-/* You can add global styles to this file, and also import other style files */
+:root {
+  --bg: #ece6d6;
+  --surface: #ffffff;
+  --surface-raised: #f7f2e4;
+  --ink: #1b2635;
+  --ink-muted: #5d6a7a;
+  --border: #d9cfb2;
+  --blue: #15335c;
+  --blue-strong: #0b1f3c;
+  --blue-soft: #e3e9f1;
+  --gold: #a9801f;
+  --gold-soft: #f1e3bd;
+  --danger: #a32d2d;
+  --radius: 12px;
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1420;
+    --surface: #141d2c;
+    --surface-raised: #1a2538;
+    --ink: #ece6d6;
+    --ink-muted: #96a2b4;
+    --border: #273048;
+    --blue: #7fa6d9;
+    --blue-strong: #a9c6ea;
+    --blue-soft: #1b2942;
+    --gold: #dcb75f;
+    --gold-soft: #2c2512;
+    --danger: #e08585;
+  }
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Work Sans", -apple-system, "Segoe UI", sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 { font-family: "Frank Ruhl Libre", serif; color: var(--blue-strong); line-height: 1.2; }
+a { color: var(--blue); }
+.container { max-width: 880px; margin: 0 auto; padding: 0 1.25rem; }
+
+.btn {
+  display: inline-block; cursor: pointer; border: 0; border-radius: 999px;
+  padding: .6rem 1.2rem; font: 600 .95rem "Work Sans", sans-serif;
+  background: var(--blue); color: var(--surface); text-decoration: none;
+  transition: transform 160ms var(--ease-out), background-color 160ms ease, opacity 160ms ease;
+  &:active { transform: scale(0.97); }
+  @media (hover: hover) and (pointer: fine) { &:hover { background: var(--blue-strong); } }
+  &:disabled { opacity: .5; cursor: default; }
+  &.gold { background: var(--gold); color: #fff; }
+  &.ghost { background: transparent; color: var(--blue); border: 1px solid var(--border); }
+  &.danger { background: var(--danger); color: #fff; }
+  &.small { padding: .3rem .8rem; font-size: .85rem; }
+}
+
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 1.25rem 1.5rem;
+}
+
+input, textarea, select {
+  width: 100%; padding: .6rem .8rem; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit;
+  &:focus { outline: 2px solid var(--gold); outline-offset: 1px; }
+}
+label { display: block; font-weight: 600; margin: .8rem 0 .3rem; }
+
+.tag {
+  display: inline-block; padding: .15rem .7rem; border-radius: 999px;
+  background: var(--gold-soft); color: var(--gold); font-size: .8rem; font-weight: 600;
+  text-decoration: none; margin: 0 .3rem .3rem 0;
+}
+.muted { color: var(--ink-muted); }
+.error { color: var(--danger); }
+
+a { transition: color 160ms ease; }
+
+.tag { transition: transform 160ms var(--ease-out), background-color 160ms ease, color 160ms ease; }
+button.tag:active { transform: scale(0.96); }
+
+input, textarea, select { transition: border-color 160ms ease, outline-color 160ms ease; }
+
+/* Entrée en cascade : courte, non bloquante, délais non uniformes */
+.reveal {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: reveal 300ms var(--ease-out) forwards;
+  &:nth-child(1) { animation-delay: 0ms; }
+  &:nth-child(2) { animation-delay: 45ms; }
+  &:nth-child(3) { animation-delay: 80ms; }
+  &:nth-child(4) { animation-delay: 105ms; }
+  &:nth-child(n+5) { animation-delay: 125ms; }
+}
+@keyframes reveal { to { opacity: 1; transform: translateY(0); } }
+
+@media (hover: hover) and (pointer: fine) {
+  .card.item { transition: transform 200ms var(--ease-out), border-color 200ms ease;
+    &:hover { transform: translateY(-2px); border-color: var(--gold); } }
+}
+
+/* Mouvement réduit : on garde les fondus, on retire les déplacements */
+@media (prefers-reduced-motion: reduce) {
+  .reveal { transform: none; animation-duration: 150ms; animation-delay: 0ms !important; }
+  .btn:active, button.tag:active { transform: none; }
+  .card.item:hover { transform: none; }
+}

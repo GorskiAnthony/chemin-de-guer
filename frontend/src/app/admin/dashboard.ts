@@ -1,0 +1,106 @@
+import { DatePipe } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
+import { Api, Article, Comment, TagRef } from '../core/api';
+import { Auth } from '../core/auth';
+
+@Component({
+  selector: 'app-dashboard',
+  imports: [RouterLink, DatePipe],
+  template: `
+    <div class="head">
+      <h1>Administration</h1>
+      <div>
+        <a class="btn gold" routerLink="/admin/articles/nouveau">Nouvel article</a>
+        <button class="btn ghost" (click)="logout()">Déconnexion</button>
+      </div>
+    </div>
+
+    <h2>Articles</h2>
+    @for (a of articles(); track a.id) {
+      <div class="card row reveal">
+        <div>
+          <strong>{{ a.title }}</strong>
+          <span class="tag">{{ label(a.statut) }}</span>
+          <div class="muted">Modifié le {{ a.updatedAt | date: 'd MMM y, HH:mm' : undefined : 'fr' }}</div>
+        </div>
+        <div>
+          <a class="btn small ghost" [routerLink]="['/admin/articles', a.id]">Modifier</a>
+          <button class="btn small danger" (click)="removeArticle(a)">Supprimer</button>
+        </div>
+      </div>
+    } @empty { <p class="muted">Aucun article.</p> }
+
+    <h2>Commentaires</h2>
+    @for (c of comments(); track c.id) {
+      <div class="card row reveal">
+        <div>
+          <strong>{{ c.authorName }}</strong> sur « {{ c.articleTitle }} »
+          <span class="tag">{{ c.statut === 'PENDING' ? 'En attente' : 'Approuvé' }}</span>
+          <div class="msg">{{ c.content }}</div>
+        </div>
+        <div>
+          @if (c.statut === 'PENDING') { <button class="btn small" (click)="approve(c)">Approuver</button> }
+          <button class="btn small danger" (click)="removeComment(c)">Supprimer</button>
+        </div>
+      </div>
+    } @empty { <p class="muted">Aucun commentaire.</p> }
+
+    <h2>Tags</h2>
+    <div>
+      @for (t of tags(); track t.id) {
+        <span class="tag">{{ t.name }} <button class="x" (click)="removeTag(t)" [attr.aria-label]="'Supprimer ' + t.name">×</button></span>
+      }
+    </div>
+    <form class="newtag" (submit)="addTag($event)">
+      <input placeholder="Nouveau tag" maxlength="60" [value]="newTag()" (input)="newTag.set($any($event.target).value)">
+      <button class="btn small" type="submit">Ajouter</button>
+    </form>
+  `,
+  styles: `
+    .head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: .5rem; }
+    .head .btn { margin-inline-start: .5rem; }
+    .row { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: .6rem; flex-wrap: wrap; }
+    .row .btn { margin-inline-start: .4rem; }
+    .msg { white-space: pre-line; margin-top: .3rem; }
+    .x { border: 0; background: none; cursor: pointer; color: inherit; font-size: 1rem; }
+    .newtag { display: flex; gap: .5rem; max-width: 360px; margin-top: .6rem; }
+  `,
+})
+export class Dashboard {
+  private readonly api = inject(Api);
+  private readonly auth = inject(Auth);
+  private readonly router = inject(Router);
+  protected readonly articles = signal<Article[]>([]);
+  protected readonly comments = signal<Comment[]>([]);
+  protected readonly tags = signal<TagRef[]>([]);
+  protected readonly newTag = signal('');
+
+  constructor() { this.reload(); }
+
+  protected label(s: string) { return s === 'PUBLISHED' ? 'Publié' : s === 'DRAFT' ? 'Brouillon' : 'Archivé'; }
+
+  private reload() {
+    this.api.adminArticles().subscribe((a) => this.articles.set(a));
+    this.api.adminComments().subscribe((c) => this.comments.set(c));
+    this.api.publicTags().subscribe((t) => this.tags.set(t));
+  }
+
+  protected removeArticle(a: Article) {
+    if (!confirm(`Supprimer « ${a.title} » ?`)) return;
+    this.api.deleteArticle(a.id).subscribe(() => this.reload());
+  }
+  protected approve(c: Comment) { this.api.approveComment(c.id).subscribe(() => this.reload()); }
+  protected removeComment(c: Comment) {
+    if (!confirm('Supprimer ce commentaire ?')) return;
+    this.api.deleteComment(c.id).subscribe(() => this.reload());
+  }
+  protected addTag(e: Event) {
+    e.preventDefault();
+    const name = this.newTag().trim();
+    if (!name) return;
+    this.api.createTag(name).subscribe(() => { this.newTag.set(''); this.reload(); });
+  }
+  protected removeTag(t: TagRef) { this.api.deleteTag(t.id).subscribe(() => this.reload()); }
+  protected logout() { this.auth.logout().subscribe(() => this.router.navigateByUrl('/')); }
+}
