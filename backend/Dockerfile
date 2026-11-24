@@ -8,6 +8,9 @@ RUN mvn -B package -DskipTests
 FROM eclipse-temurin:21-jre
 WORKDIR /app
 # Exécution sans privilèges root
+# Bibliothèques de rendu des polices, nécessaires à la génération des images de partage (Java2D)
+RUN apt-get update && apt-get install -y --no-install-recommends libfreetype6 fontconfig fonts-dejavu-core \
+    && rm -rf /var/lib/apt/lists/*
 RUN useradd --system --no-create-home --uid 10001 app
 COPY --from=build /app/target/*.jar app.jar
 USER app

@@ -18,6 +18,11 @@ import { renderMarkdown } from '../core/markdown';
              [value]="slug()" (input)="slug.set($any($event.target).value)">
       <p class="hint">Lettres minuscules, chiffres et tirets. Ex : <code>mon-premier-shabbat</code>. Le lien public sera <code>/articles/{{ slug() || '…' }}</code>.</p>
 
+      <label for="d">Description (référencement et partage)</label>
+      <textarea id="d" rows="2" maxlength="300" placeholder="1 ou 2 phrases qui donnent envie de lire. Si vide : le premier paragraphe est utilisé."
+                [value]="description()" (input)="description.set($any($event.target).value)"></textarea>
+      <p class="hint" [class.warn]="description().length > 160">{{ description().length }} caractères. Google en affiche environ 160 ; au-delà, la fin est coupée.</p>
+
       <label for="s">Statut</label>
       <select id="s" [value]="statut()" (change)="statut.set($any($event.target).value)">
         <option value="DRAFT">Brouillon</option>
@@ -56,6 +61,7 @@ import { renderMarkdown } from '../core/markdown';
     @media (max-width: 800px) { .split { grid-template-columns: 1fr; } }
     .preview { min-height: 12rem; }
     .hint { margin: 6px 0 0; font-size: .85rem; color: var(--ink-muted); }
+    .hint.warn { color: var(--danger); }
   `,
 })
 export class ArticleEditor {
@@ -65,6 +71,7 @@ export class ArticleEditor {
 
   protected readonly title = signal('');
   protected readonly slug = signal('');
+  protected readonly description = signal('');
   protected readonly commentsOpen = signal(true);
   protected readonly content = signal('');
   protected readonly statut = signal<Statut>('DRAFT');
@@ -82,6 +89,7 @@ export class ArticleEditor {
       this.api.adminArticle(Number(id)).subscribe((a) => {
         this.title.set(a.title);
         this.slug.set(a.slug ?? '');
+        this.description.set(a.description ?? '');
         this.commentsOpen.set(a.commentsOpen);
         this.content.set(a.content ?? '');
         this.statut.set(a.statut);
@@ -98,7 +106,7 @@ export class ArticleEditor {
     e.preventDefault();
     this.busy.set(true);
     this.error.set('');
-    const input = { title: this.title(), slug: this.slug().trim(), content: this.content(), statut: this.statut(), tagIds: this.tagIds(), commentsOpen: this.commentsOpen() };
+    const input = { title: this.title(), slug: this.slug().trim(), description: this.description().trim(), content: this.content(), statut: this.statut(), tagIds: this.tagIds(), commentsOpen: this.commentsOpen() };
     const id = this.id();
     const request = id ? this.api.updateArticle(Number(id), input) : this.api.createArticle(input);
     request.subscribe({

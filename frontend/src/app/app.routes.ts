@@ -38,5 +38,5 @@ export const routes: Routes = [
     title: 'Modifier une paracha',
     loadComponent: () => import('./admin/parasha-editor').then((m) => m.ParashaEditor),
   },
-  { path: '**', redirectTo: '' },
+  { path: '**', title: 'Page introuvable', loadComponent: () => import('./pages/not-found').then((m) => m.NotFound) },
 ];

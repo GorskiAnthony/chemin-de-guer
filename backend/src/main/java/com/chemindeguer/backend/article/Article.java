@@ -23,6 +23,10 @@ public class Article {
     @Column(nullable = false)
     private String title;
 
+    /** Description pour le référencement et le partage (balise meta, aperçu des réseaux). Facultative. */
+    @Column(length = 300)
+    private String description;
+
     /** Adresse lisible de l'article. Nullable en base pour les articles antérieurs, renseignée au démarrage. */
     @Column(unique = true, length = 100)
     private String slug;
