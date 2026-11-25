@@ -36,6 +36,7 @@ import { ShabbatClosed } from './pages/shabbat-closed';
         <div class="about">
           <p>Chemin de Guer est un journal tenu et écrit par
             <a href="https://www.agorski.dev" target="_blank" rel="noopener noreferrer">Anthony Gorski<span class="sr-only"> (nouvel onglet)</span></a>, son auteur.</p>
+          <p class="privacy">Mesure d'audience anonyme, sans cookie ni adresse IP conservée. Désactivable avec « Do Not Track ».</p>
           <p class="links">
             <a href="https://www.agorski.dev" target="_blank" rel="noopener noreferrer">agorski.dev<span class="sr-only"> (nouvel onglet)</span></a>
             <span aria-hidden="true">·</span>
@@ -66,6 +67,7 @@ import { ShabbatClosed } from './pages/shabbat-closed';
       border-top: 1px solid var(--border); color: var(--ink-muted); font-size: .9rem; }
     footer p { margin: 0 0 4px; }
     footer a { color: var(--blue); font-weight: 500; }
+    .privacy { font-size: .82rem; }
     .links { display: flex; gap: 10px; flex-wrap: wrap; }
   `,
 })
@@ -79,12 +81,14 @@ export class App {
   /** Annonce vocale du changement de page (une application monopage ne recharge rien : sans cela, un lecteur d'écran ne perçoit pas la navigation). */
   protected readonly announce = signal('');
   private firstNavigation = true;
+  private firstHit = true;
 
   constructor() {
     this.refresh();
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {
       const admin = e.urlAfterRedirects.startsWith('/admin');
       this.isAdmin.set(admin);
+      if (!admin) this.trackView(e.urlAfterRedirects);
       if (this.firstNavigation) {
         this.firstNavigation = false;
       } else {
@@ -103,6 +107,15 @@ export class App {
   protected skipToContent(event: Event) {
     event.preventDefault();
     document.getElementById('main')?.focus();
+  }
+
+  /** Mesure d'audience anonyme, sans cookie. Le navigateur qui demande de ne pas être suivi (Do Not Track) n'est pas compté. */
+  private trackView(url: string) {
+    if (navigator.doNotTrack === '1') return;
+    // Le site d'origine n'est transmis que pour la première page (l'arrivée sur le site)
+    const referrer = this.firstHit ? document.referrer : '';
+    this.firstHit = false;
+    this.api.hit(url.split(/[?#]/)[0], referrer).subscribe({ error: () => {} });
   }
 
   private refresh() {

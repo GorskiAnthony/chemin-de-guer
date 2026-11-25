@@ -13,6 +13,7 @@ Le site est en ligne : [chemin-de-guer.fr](https://chemin-de-guer.fr).
 - Fermeture automatique du site pendant Shabbat (horaires Hebcal, ville et marge configurables)
 - Partage et référencement : pages rendues côté serveur, Open Graph, images de partage générées, JSON-LD, sitemap, flux RSS, `llms.txt`, mode `noindex` par défaut (`SITE_INDEXABLE`)
 - Sauvegardes quotidiennes de la base (chiffrement et copie hors serveur facultatifs, kit pour un NAS)
+- Statistiques de fréquentation dans l'administration : pages vues, visites, pages les plus lues, sites d'origine, appareils. Anonymes, sans cookie, sans adresse IP conservée
 - Thème clair et sombre, accessibilité (contrastes, navigation clavier, mouvement réduit)
 
 Documentation complète :

@@ -38,7 +38,7 @@ public class SecurityConfig {
                                 "/api/seo/**", "/api/og/**", "/api/robots.txt").permitAll()
                         .requestMatchers(HttpMethod.HEAD, "/api/public/**", "/api/sitemap.xml", "/api/rss.xml", "/api/llms.txt", "/api/llms-full.txt",
                                 "/api/seo/**", "/api/og/**", "/api/robots.txt").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/public/articles/*/comments").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/public/articles/*/comments", "/api/public/hit").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
                         // Page d'erreur interne : sans cela, toute erreur d'une route publique (400, 405...) devient un 401
                         .requestMatchers("/error").permitAll()

@@ -118,6 +118,8 @@ export class Api {
   createParasha(p: ParashaInput) { return this.http.post<Parasha>('/api/parashot', p); }
   updateParasha(id: number, p: ParashaInput) { return this.http.put<Parasha>(`/api/parashot/${id}`, p); }
   deleteParasha(id: number) { return this.http.delete<void>(`/api/parashot/${id}`); }
+  stats(days: number) { return this.http.get<Stats>('/api/stats', { params: { days } }); }
+  hit(path: string, referrer: string) { return this.http.post<void>('/api/public/hit', { path, referrer }); }
   settings() { return this.http.get<Settings>('/api/settings'); }
   updateSettings(s: Settings) { return this.http.put<Settings>('/api/settings', s); }
   adminFetes() { return this.http.get<Fete[]>('/api/fetes'); }
@@ -128,4 +130,11 @@ export class Api {
   adminComments() { return this.http.get<Comment[]>('/api/comments'); }
   approveComment(id: number) { return this.http.post<void>(`/api/comments/${id}/approve`, {}); }
   deleteComment(id: number) { return this.http.delete<void>(`/api/comments/${id}`); }
+}
+
+export interface StatRow { label: string; views: number; visitors: number; }
+export interface Stats {
+  days: number; views: number; visits: number;
+  perDay: { day: string; views: number; visitors: number }[];
+  pages: StatRow[]; referrers: StatRow[]; devices: StatRow[];
 }
