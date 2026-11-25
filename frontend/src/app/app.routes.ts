@@ -17,6 +17,12 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/dashboard').then((m) => m.Dashboard),
   },
   {
+    path: 'admin/statistiques',
+    canActivate: [authGuard],
+    title: 'Statistiques',
+    loadComponent: () => import('./admin/stats').then((m) => m.StatsPage),
+  },
+  {
     path: 'admin/articles/nouveau',
     canActivate: [authGuard],
     title: 'Nouvel article',
