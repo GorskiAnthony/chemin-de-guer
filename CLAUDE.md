@@ -6,7 +6,7 @@ Blog personnel racontant un parcours de conversion au judaïsme (guer = converti
 
 - Backend : Java 21, Spring Boot 4.0 (Maven), Spring Data JPA, Spring Security, PostgreSQL 16
 - Frontend : Angular 22 (standalone components, signals), SCSS
-- Orchestration : Docker Compose
+- Orchestration : Docker Compose (Dokploy en production)
 
 ## Architecture
 
@@ -14,7 +14,8 @@ Mono-repo, un seul dépôt Git à la racine :
 
 - `backend/` : API REST Spring Boot
 - `frontend/` : SPA Angular
-- `docker-compose.yml` : service `db` (Postgres), `backend`, `frontend` (build Angular servi par nginx, qui proxy `/api/` vers le backend)
+- `docker-compose.yml` : services `cdg-db` (Postgres), `cdg-backup`, `cdg-backend`, `cdg-frontend` (build Angular servi par nginx, qui proxy `/api/` vers le backend)
+- `backup/` : image de sauvegarde ; `nas/` : kit de copie sur un NAS ; `docs/` : documentation
 
 Ne pas créer de sous-dépôt Git dans `backend/` ou `frontend/`.
 
@@ -24,24 +25,25 @@ Ne pas créer de sous-dépôt Git dans `backend/` ou `frontend/`.
 docker compose up --build
 ```
 
-- Frontend : http://localhost
-- Backend : http://localhost:8080
-- Postgres : localhost:5432
+- Site : http://localhost (ou `FRONTEND_PORT`), nginx proxifie `/api/` vers le backend
+- Backend et Postgres ne sont pas publiés sur la machine
 
 Variables d'environnement dans `.env` (voir `.env.example`), non committé.
 
 ## Déploiement
 
-Prévu sur VPS, sans nom de domaine pour l'instant (accès direct par IP en HTTP). Le `docker-compose.yml` est conçu pour être réutilisable tel quel sur le VPS. Quand un nom de domaine sera disponible, prévoir un reverse proxy (Traefik ou nginx) avec Let's Encrypt devant les services `frontend`/`backend`.
+En production sur un VPS OVH via Dokploy (projet Compose, Traefik, Let's Encrypt) : https://chemin-de-guer.fr. Les services s'appellent `cdg-db`, `cdg-backup`, `cdg-backend`, `cdg-frontend` (préfixe `cdg-` pour éviter les collisions de noms sur le réseau partagé de Dokploy). Le domaine pointe sur `cdg-frontend` port 80. `docker-compose.override.yml` ne sert qu'en local. Procédure complète : `docs/deploiement.md`.
 
-## Fonctionnalités prévues (v1)
+## Fonctionnalités v1 (livrées)
 
-- Back-office avec authentification pour rédiger/éditer/publier les articles
-- Tags / catégories
-- Commentaires
-- Recherche
-- SEO (sitemap, meta tags)
-- Fermeture automatique du site pendant Shabbat : horaires d'entrée/sortie calculés via une API type Hebcal selon une ville à définir, affichage d'une page "fermé pour Shabbat" à la place du contenu pendant cette fenêtre
+- Back-office avec authentification (session + CSRF), articles Markdown avec slug, tags, recherche, brouillons
+- Commentaires avec modération et limitation de débit
+- Fermeture automatique du site pendant Shabbat (Hebcal, Paris, marge 30 min)
+- Accueil avec calendrier hébraïque, onglets Paracha et Fêtes (résumés de l'auteur)
+- SEO, partage social, GEO : pages rendues côté serveur par le backend, images Open Graph, sitemap, RSS, `llms.txt`; `SITE_INDEXABLE=false` par défaut (noindex partout)
+- Sauvegardes automatiques (`cdg-backup`) et kit NAS (`nas/`)
+
+Reste à faire : voir les issues ouvertes (timeline, glossaire, parcours thématiques, ressources PDF).
 
 ## Direction design
 
