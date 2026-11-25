@@ -14,6 +14,7 @@ import { Auth } from '../core/auth';
         <a class="btn gold" routerLink="/admin/articles/nouveau">Nouvel article</a>
         <a class="btn secondary" routerLink="/admin/parashot/nouveau">Nouvelle paracha</a>
         <a class="btn secondary" routerLink="/admin/fetes/nouveau">Nouvelle fête</a>
+        <a class="btn ghost" routerLink="/admin/statistiques">Statistiques</a>
         <button class="btn ghost" (click)="logout()">Déconnexion</button>
       </div>
     </div>

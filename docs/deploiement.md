@@ -259,3 +259,13 @@ docker compose restart cdg-backend
 ## Quand un nom de domaine sera disponible
 
 Placer un reverse proxy (Traefik ou nginx) avec Let's Encrypt devant le service `cdg-frontend`, puis passer `COOKIE_SECURE=true` et `APP_PUBLIC_URL=https://votre-domaine`. Voir l'issue #18.
+
+## Statistiques de fréquentation
+
+Le site mesure sa fréquentation lui-même, sans service tiers : page `/admin/statistiques` (bouton « Statistiques » de l'administration).
+
+- Chaque page vue est enregistrée dans la table `page_view` : jour, adresse de la page, site d'origine (nom de domaine seulement), type d'appareil et une empreinte de visiteur.
+- Aucune adresse IP n'est conservée et aucun cookie n'est posé. L'empreinte est calculée avec un sel tiré au sort chaque jour et oublié aussitôt : un visiteur ne peut pas être suivi d'un jour à l'autre. « Visites » est donc la somme des visiteurs distincts de chaque jour.
+- Ne sont pas comptés : l'administrateur connecté, les robots, les navigateurs qui envoient `Do Not Track` ou `Sec-GPC`, et toute page hors du site public.
+- Conservation : 400 jours, purge automatique chaque nuit à 4 h 15.
+- Les données font partie de la base : elles sont incluses dans les sauvegardes.
