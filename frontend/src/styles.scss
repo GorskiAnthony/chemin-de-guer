@@ -61,6 +61,7 @@ a { color: var(--blue); transition: color 160ms ease; }
 :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 3px; }
 
 /* Lien d'évitement pour la navigation au clavier */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 .skip { position: absolute; left: 12px; top: -60px; z-index: 10; background: var(--panel); color: #fff; padding: 10px 16px; border-radius: 7px; transition: top 160ms var(--ease-out); }
 .skip:focus { top: 12px; }
 
@@ -96,7 +97,7 @@ a { color: var(--blue); transition: color 160ms ease; }
 }
 
 /* Champs */
-label { display: block; font: 500 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); margin: 18px 0 6px; }
+label, .lbl { display: block; font: 500 .72rem var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--ink-muted); margin: 18px 0 6px; }
 input, textarea, select {
   width: 100%; font: inherit; font-size: .95rem; padding: 10px 12px;
   border: 1px solid var(--border-strong); border-radius: 7px; background: var(--surface); color: var(--ink);
