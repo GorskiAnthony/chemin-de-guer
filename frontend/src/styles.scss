@@ -162,6 +162,20 @@ button.tag { cursor: pointer; &:active { transform: scale(0.96); } &.on { backgr
   .article-card:hover, .article-card:active { transform: none; }
 }
 
+/* Feuille de lecture : fond clair uni et marges généreuses pour tout texte long (articles, paracha, fêtes) */
+.sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
+  padding: clamp(1.3rem, 4.5vw, 3rem); }
+.sheet header { margin-bottom: 28px; }
+.sheet h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 14px; }
+.sheet .he { color: var(--gold-ink); font-weight: 400; margin-inline-start: .6rem; }
+
+/* Typographie de lecture commune */
+:is(.body, .intro, .text) { font-size: 1.12rem; line-height: 1.75; overflow-wrap: anywhere; }
+:is(.body, .intro, .text) :is(h2, h3, h4) { margin-top: 2.2rem; }
+:is(.body, .intro, .text) blockquote { border-inline-start: 3px solid var(--gold); margin-inline: 0; padding-inline-start: 1.1rem;
+  color: var(--ink-muted); font-family: var(--serif); font-size: 1.25rem; }
+:is(.body, .intro, .text) p { margin: 0 0 1em; }
+
 /* Contenu rédigé en Markdown (articles, paracha, aperçu) */
 :is(.body, .intro, .text, .preview) {
   hr { border: 0; height: 1px; margin: 2.8rem 0; position: relative; overflow: visible;
