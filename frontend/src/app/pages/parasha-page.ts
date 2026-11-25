@@ -12,39 +12,36 @@ import { Share } from './share';
   template: `
     <div class="narrow">
       <a class="back" routerLink="/paracha">← Toutes les parashiot</a>
-      @if (notFound()) { <p class="card">Paracha introuvable.</p> }
+      @if (notFound()) { <p class="card" role="alert">Paracha introuvable.</p> }
       @if (p(); as p) {
-        <header class="reveal">
-          <p class="caption">{{ p.book }}</p>
-          <h1>{{ p.name }} @if (p.hebrewName) { <span class="he" lang="he" dir="rtl">{{ p.hebrewName }}</span> }</h1>
-        </header>
-        @if (p.intro) { <div class="intro" [innerHTML]="intro()"></div> }
+        <article class="sheet reveal">
+          <header>
+            <p class="caption">{{ p.book }}</p>
+            <h1>{{ p.name }} @if (p.hebrewName) { <span class="he" lang="he" dir="rtl">{{ p.hebrewName }}</span> }</h1>
+          </header>
+          @if (p.intro) { <div class="intro" [innerHTML]="intro()"></div> }
 
-        @for (a of p.aliyot ?? []; track $index) {
-          <section class="aliyah reveal">
-            <span class="num">{{ $index + 1 }}</span>
-            <div>
-              <h2>{{ a.label || 'Montée ' + ($index + 1) }}</h2>
-              <div class="text" [innerHTML]="render(a.content)"></div>
-            </div>
-          </section>
-        }
-        <app-share [path]="'/paracha/' + p.slug" [title]="'Paracha ' + p.name" />
+          @for (a of p.aliyot ?? []; track $index) {
+            <section class="aliyah" [attr.aria-labelledby]="'aliyah-' + $index">
+              <span class="num" aria-hidden="true">{{ $index + 1 }}</span>
+              <div>
+                <h2 [id]="'aliyah-' + $index">{{ a.label || 'Montée ' + ($index + 1) }}</h2>
+                <div class="text" [innerHTML]="render(a.content)"></div>
+              </div>
+            </section>
+          }
+          <app-share [path]="'/paracha/' + p.slug" [title]="'Paracha ' + p.name" />
+        </article>
       }
     </div>
   `,
   styles: `
     .back { display: inline-block; margin: 28px 0 8px; font-size: .92rem; text-decoration: none; color: var(--ink-muted); }
-    h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 18px; }
-    .he { color: var(--gold-ink); font-weight: 400; margin-inline-start: .6rem; }
-    .intro { font-size: 1.12rem; line-height: 1.75; padding-bottom: 8px; }
     .aliyah { display: grid; grid-template-columns: 2.6rem 1fr; gap: 16px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--border); }
-    .num { width: 2.6rem; height: 2.6rem; border-radius: 50%; background: var(--gold-soft); color: var(--gold-ink);
+    .num { width: 2.6rem; height: 2.6rem; border-radius: 50%; background: var(--panel); color: var(--panel-gold);
       display: grid; place-items: center; font: 600 1rem var(--mono); }
     .aliyah h2 { margin: 2px 0 8px; font-size: 1.35rem; }
-    .text { line-height: 1.7; }
-    :host ::ng-deep :is(.intro, .text) blockquote { border-inline-start: 3px solid var(--gold); margin-inline: 0; padding-inline-start: 1rem; color: var(--ink-muted); }
-    :host ::ng-deep :is(.intro, .text) p { margin: 0 0 1em; }
+    .aliyah :is(.text) h2 { margin-top: 1.6rem; }
   `,
 })
 export class ParashaPage {

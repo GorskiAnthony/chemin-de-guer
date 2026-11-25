@@ -13,9 +13,9 @@ import { Share } from './share';
   template: `
     <div class="narrow">
       <a class="back" routerLink="/fetes">← Toutes les fêtes</a>
-      @if (notFound()) { <p class="card">Fête introuvable.</p> }
+      @if (notFound()) { <p class="card" role="alert">Fête introuvable.</p> }
       @if (f(); as f) {
-        <article class="reveal">
+        <article class="sheet reveal">
           <header>
             <p class="caption">{{ f.category }}</p>
             <h1>{{ f.name }} @if (f.hebrewName) { <span class="he" lang="he" dir="rtl">{{ f.hebrewName }}</span> }</h1>
@@ -30,8 +30,8 @@ import { Share } from './share';
           @if (f.intro) { <div class="intro" [innerHTML]="intro()"></div> }
 
           @for (s of f.sections ?? []; track $index) {
-            <section class="part">
-              <h2>{{ s.label || 'Partie ' + ($index + 1) }}</h2>
+            <section class="part" [attr.aria-labelledby]="'part-' + $index">
+              <h2 [id]="'part-' + $index">{{ s.label || 'Partie ' + ($index + 1) }}</h2>
               <div class="text" [innerHTML]="render(s.content)"></div>
             </section>
           }
@@ -42,17 +42,11 @@ import { Share } from './share';
   `,
   styles: `
     .back { display: inline-block; margin: 28px 0 8px; font-size: .92rem; text-decoration: none; color: var(--ink-muted); }
-    h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 12px; }
-    .he { color: var(--gold-ink); font-weight: 400; margin-inline-start: .6rem; }
     .next { margin: 0 0 18px; display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline; }
     .next time { font-weight: 600; }
     .next time::first-letter { text-transform: uppercase; }
-    .intro { font-size: 1.12rem; line-height: 1.75; padding-bottom: 8px; }
     .part { margin-top: 28px; padding-top: 22px; border-top: 1px solid var(--border); }
     .part h2 { margin: 0 0 10px; font-size: 1.4rem; padding-inline-start: 14px; border-inline-start: 3px solid var(--gold); }
-    .text { line-height: 1.7; }
-    :host ::ng-deep :is(.intro, .text) blockquote { border-inline-start: 3px solid var(--gold); margin-inline: 0; padding-inline-start: 1rem; color: var(--ink-muted); }
-    :host ::ng-deep :is(.intro, .text) p { margin: 0 0 1em; }
   `,
 })
 export class FetePage {

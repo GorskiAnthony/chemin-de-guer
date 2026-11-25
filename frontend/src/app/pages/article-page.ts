@@ -73,14 +73,7 @@ import { Share } from './share';
   `,
   styles: `
     .back { display: inline-block; margin: 28px 0 8px; font-size: .92rem; text-decoration: none; color: var(--ink-muted); }
-    .sheet { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow);
-      padding: clamp(1.3rem, 4.5vw, 3rem); }
-    header { margin-bottom: 28px; }
     .byline { margin: 0 0 4px; font-size: .92rem; color: var(--ink-muted); }
-    h1 { font-size: clamp(2rem, 5vw, 3.1rem); margin: 6px 0 14px; }
-    .body { font-size: 1.12rem; line-height: 1.75; }
-    :host ::ng-deep .body :is(h2, h3, h4) { margin-top: 2.2rem; }
-    :host ::ng-deep .body blockquote { border-inline-start: 3px solid var(--gold); margin-inline: 0; padding-inline-start: 1.1rem; color: var(--ink-muted); font-family: var(--serif); font-size: 1.25rem; }
     section { margin-top: 3rem; padding-top: 1.5rem; border-top: 1px solid var(--border); }
     section h2 { font-size: 1.5rem; }
     .rel { margin: .4rem 0; font: 600 1.05rem var(--serif); }
