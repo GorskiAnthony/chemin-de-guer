@@ -40,6 +40,8 @@ public class SecurityConfig {
                                 "/api/seo/**", "/api/og/**", "/api/robots.txt").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/articles/*/comments").permitAll()
                         .requestMatchers("/actuator/health", "/actuator/health/**").permitAll()
+                        // Page d'erreur interne : sans cela, toute erreur d'une route publique (400, 405...) devient un 401
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
                 )
                 .csrf(csrf -> csrf

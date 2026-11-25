@@ -27,8 +27,8 @@ import { Auth } from '../core/auth';
           <div class="muted">Modifié le {{ a.updatedAt | date: 'd MMM y, HH:mm' : undefined : 'fr' }}</div>
         </div>
         <div>
-          <a class="btn small ghost" [routerLink]="['/admin/articles', a.id]">Modifier</a>
-          <button class="btn small danger" (click)="removeArticle(a)">Supprimer</button>
+          <a class="btn small ghost" [routerLink]="['/admin/articles', a.id]" [attr.aria-label]="'Modifier ' + a.title">Modifier</a>
+          <button class="btn small danger" (click)="removeArticle(a)" [attr.aria-label]="'Supprimer ' + a.title">Supprimer</button>
         </div>
       </div>
     } @empty { <p class="muted">Aucun article.</p> }
@@ -42,8 +42,8 @@ import { Auth } from '../core/auth';
           <div class="muted">{{ p.book }}</div>
         </div>
         <div>
-          <a class="btn small ghost" [routerLink]="['/admin/parashot', p.id]">Modifier</a>
-          <button class="btn small danger" (click)="removeParasha(p)">Supprimer</button>
+          <a class="btn small ghost" [routerLink]="['/admin/parashot', p.id]" [attr.aria-label]="'Modifier ' + p.name">Modifier</a>
+          <button class="btn small danger" (click)="removeParasha(p)" [attr.aria-label]="'Supprimer ' + p.name">Supprimer</button>
         </div>
       </div>
     } @empty { <p class="muted">Aucun résumé de paracha.</p> }
@@ -57,8 +57,8 @@ import { Auth } from '../core/auth';
           <div class="muted">{{ f.category }}</div>
         </div>
         <div>
-          <a class="btn small ghost" [routerLink]="['/admin/fetes', f.id]">Modifier</a>
-          <button class="btn small danger" (click)="removeFete(f)">Supprimer</button>
+          <a class="btn small ghost" [routerLink]="['/admin/fetes', f.id]" [attr.aria-label]="'Modifier ' + f.name">Modifier</a>
+          <button class="btn small danger" (click)="removeFete(f)" [attr.aria-label]="'Supprimer ' + f.name">Supprimer</button>
         </div>
       </div>
     } @empty { <p class="muted">Aucun résumé de fête.</p> }
@@ -75,9 +75,9 @@ import { Auth } from '../core/auth';
       <p class="card notice">Les commentaires sont fermés sur tout le site : personne ne peut en envoyer. Ceux déjà approuvés restent visibles.</p>
     }
     <div class="filters" role="group" aria-label="Filtrer les commentaires">
-      <button class="tag" [class.on]="filter() === 'PENDING'" (click)="filter.set('PENDING')">À modérer ({{ pendingCount() }})</button>
-      <button class="tag" [class.on]="filter() === 'APPROVED'" (click)="filter.set('APPROVED')">Approuvés</button>
-      <button class="tag" [class.on]="filter() === 'ALL'" (click)="filter.set('ALL')">Tous</button>
+      <button class="tag" [class.on]="filter() === 'PENDING'" [attr.aria-pressed]="filter() === 'PENDING'" (click)="filter.set('PENDING')">À modérer ({{ pendingCount() }})</button>
+      <button class="tag" [class.on]="filter() === 'APPROVED'" [attr.aria-pressed]="filter() === 'APPROVED'" (click)="filter.set('APPROVED')">Approuvés</button>
+      <button class="tag" [class.on]="filter() === 'ALL'" [attr.aria-pressed]="filter() === 'ALL'" (click)="filter.set('ALL')">Tous</button>
     </div>
     @for (c of visibleComments(); track c.id) {
       <div class="card row reveal">
@@ -88,8 +88,8 @@ import { Auth } from '../core/auth';
           <div class="msg">{{ c.content }}</div>
         </div>
         <div>
-          @if (c.statut === 'PENDING') { <button class="btn small" (click)="approve(c)">Approuver</button> }
-          <button class="btn small danger" (click)="removeComment(c)">Supprimer</button>
+          @if (c.statut === 'PENDING') { <button class="btn small" (click)="approve(c)" [attr.aria-label]="'Approuver le commentaire de ' + c.authorName">Approuver</button> }
+          <button class="btn small danger" (click)="removeComment(c)" [attr.aria-label]="'Supprimer le commentaire de ' + c.authorName">Supprimer</button>
         </div>
       </div>
     } @empty { <p class="muted">{{ filter() === 'PENDING' ? 'Aucun commentaire à modérer.' : 'Aucun commentaire.' }}</p> }
@@ -101,7 +101,7 @@ import { Auth } from '../core/auth';
       }
     </div>
     <form class="newtag" (submit)="addTag($event)">
-      <input placeholder="Nouveau tag" maxlength="60" [value]="newTag()" (input)="newTag.set($any($event.target).value)">
+      <input aria-label="Nouveau tag" placeholder="Nouveau tag" maxlength="60" [value]="newTag()" (input)="newTag.set($any($event.target).value)">
       <button class="btn small" type="submit">Ajouter</button>
     </form>
   `,
@@ -113,7 +113,7 @@ import { Auth } from '../core/auth';
     .row { display: flex; justify-content: space-between; gap: 1rem; margin-bottom: .6rem; flex-wrap: wrap; }
     .row .btn { margin-inline-start: .4rem; }
     .msg { white-space: pre-line; margin-top: .3rem; }
-    .x { border: 0; background: none; cursor: pointer; color: inherit; font-size: 1rem; }
+    .x { min-width: 24px; min-height: 24px; border: 0; background: none; cursor: pointer; color: inherit; font-size: 1rem; }
     .com-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
     .com-head h2 { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
     .filters { margin-bottom: 14px; }
@@ -184,6 +184,9 @@ export class Dashboard {
     if (!name) return;
     this.api.createTag(name).subscribe(() => { this.newTag.set(''); this.reload(); });
   }
-  protected removeTag(t: TagRef) { this.api.deleteTag(t.id).subscribe(() => this.reload()); }
+  protected removeTag(t: TagRef) {
+    if (!confirm(`Supprimer le tag « ${t.name} » ?`)) return;
+    this.api.deleteTag(t.id).subscribe(() => this.reload());
+  }
   protected logout() { this.auth.logout().subscribe(() => this.router.navigateByUrl('/')); }
 }

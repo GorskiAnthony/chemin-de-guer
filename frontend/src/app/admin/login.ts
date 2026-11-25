@@ -10,8 +10,8 @@ import { Auth } from '../core/auth';
       <label for="email">Email</label>
       <input id="email" type="email" autocomplete="username" required [value]="email()" (input)="email.set($any($event.target).value)">
       <label for="pwd">Mot de passe</label>
-      <input id="pwd" type="password" autocomplete="current-password" required [value]="password()" (input)="password.set($any($event.target).value)">
-      @if (error()) { <p class="error">{{ error() }}</p> }
+      <input id="pwd" type="password" [attr.aria-describedby]="error() ? 'login-error' : null" [attr.aria-invalid]="error() ? true : null" autocomplete="current-password" required [value]="password()" (input)="password.set($any($event.target).value)">
+      @if (error()) { <p id="login-error" class="error" role="alert">{{ error() }}</p> }
       <p><button class="btn" type="submit" [disabled]="busy()">Se connecter</button></p>
     </form>
   `,

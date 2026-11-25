@@ -12,8 +12,8 @@ import { Share } from './share';
   imports: [RouterLink, DatePipe, Share],
   template: `
     <div class="narrow">
-    <a class="back" routerLink="/">← Tous les articles</a>
-    @if (notFound()) { <p class="card">Article introuvable.</p> }
+    <a class="back" routerLink="/articles">← Tous les articles</a>
+    @if (notFound()) { <p class="card" role="alert">Article introuvable.</p> }
     @if (article(); as a) {
       <article class="reveal sheet">
         <header>
@@ -47,7 +47,7 @@ import { Share } from './share';
         @for (c of comments(); track c.id) {
           <div class="comment"><strong>{{ c.authorName }}</strong>
             <span class="mono"> · {{ c.createdAt | date: 'd MMMM y' : undefined : 'fr' }}</span>
-            <p>{{ c.content }}</p></div>
+            <p class="msg">{{ c.content }}</p></div>
         } @empty { <p class="muted">Aucun commentaire pour le moment.</p> }
 
         @if (!a.commentsOpen) {
@@ -56,14 +56,14 @@ import { Share } from './share';
         <form class="card form" (submit)="submit($event)">
           <h3>Laisser un commentaire</h3>
           <label for="name">Nom</label>
-          <input id="name" maxlength="80" required [value]="name()" (input)="name.set($any($event.target).value)">
+          <input id="name" maxlength="80" required autocomplete="nickname" [value]="name()" (input)="name.set($any($event.target).value)">
           <label for="msg">Message</label>
           <textarea id="msg" rows="4" maxlength="2000" required [value]="message()"
                     (input)="message.set($any($event.target).value)"></textarea>
           <input class="hp" tabindex="-1" autocomplete="off" aria-hidden="true" name="website"
                  [value]="website()" (input)="website.set($any($event.target).value)">
           <p><button class="btn" type="submit" [disabled]="sending()">Envoyer</button></p>
-          @if (sent()) { <p class="muted">Merci ! Votre commentaire sera visible après modération.</p> }
+          @if (sent()) { <p class="muted" role="status">Merci ! Votre commentaire sera visible après modération.</p> }
           @if (failed()) { <p class="error" role="alert">{{ failed() }}</p> }
         </form>
         }
@@ -87,6 +87,7 @@ import { Share } from './share';
     .form { margin-top: 1.5rem; }
     .closed { margin-top: 1.5rem; color: var(--ink-muted); }
     .form h3 { margin: 0; }
+    .msg { white-space: pre-line; overflow-wrap: anywhere; }
     .hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
   `,
 })

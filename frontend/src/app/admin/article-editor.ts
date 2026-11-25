@@ -33,10 +33,12 @@ import { renderMarkdown } from '../core/markdown';
       <label class="check commentaires"><input type="checkbox" [checked]="commentsOpen()" (change)="commentsOpen.set($any($event.target).checked)">
         Autoriser les commentaires sur cet article</label>
 
-      <label>Tags</label>
-      @for (t of tags(); track t.id) {
-        <label class="check"><input type="checkbox" [checked]="tagIds().includes(t.id)" (change)="toggle(t.id)"> {{ t.name }}</label>
-      }
+      <div role="group" aria-labelledby="tags-l">
+        <span class="lbl" id="tags-l">Tags</span>
+        @for (t of tags(); track t.id) {
+          <label class="check"><input type="checkbox" [checked]="tagIds().includes(t.id)" (change)="toggle(t.id)"> {{ t.name }}</label>
+        }
+      </div>
 
       <div class="split">
         <div>
@@ -44,12 +46,12 @@ import { renderMarkdown } from '../core/markdown';
           <textarea id="c" rows="18" required [value]="content()" (input)="content.set($any($event.target).value)"></textarea>
         </div>
         <div>
-          <label>Aperçu</label>
-          <div class="card preview" [innerHTML]="preview()"></div>
+          <span class="lbl" id="prev-l">Aperçu</span>
+          <div class="card preview" role="region" aria-labelledby="prev-l" [innerHTML]="preview()"></div>
         </div>
       </div>
 
-      @if (error()) { <p class="error">{{ error() }}</p> }
+      @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
       <p><button class="btn" type="submit" [disabled]="busy()">Enregistrer</button></p>
     </form>
   `,

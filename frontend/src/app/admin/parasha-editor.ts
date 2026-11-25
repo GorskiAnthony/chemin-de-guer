@@ -47,7 +47,7 @@ const DEFAULT_LABELS = ['1re montée', '2e montée', '3e montée', '4e montée',
       }
       <p><button type="button" class="btn small ghost" (click)="add()">Ajouter une montée</button></p>
 
-      @if (error()) { <p class="error">{{ error() }}</p> }
+      @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
       <p><button class="btn" type="submit" [disabled]="busy()">Enregistrer</button></p>
     </form>
   `,
