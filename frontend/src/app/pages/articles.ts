@@ -17,14 +17,15 @@ import { Seo } from '../core/seo';
     <section class="filters">
       <input type="search" placeholder="Rechercher un article" aria-label="Rechercher un article"
              [value]="query()" (input)="onSearch($any($event.target).value)">
-      <div class="tags">
-        <button class="tag" [class.on]="!tag()" (click)="selectTag('')">Tous</button>
+      <div class="tags" role="group" aria-label="Filtrer par tag">
+        <button class="tag" [class.on]="!tag()" [attr.aria-pressed]="!tag()" (click)="selectTag('')">Tous</button>
         @for (t of tags(); track t.id) {
-          <button class="tag" [class.on]="tag() === t.slug" (click)="selectTag(t.slug)">#{{ t.name }}</button>
+          <button class="tag" [class.on]="tag() === t.slug" [attr.aria-pressed]="tag() === t.slug" (click)="selectTag(t.slug)">#{{ t.name }}</button>
         }
       </div>
     </section>
 
+    <p class="sr-only" role="status" aria-live="polite">{{ loading() ? '' : articles().length + (articles().length > 1 ? ' articles trouvés' : ' article trouvé') }}</p>
     @if (!loading() && articles().length === 0) { <p class="muted empty">Aucun article pour le moment.</p> }
     <div class="grid">
       @for (a of articles(); track a.id) {

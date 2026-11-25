@@ -54,7 +54,7 @@ const DEFAULT_SECTIONS = [
       }
       <p><button type="button" class="btn small ghost" (click)="add()">Ajouter une partie</button></p>
 
-      @if (error()) { <p class="error">{{ error() }}</p> }
+      @if (error()) { <p class="error" role="alert">{{ error() }}</p> }
       <p><button class="btn" type="submit" [disabled]="busy()">Enregistrer</button></p>
     </form>
   `,

@@ -14,15 +14,16 @@ import { ShabbatClosed } from './pages/shabbat-closed';
     <div class="wrap">
       <header class="navbar">
         <a routerLink="/" class="brand">Chemin de Guer <span class="he">גר</span></a>
-        <nav>
-          <a routerLink="/" routerLinkActive="current" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
-          <a routerLink="/articles" routerLinkActive="current">Articles</a>
-          <a routerLink="/paracha" routerLinkActive="current">Paracha</a>
-          <a routerLink="/fetes" routerLinkActive="current">Fêtes</a>
+        <nav aria-label="Navigation principale">
+          <a routerLink="/" routerLinkActive="current" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Accueil</a>
+          <a routerLink="/articles" routerLinkActive="current" ariaCurrentWhenActive="page">Articles</a>
+          <a routerLink="/paracha" routerLinkActive="current" ariaCurrentWhenActive="page">Paracha</a>
+          <a routerLink="/fetes" routerLinkActive="current" ariaCurrentWhenActive="page">Fêtes</a>
           <a href="/rss.xml">RSS</a>
         </nav>
       </header>
 
+      <p class="sr-only" role="status" aria-live="polite">{{ announce() }}</p>
       <main id="main" tabindex="-1">
         @if (closed() && !isAdmin()) {
           <app-shabbat-closed [status]="shabbat()!" />
@@ -34,11 +35,11 @@ import { ShabbatClosed } from './pages/shabbat-closed';
       <footer>
         <div class="about">
           <p>Chemin de Guer est un journal tenu et écrit par
-            <a href="https://www.agorski.dev" target="_blank" rel="noopener noreferrer">Anthony Gorski</a>, son auteur.</p>
+            <a href="https://www.agorski.dev" target="_blank" rel="noopener noreferrer">Anthony Gorski<span class="sr-only"> (nouvel onglet)</span></a>, son auteur.</p>
           <p class="links">
-            <a href="https://www.agorski.dev" target="_blank" rel="noopener noreferrer">agorski.dev</a>
+            <a href="https://www.agorski.dev" target="_blank" rel="noopener noreferrer">agorski.dev<span class="sr-only"> (nouvel onglet)</span></a>
             <span aria-hidden="true">·</span>
-            <a href="https://luah-france.netlify.app/" target="_blank" rel="noopener noreferrer">Luah, calendrier hébraïque</a>
+            <a href="https://luah-france.netlify.app/" target="_blank" rel="noopener noreferrer">Luah, calendrier hébraïque<span class="sr-only"> (nouvel onglet)</span></a>
           </p>
         </div>
         @if (shabbat()?.parasha; as p) { <span class="mono">Paracha : {{ p }} {{ shabbat()?.parashaHebrew }}</span> }
@@ -75,12 +76,24 @@ export class App {
   protected readonly shabbat = signal<ShabbatStatus | null>(null);
   protected readonly closed = signal(false);
   protected readonly isAdmin = signal(false);
+  /** Annonce vocale du changement de page (une application monopage ne recharge rien : sans cela, un lecteur d'écran ne perçoit pas la navigation). */
+  protected readonly announce = signal('');
+  private firstNavigation = true;
 
   constructor() {
     this.refresh();
     this.router.events.pipe(filter((e) => e instanceof NavigationEnd)).subscribe((e) => {
       const admin = e.urlAfterRedirects.startsWith('/admin');
       this.isAdmin.set(admin);
+      if (this.firstNavigation) {
+        this.firstNavigation = false;
+      } else {
+        // Le focus revient en haut du contenu, et le titre de la page est annoncé
+        setTimeout(() => {
+          document.getElementById('main')?.focus({ preventScroll: true });
+          this.announce.set(document.title);
+        }, 150);
+      }
       // Doublon de l'en-tête X-Robots-Tag : l'administration ne doit jamais être indexée
       if (admin) this.seo.noindex();
       this.refresh();
