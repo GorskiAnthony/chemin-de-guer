@@ -20,7 +20,8 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", "Ressource introuvable"));
     }
 
-    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class})
+    @ExceptionHandler({MethodArgumentNotValidException.class, HttpMessageNotReadableException.class,
+            org.springframework.web.method.annotation.MethodArgumentTypeMismatchException.class})
     public ResponseEntity<Map<String, String>> badRequest(Exception e) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Requête invalide"));
     }

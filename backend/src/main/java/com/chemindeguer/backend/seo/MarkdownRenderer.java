@@ -25,7 +25,7 @@ public class MarkdownRenderer {
     public MarkdownRenderer() {
         List<Extension> extensions = List.of(TablesExtension.create(), StrikethroughExtension.create());
         this.parser = Parser.builder().extensions(extensions).build();
-        this.renderer = HtmlRenderer.builder().extensions(extensions).escapeHtml(true).softbreak("<br>\n").build();
+        this.renderer = HtmlRenderer.builder().extensions(extensions).escapeHtml(true).sanitizeUrls(true).softbreak("<br>\n").build();
     }
 
     public String toHtml(String markdown) {
