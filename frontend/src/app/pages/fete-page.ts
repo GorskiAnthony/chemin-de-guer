@@ -19,6 +19,7 @@ import { Share } from './share';
           <header>
             <p class="caption">{{ f.category }}</p>
             <h1>{{ f.name }} @if (f.hebrewName) { <span class="he" lang="he" dir="rtl">{{ f.hebrewName }}</span> }</h1>
+            <p class="dates mono">Rédigé le <time [attr.datetime]="f.createdAt">{{ f.createdAt | date: 'd MMMM y' : undefined : 'fr' }}</time>@if (changed()) { <span aria-hidden="true"> · </span>Mis à jour le <time [attr.datetime]="f.updatedAt">{{ f.updatedAt | date: 'd MMMM y' : undefined : 'fr' }}</time> }</p>
             @if (f.nextDate) {
               <p class="next">
                 <span class="mono">Prochaine date</span>
@@ -42,6 +43,7 @@ import { Share } from './share';
   `,
   styles: `
     .back { display: inline-block; margin: 28px 0 8px; font-size: .92rem; text-decoration: none; color: var(--ink-muted); }
+    .dates { margin: 0 0 8px; }
     .next { margin: 0 0 18px; display: flex; flex-wrap: wrap; gap: .5rem; align-items: baseline; }
     .next time { font-weight: 600; }
     .next time::first-letter { text-transform: uppercase; }
@@ -55,6 +57,10 @@ export class FetePage {
   private readonly seo = inject(Seo);
   protected readonly f = signal<Fete | null>(null);
   protected readonly notFound = signal(false);
+  protected readonly changed = computed(() => {
+    const x = this.f();
+    return !!x && new Date(x.updatedAt).getTime() - new Date(x.createdAt).getTime() > 86_400_000;
+  });
   protected readonly intro = computed(() => renderMarkdown(this.f()?.intro ?? ''));
   protected readonly daysLabel = computed(() => {
     const next = this.f()?.nextDate;

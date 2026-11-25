@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.json.JsonMapper;
 
 import java.time.Instant;
+import java.time.Duration;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -88,6 +89,24 @@ public class SeoPageService {
         h.jsonLd.add(graph(websiteNode(), personNode(), blogNode(), breadcrumb(List.of(crumb("Accueil", "/")))));
         StringBuilder body = new StringBuilder("<h1>").append(esc(site.name())).append("</h1><p>").append(esc(site.description())).append("</p>");
         body.append("<h2>Derniers articles</h2>").append(articleLinks(latest));
+        List<ParashaSummary> studies = parashot.findAllByStatutOrderByPositionAsc(StatutArticle.PUBLISHED).stream()
+                .sorted(Comparator.comparing(ParashaSummary::getUpdatedAt).reversed()).limit(6).toList();
+        if (!studies.isEmpty()) {
+            body.append("<h2>Dernières paracha étudiées</h2><ul>");
+            for (ParashaSummary p : studies) {
+                body.append("<li><a href=\"").append(esc(site.url("/paracha/" + p.getSlug()))).append("\">Paracha ").append(esc(p.getName())).append("</a></li>");
+            }
+            body.append("</ul>");
+        }
+        List<FeteSummary> feast = fetes.findAllByStatutOrderByPositionAscNameAsc(StatutArticle.PUBLISHED).stream()
+                .sorted(Comparator.comparing(FeteSummary::getUpdatedAt).reversed()).limit(6).toList();
+        if (!feast.isEmpty()) {
+            body.append("<h2>Dernières fêtes étudiées</h2><ul>");
+            for (FeteSummary f : feast) {
+                body.append("<li><a href=\"").append(esc(site.url("/fetes/" + f.getSlug()))).append("\">").append(esc(f.getName())).append("</a></li>");
+            }
+            body.append("</ul>");
+        }
         body.append("<p><a href=\"").append(esc(site.url("/articles"))).append("\">Tous les articles</a> · <a href=\"")
                 .append(esc(site.url("/paracha"))).append("\">Résumés de paracha</a> · <a href=\"")
                 .append(esc(site.url("/fetes"))).append("\">Fêtes</a></p>");
@@ -211,7 +230,8 @@ public class SeoPageService {
 
         StringBuilder body = new StringBuilder("<article><h1>Paracha ").append(esc(p.getName()));
         if (p.getHebrewName() != null) body.append(" <span lang=\"he\" dir=\"rtl\">").append(esc(p.getHebrewName())).append("</span>");
-        body.append("</h1><p>").append(esc(p.getBook())).append("</p>").append(markdown.toHtml(p.getIntro()));
+        body.append("</h1><p>").append(esc(p.getBook())).append("</p>").append(writtenOn(p.getCreatedAt(), p.getUpdatedAt()))
+                .append(markdown.toHtml(p.getIntro()));
         int i = 1;
         for (Aliyah a : p.getAliyot()) {
             String label = a.getLabel() == null || a.getLabel().isBlank() ? "Montée " + i : a.getLabel();
@@ -283,6 +303,7 @@ public class SeoPageService {
         StringBuilder body = new StringBuilder("<article><h1>").append(esc(f.getName()));
         if (f.getHebrewName() != null) body.append(" <span lang=\"he\" dir=\"rtl\">").append(esc(f.getHebrewName())).append("</span>");
         body.append("</h1><p>").append(esc(f.getCategory())).append("</p>");
+        body.append(writtenOn(f.getCreatedAt(), f.getUpdatedAt()));
         if (next != null) body.append("<p>Prochaine date : <time datetime=\"").append(next).append("\">").append(FETE_DATE.format(next)).append("</time></p>");
         body.append(markdown.toHtml(f.getIntro()));
         int i = 1;
@@ -293,6 +314,16 @@ public class SeoPageService {
         }
         body.append("</article>");
         return SeoPage.ok(compose(base, h, body.toString()));
+    }
+
+    /** « Rédigé le … » et, si la fiche a vraiment été retravaillée plus tard, « Mis à jour le … ». */
+    private static String writtenOn(Instant created, Instant updated) {
+        if (created == null) return "";
+        StringBuilder s = new StringBuilder("<p>Rédigé le <time datetime=\"").append(iso(created)).append("\">").append(FR_DATE.format(created)).append("</time>");
+        if (updated != null && Duration.between(created, updated).toDays() >= 1) {
+            s.append(" · Mis à jour le <time datetime=\"").append(iso(updated)).append("\">").append(FR_DATE.format(updated)).append("</time>");
+        }
+        return s.append("</p>").toString();
     }
 
     private SeoPage notFound(String base) {

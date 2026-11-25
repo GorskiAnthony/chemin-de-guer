@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Seo } from '../core/seo';
@@ -6,7 +7,7 @@ import { Api, Parasha } from '../core/api';
 
 @Component({
   selector: 'app-parasha-list',
-  imports: [RouterLink],
+  imports: [RouterLink, DatePipe],
   template: `
     <section class="hero">
       <p class="caption">Étude hebdomadaire</p>
@@ -19,8 +20,11 @@ import { Api, Parasha } from '../core/api';
       <div class="grid">
         @for (p of g.items; track p.id) {
           <a class="card item reveal" [routerLink]="['/paracha', p.slug]">
-            <span class="name">{{ p.name }}</span>
-            @if (p.hebrewName) { <span class="he" lang="he" dir="rtl">{{ p.hebrewName }}</span> }
+            <span class="top">
+              <span class="name">{{ p.name }}</span>
+              @if (p.hebrewName) { <span class="he" lang="he" dir="rtl">{{ p.hebrewName }}</span> }
+            </span>
+            <span class="mono">Rédigé le <time [attr.datetime]="p.createdAt">{{ p.createdAt | date: 'd MMM y' : undefined : 'fr' }}</time></span>
           </a>
         }
       </div>
@@ -34,11 +38,12 @@ import { Api, Parasha } from '../core/api';
     .sub { max-width: 52ch; margin: 14px auto 0; color: var(--ink-muted); font-size: 1.05rem; }
     .book { font-size: 1.5rem; margin: 2.2rem 0 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; }
-    .item { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; text-decoration: none;
+    .item { display: flex; flex-direction: column; gap: 6px; text-decoration: none;
       color: var(--ink); padding: 16px 18px; border-left: 3px solid var(--gold);
       transition: transform 200ms var(--ease-out), border-color 200ms ease; }
     .item:active { transform: scale(0.98); }
     @media (hover: hover) and (pointer: fine) { .item:hover { transform: translateY(-2px); border-color: var(--blue); } }
+    .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
     .name { font: 600 1.15rem var(--serif); color: var(--blue-strong); }
     .he { color: var(--gold-ink); font-family: var(--serif); }
     .empty { text-align: center; padding: 40px 0; }
