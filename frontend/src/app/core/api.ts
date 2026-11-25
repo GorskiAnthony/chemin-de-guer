@@ -46,7 +46,7 @@ export interface ShabbatStatus {
 export interface Aliyah { label: string | null; content: string | null; }
 export interface Parasha {
   id: number; name: string; slug: string; hebrewName: string | null; book: string;
-  intro: string | null; aliyot: Aliyah[] | null; statut: Statut; updatedAt: string;
+  intro: string | null; aliyot: Aliyah[] | null; statut: Statut; createdAt: string; updatedAt: string;
 }
 export interface ParashaInput { name: string; hebrewName: string; intro: string; aliyot: Aliyah[]; statut: Statut; }
 export interface CatalogEntry { name: string; hebrew: string; book: string; position: number; }
@@ -54,7 +54,7 @@ export interface CatalogEntry { name: string; hebrew: string; book: string; posi
 export interface FeteSection { label: string | null; content: string | null; }
 export interface Fete {
   id: number; name: string; slug: string; hebrewName: string | null; category: string;
-  intro: string | null; sections: FeteSection[] | null; statut: Statut; updatedAt: string;
+  intro: string | null; sections: FeteSection[] | null; statut: Statut; createdAt: string; updatedAt: string;
   /** Prochaine occurrence de la fête (AAAA-MM-JJ), calculée à partir du calendrier hébraïque. */
   nextDate: string | null;
 }

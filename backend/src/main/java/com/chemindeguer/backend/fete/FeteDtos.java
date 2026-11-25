@@ -26,16 +26,16 @@ public final class FeteDtos {
 
     /** nextDate : prochaine occurrence calculée à partir du calendrier hébraïque (null si inconnue). */
     public record FeteResponse(Long id, String name, String slug, String hebrewName, String category, String intro,
-                               List<SectionDto> sections, StatutArticle statut, Instant updatedAt, LocalDate nextDate) {
+                               List<SectionDto> sections, StatutArticle statut, Instant createdAt, Instant updatedAt, LocalDate nextDate) {
         static FeteResponse from(FeteSummary f, LocalDate nextDate) {
             return new FeteResponse(f.getId(), f.getName(), f.getSlug(), f.getHebrewName(), f.getCategory(), f.getIntro(),
                     f.getSections().stream().map(s -> new SectionDto(s.getLabel(), s.getContent())).toList(),
-                    f.getStatut(), f.getUpdatedAt(), nextDate);
+                    f.getStatut(), f.getCreatedAt(), f.getUpdatedAt(), nextDate);
         }
 
         /** Liste : sans le contenu des sections. */
         FeteResponse summary() {
-            return new FeteResponse(id, name, slug, hebrewName, category, null, null, statut, updatedAt, nextDate);
+            return new FeteResponse(id, name, slug, hebrewName, category, null, null, statut, createdAt, updatedAt, nextDate);
         }
     }
 }
