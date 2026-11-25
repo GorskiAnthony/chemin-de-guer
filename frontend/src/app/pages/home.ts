@@ -78,35 +78,70 @@ import { Api, Article, CalendarData, Fete, Parasha } from '../core/api';
     </section>
 
     <section class="study" aria-labelledby="study-title">
-      <div class="head"><h2 id="study-title">Mon étude</h2></div>
-      <p class="muted intro-study">Chaque résumé est daté : au fil des mois, on voit ce que j'ai appris et comment ma compréhension évolue.</p>
-      <div class="cols">
-        <div>
-          <h3>Paracha <span class="count">{{ parashot().length }} rédigée{{ parashot().length > 1 ? 's' : '' }}</span></h3>
-          <ul class="list">
-            @for (p of latestParashot(); track p.id) {
-              <li>
-                <a [routerLink]="['/paracha', p.slug]">{{ p.name }}</a>
-                @if (p.hebrewName) { <span class="he-sm" lang="he" dir="rtl">{{ p.hebrewName }}</span> }
-                <span class="mono">{{ p.createdAt | date: 'd MMM y' : undefined : 'fr' }}</span>
-              </li>
-            } @empty { <li class="muted">Mes résumés arrivent bientôt.</li> }
-          </ul>
-          <a class="more" routerLink="/paracha">Toutes les paracha →</a>
-        </div>
-        <div>
-          <h3>Fêtes <span class="count">{{ fetes().length }} rédigée{{ fetes().length > 1 ? 's' : '' }}</span></h3>
-          <ul class="list">
-            @for (f of latestFetes(); track f.id) {
-              <li>
-                <a [routerLink]="['/fetes', f.slug]">{{ f.name }}</a>
-                @if (f.hebrewName) { <span class="he-sm" lang="he" dir="rtl">{{ f.hebrewName }}</span> }
-                <span class="mono">{{ f.createdAt | date: 'd MMM y' : undefined : 'fr' }}</span>
-              </li>
-            } @empty { <li class="muted">Mes résumés arrivent bientôt.</li> }
-          </ul>
-          <a class="more" routerLink="/fetes">Toutes les fêtes →</a>
-        </div>
+      <header class="study-head">
+        <p class="caption">Mon apprentissage</p>
+        <h2 id="study-title">Mon étude</h2>
+        <p class="sub">Chaque résumé est daté : au fil des mois, on voit ce que j'ai appris et comment ma compréhension évolue.</p>
+      </header>
+
+      <div class="study-grid">
+        <article class="card study-card reveal">
+          <div class="stripe-card"></div>
+          <div class="study-body">
+            <div class="study-top">
+              <div>
+                <p class="caption">Étude hebdomadaire</p>
+                <h3>Paracha</h3>
+              </div>
+              <p class="tally"><strong>{{ parashot().length }}</strong><span>{{ parashot().length > 1 ? 'résumés rédigés' : 'résumé rédigé' }}</span></p>
+            </div>
+            @if (latestParashot().length) {
+              <ul class="rows">
+                @for (p of latestParashot(); track p.id) {
+                  <li>
+                    <a [routerLink]="['/paracha', p.slug]">
+                      <span class="row-name">{{ p.name }}</span>
+                      @if (p.hebrewName) { <span class="row-he" lang="he" dir="rtl">{{ p.hebrewName }}</span> }
+                      <time class="row-date" [attr.datetime]="p.createdAt">{{ p.createdAt | date: 'd MMM y' : undefined : 'fr' }}</time>
+                    </a>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="empty-study">Mes premiers résumés arrivent bientôt.</p>
+            }
+            <a class="btn small secondary" routerLink="/paracha">Toutes les paracha</a>
+          </div>
+        </article>
+
+        <article class="card study-card reveal">
+          <div class="stripe-card"></div>
+          <div class="study-body">
+            <div class="study-top">
+              <div>
+                <p class="caption">Le calendrier juif</p>
+                <h3>Fêtes</h3>
+              </div>
+              <p class="tally"><strong>{{ fetes().length }}</strong><span>{{ fetes().length > 1 ? 'résumés rédigés' : 'résumé rédigé' }}</span></p>
+            </div>
+            @if (latestFetes().length) {
+              <ul class="rows">
+                @for (f of latestFetes(); track f.id) {
+                  <li>
+                    <a [routerLink]="['/fetes', f.slug]">
+                      <span class="row-name">{{ f.name }}</span>
+                      @if (f.hebrewName) { <span class="row-he" lang="he" dir="rtl">{{ f.hebrewName }}</span> }
+                      <time class="row-date" [attr.datetime]="f.createdAt">{{ f.createdAt | date: 'd MMM y' : undefined : 'fr' }}</time>
+                    </a>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="empty-study">Mes premiers résumés arrivent bientôt.</p>
+            }
+            <a class="btn small secondary" routerLink="/fetes">Toutes les fêtes</a>
+          </div>
+        </article>
       </div>
     </section>
   `,
@@ -149,17 +184,30 @@ import { Api, Article, CalendarData, Fete, Parasha } from '../core/api';
     .head h2 { margin: 0; font-size: 1.7rem; }
     .head a { font-size: .92rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
-    .study { margin-top: 56px; }
-    .intro-study { margin: -6px 0 18px; }
-    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-    .study h3 { margin: 0 0 8px; font-size: 1.3rem; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
-    .count { font: 400 .78rem var(--mono); color: var(--ink-muted); }
-    .list { list-style: none; margin: 0 0 12px; padding: 0; }
-    .list li { display: flex; align-items: baseline; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
-    .list li > a { font: 600 1.05rem var(--serif); }
-    .list .mono { margin-inline-start: auto; white-space: nowrap; }
-    .list .he-sm { margin-inline-start: 0; }
-    .more { font-size: .92rem; }
+    .study { margin-top: 64px; }
+    .study-head { text-align: center; margin-bottom: 26px; }
+    .study-head h2 { margin: 6px 0 0; font-size: clamp(1.8rem, 4vw, 2.4rem); }
+    .study-head .sub { max-width: 52ch; margin: 12px auto 0; color: var(--ink-muted); }
+    .study-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
+    .study-card { display: flex; flex-direction: column; overflow: hidden; padding: 0; }
+    .study-card .stripe-card { height: 4px; background: linear-gradient(90deg, var(--blue), var(--gold)); }
+    .study-body { padding: 22px 22px 24px; display: flex; flex-direction: column; gap: 16px; flex: 1; }
+    .study-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+    .study-top h3 { margin: 2px 0 0; font-size: 1.7rem; }
+    .tally { margin: 0; display: flex; flex-direction: column; align-items: flex-end; line-height: 1; }
+    .tally strong { font: 700 2.6rem var(--serif); color: var(--gold-ink); }
+    .tally span { margin-top: 4px; font: 500 .68rem var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); }
+    .rows { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--border); }
+    .rows li { border-bottom: 1px solid var(--border); }
+    .rows a { display: flex; align-items: baseline; gap: 10px; padding: 12px 10px 12px 14px; margin-inline: -4px; border-inline-start: 3px solid transparent;
+      border-radius: 6px; text-decoration: none; color: var(--ink); transition: background-color 160ms ease, border-color 160ms ease; }
+    .rows a:active { background: var(--surface-raised); }
+    @media (hover: hover) and (pointer: fine) { .rows a:hover { background: var(--surface-raised); border-inline-start-color: var(--gold); } }
+    .row-name { font: 600 1.1rem var(--serif); color: var(--blue-strong); }
+    .row-he { color: var(--gold-ink); font-family: var(--serif); }
+    .row-date { margin-inline-start: auto; white-space: nowrap; font: 400 .78rem var(--mono); color: var(--ink-muted); }
+    .empty-study { margin: 0; padding: 22px 18px; text-align: center; color: var(--ink-muted); border: 1px dashed var(--border-strong); border-radius: 8px; background: var(--surface-raised); }
+    .study-body .btn { align-self: flex-start; margin-top: auto; }
     @media (max-width: 760px) {
       .week { grid-template-columns: 1fr; }
       .today, .parasha, .holidays { grid-column: 1; grid-row: auto; }
