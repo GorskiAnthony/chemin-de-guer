@@ -2,11 +2,25 @@
 
 Blog personnel retraçant un parcours de conversion au judaïsme (guer, גר : converti, en hébreu). Le projet sert aussi de terrain d'apprentissage pour Java/Spring Boot et Angular dans leurs dernières versions stables.
 
+Le site est en ligne : [chemin-de-guer.fr](https://chemin-de-guer.fr).
+
+## Fonctionnalités
+
+- Articles en Markdown avec adresses lisibles (slug), tags, recherche plein texte, brouillons et publication
+- Commentaires avec modération, limitation de débit et interrupteur global ou par article
+- Accueil avec calendrier hébraïque (date, paracha de la semaine, prochaines fêtes, horaires de Shabbat)
+- Onglets Paracha et Fêtes : résumés rédigés par l'auteur, nom hébreu rempli automatiquement
+- Fermeture automatique du site pendant Shabbat (horaires Hebcal, ville et marge configurables)
+- Partage et référencement : pages rendues côté serveur, Open Graph, images de partage générées, JSON-LD, sitemap, flux RSS, `llms.txt`, mode `noindex` par défaut (`SITE_INDEXABLE`)
+- Sauvegardes quotidiennes de la base (chiffrement et copie hors serveur facultatifs, kit pour un NAS)
+- Thème clair et sombre, accessibilité (contrastes, navigation clavier, mouvement réduit)
+
 Documentation complète :
 
 - [Cahier des charges](docs/cahier-des-charges.html) : périmètre, spécifications techniques, exigences, planning
 - [Système de design](docs/design-system.html) : palette, typographie, composants
-- [Mise en ligne](docs/deploiement.md) : déploiement sur VPS, sauvegardes, dépannage
+- [Mise en ligne](docs/deploiement.md) : déploiement sur VPS (Dokploy), SEO, sauvegardes, restauration, dépannage
+- [Sauvegarde sur un NAS](nas/README.md) : copier les sauvegardes sur un NAS, en lecture seule
 
 ## Stack
 
@@ -30,7 +44,7 @@ Le backend et Postgres ne sont pas publiés sur la machine : tout passe par ngin
 
 ## Mise en ligne
 
-Voir le guide [docs/deploiement.md](docs/deploiement.md) (VPS, variables d'environnement, sauvegardes, mises à jour).
+Le site tourne sur un VPS avec Dokploy (Docker Compose, Traefik, Let's Encrypt). Voir le guide [docs/deploiement.md](docs/deploiement.md) (variables d'environnement, SEO, sauvegardes, restauration, mises à jour) et [`.env.example`](.env.example) pour la liste des variables.
 
 ## Contribuer
 
