@@ -24,16 +24,16 @@ public final class ParashaDtos {
     }
 
     public record ParashaResponse(Long id, String name, String slug, String hebrewName, String book, String intro,
-                                  List<AliyahDto> aliyot, StatutArticle statut, Instant updatedAt) {
+                                  List<AliyahDto> aliyot, StatutArticle statut, Instant createdAt, Instant updatedAt) {
         static ParashaResponse from(ParashaSummary p) {
             return new ParashaResponse(p.getId(), p.getName(), p.getSlug(), p.getHebrewName(), p.getBook(), p.getIntro(),
                     p.getAliyot().stream().map(a -> new AliyahDto(a.getLabel(), a.getContent())).toList(),
-                    p.getStatut(), p.getUpdatedAt());
+                    p.getStatut(), p.getCreatedAt(), p.getUpdatedAt());
         }
 
         /** Liste publique : sans le contenu des montées. */
         ParashaResponse summary() {
-            return new ParashaResponse(id, name, slug, hebrewName, book, null, null, statut, updatedAt);
+            return new ParashaResponse(id, name, slug, hebrewName, book, null, null, statut, createdAt, updatedAt);
         }
     }
 }

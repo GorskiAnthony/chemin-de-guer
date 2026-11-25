@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Api, Parasha } from '../core/api';
@@ -8,7 +9,7 @@ import { Share } from './share';
 
 @Component({
   selector: 'app-parasha-page',
-  imports: [RouterLink, Share],
+  imports: [RouterLink, DatePipe, Share],
   template: `
     <div class="narrow">
       <a class="back" routerLink="/paracha">← Toutes les parashiot</a>
@@ -18,6 +19,7 @@ import { Share } from './share';
           <header>
             <p class="caption">{{ p.book }}</p>
             <h1>{{ p.name }} @if (p.hebrewName) { <span class="he" lang="he" dir="rtl">{{ p.hebrewName }}</span> }</h1>
+            <p class="dates mono">Rédigé le <time [attr.datetime]="p.createdAt">{{ p.createdAt | date: 'd MMMM y' : undefined : 'fr' }}</time>@if (changed()) { <span aria-hidden="true"> · </span>Mis à jour le <time [attr.datetime]="p.updatedAt">{{ p.updatedAt | date: 'd MMMM y' : undefined : 'fr' }}</time> }</p>
           </header>
           @if (p.intro) { <div class="intro" [innerHTML]="intro()"></div> }
 
@@ -37,6 +39,7 @@ import { Share } from './share';
   `,
   styles: `
     .back { display: inline-block; margin: 28px 0 8px; font-size: .92rem; text-decoration: none; color: var(--ink-muted); }
+    .dates { margin: 0 0 4px; }
     .aliyah { display: grid; grid-template-columns: 2.6rem 1fr; gap: 16px; margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--border); }
     .num { width: 2.6rem; height: 2.6rem; border-radius: 50%; background: var(--panel); color: var(--panel-gold);
       display: grid; place-items: center; font: 600 1rem var(--mono); }
@@ -50,6 +53,10 @@ export class ParashaPage {
   private readonly seo = inject(Seo);
   protected readonly p = signal<Parasha | null>(null);
   protected readonly notFound = signal(false);
+  protected readonly changed = computed(() => {
+    const x = this.p();
+    return !!x && new Date(x.updatedAt).getTime() - new Date(x.createdAt).getTime() > 86_400_000;
+  });
   protected readonly intro = computed(() => renderMarkdown(this.p()?.intro ?? ''));
 
   constructor() {

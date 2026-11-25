@@ -1,9 +1,9 @@
 import { DatePipe } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Seo } from '../core/seo';
 import { SITE } from '../core/site';
-import { Api, Article, CalendarData } from '../core/api';
+import { Api, Article, CalendarData, Fete, Parasha } from '../core/api';
 
 @Component({
   selector: 'app-home',
@@ -76,6 +76,39 @@ import { Api, Article, CalendarData } from '../core/api';
         } @empty { <p class="muted">Aucun article pour le moment.</p> }
       </div>
     </section>
+
+    <section class="study" aria-labelledby="study-title">
+      <div class="head"><h2 id="study-title">Mon étude</h2></div>
+      <p class="muted intro-study">Chaque résumé est daté : au fil des mois, on voit ce que j'ai appris et comment ma compréhension évolue.</p>
+      <div class="cols">
+        <div>
+          <h3>Paracha <span class="count">{{ parashot().length }} rédigée{{ parashot().length > 1 ? 's' : '' }}</span></h3>
+          <ul class="list">
+            @for (p of latestParashot(); track p.id) {
+              <li>
+                <a [routerLink]="['/paracha', p.slug]">{{ p.name }}</a>
+                @if (p.hebrewName) { <span class="he-sm" lang="he" dir="rtl">{{ p.hebrewName }}</span> }
+                <span class="mono">{{ p.createdAt | date: 'd MMM y' : undefined : 'fr' }}</span>
+              </li>
+            } @empty { <li class="muted">Mes résumés arrivent bientôt.</li> }
+          </ul>
+          <a class="more" routerLink="/paracha">Toutes les paracha →</a>
+        </div>
+        <div>
+          <h3>Fêtes <span class="count">{{ fetes().length }} rédigée{{ fetes().length > 1 ? 's' : '' }}</span></h3>
+          <ul class="list">
+            @for (f of latestFetes(); track f.id) {
+              <li>
+                <a [routerLink]="['/fetes', f.slug]">{{ f.name }}</a>
+                @if (f.hebrewName) { <span class="he-sm" lang="he" dir="rtl">{{ f.hebrewName }}</span> }
+                <span class="mono">{{ f.createdAt | date: 'd MMM y' : undefined : 'fr' }}</span>
+              </li>
+            } @empty { <li class="muted">Mes résumés arrivent bientôt.</li> }
+          </ul>
+          <a class="more" routerLink="/fetes">Toutes les fêtes →</a>
+        </div>
+      </div>
+    </section>
   `,
   styles: `
     .hero { text-align: center; padding: 44px 0 30px; }
@@ -116,6 +149,17 @@ import { Api, Article, CalendarData } from '../core/api';
     .head h2 { margin: 0; font-size: 1.7rem; }
     .head a { font-size: .92rem; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+    .study { margin-top: 56px; }
+    .intro-study { margin: -6px 0 18px; }
+    .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+    .study h3 { margin: 0 0 8px; font-size: 1.3rem; display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+    .count { font: 400 .78rem var(--mono); color: var(--ink-muted); }
+    .list { list-style: none; margin: 0 0 12px; padding: 0; }
+    .list li { display: flex; align-items: baseline; gap: 10px; padding: 9px 0; border-bottom: 1px solid var(--border); }
+    .list li > a { font: 600 1.05rem var(--serif); }
+    .list .mono { margin-inline-start: auto; white-space: nowrap; }
+    .list .he-sm { margin-inline-start: 0; }
+    .more { font-size: .92rem; }
     @media (max-width: 760px) {
       .week { grid-template-columns: 1fr; }
       .today, .parasha, .holidays { grid-column: 1; grid-row: auto; }
@@ -126,11 +170,22 @@ export class Home {
   private readonly api = inject(Api);
   protected readonly cal = signal<CalendarData | null>(null);
   protected readonly articles = signal<Article[]>([]);
+  protected readonly parashot = signal<Parasha[]>([]);
+  protected readonly fetes = signal<Fete[]>([]);
   protected readonly now = new Date();
+  /** Les résumés les plus récemment rédigés ou retravaillés. */
+  protected readonly latestParashot = computed(() => this.recent(this.parashot()));
+  protected readonly latestFetes = computed(() => this.recent(this.fetes()));
+
+  private recent<T extends { updatedAt: string }>(items: T[]): T[] {
+    return [...items].sort((a, b) => b.updatedAt.localeCompare(a.updatedAt)).slice(0, 5);
+  }
 
   constructor() {
     inject(Seo).set({ title: "Chemin de Guer · Journal d'un parcours de conversion au judaïsme", description: SITE.description, path: '/' });
     this.api.calendar().subscribe({ next: (c) => this.cal.set(c), error: () => this.cal.set(null) });
     this.api.publicArticles().subscribe({ next: (a) => this.articles.set(a.slice(0, 3)), error: () => {} });
+    this.api.publicParashot().subscribe({ next: (p) => this.parashot.set(p), error: () => {} });
+    this.api.publicFetes().subscribe({ next: (f) => this.fetes.set(f), error: () => {} });
   }
 }
